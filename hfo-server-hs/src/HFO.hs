@@ -1,7 +1,9 @@
 module HFO
   (
-    module HFO.Types
+    module HFO.Server
+  , module HFO.Agent
 --  , module Format.Converter
   ) where
 
-import HFO.Types
+import HFO.Server
+import HFO.Agent

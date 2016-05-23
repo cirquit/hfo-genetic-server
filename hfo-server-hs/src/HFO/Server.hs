@@ -1,6 +1,6 @@
 {-# LANGUAGE RecordWildCards #-}
 
-module HFO.Types where
+module HFO.Server where
 
 import System.Process
 import System.Exit     (ExitCode(..))
@@ -17,7 +17,7 @@ instance Show Team where
 data Server = Server
     { mphandle :: Maybe ProcessHandle
     , mexitc   :: Maybe ExitCode
-    , args     :: ServerArgs
+    , args     :: ServerConf
     }
 
 -- | For the following settings a negative value means unlimited
@@ -27,7 +27,7 @@ data Server = Server
 --   *) trials
 --   *) untouchedTime
 
-data ServerArgs = ServerArgs
+data ServerConf = ServerConf
     { framespertrial   :: Int  -- | after this many frames there will be a timeout and the server shuts down
     , seed             :: Int  -- | set custom seed for prng
     , showMonitor      :: Bool -- | run with a visual output
@@ -56,81 +56,81 @@ data ServerArgs = ServerArgs
 -- | Simple Interface to work with `proc` and supply it with corresponding
 --   command line arguments
 
-class ToCMD a where
+class ToFlags a where
 
-    toCmd :: a -> [String]
+    toFlags :: a -> [String]
 
 
-instance ToCMD ServerArgs where
+instance ToFlags ServerConf where
 
-    toCmd ServerArgs{..} = [ showMonitor', fpt', port', seed', frames', logdir', nonsync'
-                           , trials', noLogging', fullState', ballMaxX', ballMinX'
-                           , recordLogs', untouchedTime', offenseAgents', defenseAgents'
-                           , offenseNpcs', defenseNpcs', offenseTeam', defenseTeam'
-                           , giveBallToPlayer', messageSize']
+    toFlags ServerConf{..} = concat [showMonitor', fpt', port', seed', frames', logdir', nonsync'
+                                    , trials', noLogging', fullState', ballMaxX', ballMinX'
+                                    , recordLogs', untouchedTime', offenseAgents', defenseAgents'
+                                    , offenseNpcs', defenseNpcs', offenseTeam', defenseTeam'
+                                    , giveBallToPlayer', messageSize']
         where
 
-            showMonitor' | showMonitor = ""
-                         | otherwise   = "--headless"
+            showMonitor' | showMonitor = []
+                         | otherwise   = ["--headless"]
 
-            fpt'     = "--frames-per-trail" ++ ' ' : (show framespertrial)
+            fpt'      = ["--frames-per-trial", show framespertrial]
 
-            port'     = "--port" ++ ' ' : (show port) 
+            port'     = ["--port", show port]
 
-            seed'    = "--seed" ++ ' ' : (show seed) 
+            seed'     = ["--seed", show seed]
 
-            frames'  = "--frames" ++ ' ' : (show frames)
+            frames'   = ["--frames", show frames]
 
-            trials'  = "--trials" ++ ' ' : (show trials)
+            trials'   = ["--trials", show trials]
 
-            untouchedTime' = "--untouched-time" ++ ' ' : (show untouchedTime)
+            untouchedTime' = ["--untouched-time", show untouchedTime]
 
-            logdir'  = "--log-dir" ++ ' ' : logdir
+            logdir'  = ["--log-dir", logdir]
 
-            nonsync' | nonsync   = "--no-sync"
-                     | otherwise = ""
+            nonsync' | nonsync   = ["--no-sync"]
+                     | otherwise = []
 
-            noLogging' | noLogging = "--no-logging"
-                       | otherwise = ""
+            noLogging' | noLogging = ["--no-logging"]
+                       | otherwise = []
 
-            fullState' | fullState = "--fullstate"
-                       | otherwise = ""
+            fullState' | fullState = ["--fullstate"]
+                       | otherwise = []
 
-            ballMinX' = "--ball-x-min" ++ ' ' : (show ballMinX)
+            ballMinX' = ["--ball-x-min", show ballMinX]
 
-            ballMaxX' = "--ball-x-max" ++ ' ' : (show ballMaxX)
+            ballMaxX' = ["--ball-x-max", show ballMaxX]
 
-            recordLogs' | recordLogs = "--record"
-                        | otherwise  = ""
+            recordLogs' | recordLogs = ["--record"]
+                        | otherwise  = []
 
-            offenseAgents' | offenseAgents <= 0 = ""
-                           | otherwise          = "--offense-agents" ++ ' ' : (show offenseAgents)
+            offenseAgents' | offenseAgents <= 0 = []
+                           | otherwise          = ["--offense-agents", show offenseAgents]
 
-            defenseAgents' | defenseAgents <= 0 = ""
-                           | otherwise          = "--defense-agents" ++ ' ' : (show defenseAgents)
+            defenseAgents' | defenseAgents <= 0 = []
+                           | otherwise          = ["--defense-agents", show defenseAgents]
 
-            offenseNpcs'   | offenseNpcs <= 0 = ""
-                           | otherwise        = "--offense-npcs" ++ ' ' : (show offenseNpcs)
+            offenseNpcs'   | offenseNpcs <= 0 = []
+                           | otherwise        = ["--offense-npcs", show offenseNpcs]
 
-            defenseNpcs'   | defenseNpcs <= 0 = ""
-                           | otherwise          = "--defense-npcs" ++ ' ' : (show defenseNpcs)
+            defenseNpcs'   | defenseNpcs <= 0 = []
+                           | otherwise        = ["--defense-npcs", show defenseNpcs]
 
-            offenseTeam'   | Just team <- offenseTeam = "--offense-team" ++ ' ' : (show team)
-                           | otherwise                = ""
+            offenseTeam'   | Just team <- offenseTeam = ["--offense-team", show team]
+                           | otherwise                = []
 
-            defenseTeam'   | Just team <- defenseTeam = "--defense-team" ++ ' ' : (show team)
-                           | otherwise                = ""
+            defenseTeam'   | Just team <- defenseTeam = ["--defense-team", show team]
+                           | otherwise                = []
 
-            giveBallToPlayer' = "--offense-on-ball" ++ ' ' : (show giveBallToPlayer)
+            giveBallToPlayer' = ["--offense-on-ball", show giveBallToPlayer]
 
-            messageSize' = "--message-size" ++ ' ' : (show messageSize)
+            messageSize' = ["--message-size", show messageSize]
 
 -- | Deterministic default settings
 --   
 --   Still needs to set players
 --
-defaultServer :: ServerArgs
-defaultServer = ServerArgs
+defaultServer :: ServerConf
+defaultServer = ServerConf
     { showMonitor      = True
     , trials           = -1
     , frames           = -1
@@ -145,7 +145,7 @@ defaultServer = ServerArgs
     , nonsync          = False
     , port             = 6000
     , noLogging        = False
-    , logdir           = "/log"
+    , logdir           = "log/"
     , recordLogs       = False
     , giveBallToPlayer = 0
     , fullState        = False

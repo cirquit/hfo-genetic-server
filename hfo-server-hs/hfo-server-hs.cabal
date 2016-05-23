@@ -16,7 +16,8 @@ cabal-version:       >=1.10
 library
   hs-source-dirs:      src
   exposed-modules:     HFO
-                     , HFO.Types
+                     , HFO.Server
+                     , HFO.Agent
   build-depends:       base    >= 4.7 && < 5
                      , process >= 1.2.0.0 && < 1.5.0.0
   default-language:    Haskell2010
