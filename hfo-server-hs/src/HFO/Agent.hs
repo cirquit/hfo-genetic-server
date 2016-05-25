@@ -12,7 +12,7 @@ defaultAgent = AgentConf
     }
 
 runAgent :: AgentConf -> IO (Handle, ProcessHandle)
-runAgent conf = getInfo <$> createProcess cproc { cwd = cwd }
+runAgent conf = getInfo <$> createProcess cproc { cwd = cwd, std_err = CreatePipe }
     where
 
         cproc :: CreateProcess
@@ -21,8 +21,8 @@ runAgent conf = getInfo <$> createProcess cproc { cwd = cwd }
         args :: [String]
         args = []
 
-        getInfo :: (a, Maybe Handle, c, ProcessHandle) -> (Handle, ProcessHandle)
-        getInfo = (\(_,Just out,_,ph) -> (out, ph))
+        getInfo :: (a, b, Maybe Handle, ProcessHandle) -> (Handle, ProcessHandle)
+        getInfo = (\(_,_,Just err,ph) -> (err, ph))
 
         cwd :: Maybe FilePath
         cwd = Just "/home/rewrite/Documents/Project-Repos/HFO"

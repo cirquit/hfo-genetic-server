@@ -15,11 +15,11 @@ main = do
     let serverConf = defaultServer { offenseAgents = 1, untouchedTime = 1000 }
 
     (_, phserver) <- runServer serverConf
---    sleep 3
---    (_, phagent)  <- runAgent  defaultAgent
+    sleep 3
+    (_, phagent)  <- runAgent  defaultAgent
 
     
-    dirtyExitAfter 5
+    dirtyExitAfter 60
     printResult phserver
 
 
