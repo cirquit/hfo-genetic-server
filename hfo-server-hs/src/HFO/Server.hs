@@ -4,6 +4,7 @@ module HFO.Server where
 
 import System.Process
 import System.Exit     (ExitCode(..))
+import System.IO       (Handle(..))
 
 -- | Current implementations of teams in HFO
 --
@@ -154,3 +155,22 @@ defaultServer = ServerConf
     , ballMinX         = 0
     , ballMaxX         = 0.2
     }
+
+
+-- | 
+--   
+runServer :: ServerConf -> IO (Handle, ProcessHandle)
+runServer conf = getInfo <$> createProcess cproc { cwd = cwd, std_err = CreatePipe }
+    where
+
+        cproc :: CreateProcess
+        cproc = proc "./bin/HFO" args
+
+        args :: [String]
+        args = toFlags conf
+
+        getInfo :: (a, b, Maybe Handle, ProcessHandle) -> (Handle, ProcessHandle)
+        getInfo = (\(_,_,Just err,ph) -> (err, ph))
+
+        cwd :: Maybe FilePath
+        cwd = Just "/home/rewrite/Documents/Project-Repos/HFO"
