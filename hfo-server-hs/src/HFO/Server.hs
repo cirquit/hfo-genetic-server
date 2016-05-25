@@ -42,7 +42,7 @@ data ServerConf = ServerConf
     , defenseNpcs      :: Int  -- | number of agents to run (TODO: check bounds)
     , offenseTeam      :: Maybe Team -- | base/helios (TODO: check relations with other settings)
     , defenseTeam      :: Maybe Team -- | base/helios (TODO: check relations with other settings)
-    , nonsync          :: Bool       -- | TODO: what does this do?...
+    , standartPace     :: Bool       -- | slows the game to a more human paced steptime
     , logdir           :: FilePath   -- | log directory (TODO: create if missing)
     , noLogging        :: Bool       -- | disable logging
     , fullState        :: Bool       -- | server provides full state information
@@ -64,7 +64,7 @@ class ToFlags a where
 
 instance ToFlags ServerConf where
 
-    toFlags ServerConf{..} = concat [showMonitor', fpt', port', seed', frames', logdir', nonsync'
+    toFlags ServerConf{..} = concat [showMonitor', fpt', port', seed', frames', logdir', standartPace'
                                     , trials', noLogging', fullState', ballMaxX', ballMinX'
                                     , recordLogs', untouchedTime', offenseAgents', defenseAgents'
                                     , offenseNpcs', defenseNpcs', offenseTeam', defenseTeam'
@@ -88,8 +88,8 @@ instance ToFlags ServerConf where
 
             logdir'  = ["--log-dir", logdir]
 
-            nonsync' | nonsync   = ["--no-sync"]
-                     | otherwise = []
+            standartPace' | standartPace = ["--no-sync"]
+                          | otherwise    = []
 
             noLogging' | noLogging = ["--no-logging"]
                        | otherwise = []
@@ -143,7 +143,7 @@ defaultServer = ServerConf
     , defenseNpcs      = 0
     , offenseTeam      = Just Base
     , defenseTeam      = Just Base
-    , nonsync          = False
+    , standartPace     = False
     , port             = 6000
     , noLogging        = False
     , logdir           = "log/"

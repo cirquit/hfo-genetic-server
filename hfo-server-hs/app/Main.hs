@@ -12,25 +12,32 @@ import HFO.Agent                (AgentConf(..), defaultAgent, runAgent)
 
 main :: IO ()
 main = do
-    replicateM_ 3 startSimulation
+    replicateM_ 2 startSimulation
 
+-- | Main entry point for simulation
+--   
 startSimulation :: IO ()
 startSimulation = do
-    let serverConf = defaultServer { offenseAgents = 1, untouchedTime = 1000 }
+    let serverConf = defaultServer { offenseAgents = 1, untouchedTime = 1000, showMonitor = False, recordLogs = True }
 
     (_, phserver) <- runServer serverConf
     sleep 2
     (_, phagent)  <- runAgent  defaultAgent
 
-    exit <- waitForProcess phagent
+    aExit <- waitForProcess phagent
+    putStrLn $ "Player exited with " ++ show aExit
     dirtyExitAfter 0
+
+--    sExit <- waitForProcess phserver
+--    putStrLn $ "Server exited with " ++ show sExit
+
+
 
 
 
 -- | really dirty hack to stop the execution of HFO & friends
 -- @TODO: find a better solution (probably in System.Process) 
 --
--- @TODO: rcssserver wont terminate, it has to be killed manually
 dirtyExitAfter :: Int -> IO ()
 dirtyExitAfter i = do
     sleep i
