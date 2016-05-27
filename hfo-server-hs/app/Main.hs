@@ -18,7 +18,11 @@ main = do
 --   
 startSimulation :: IO ()
 startSimulation = do
-    let serverConf = defaultServer { offenseAgents = 1, untouchedTime = 1000, showMonitor = False, recordLogs = True }
+    let serverConf = defaultServer { offenseAgents = 1
+                                   , untouchedTime = 1000
+--                                   , showMonitor   = False
+                                   , recordLogs    = True
+                                   , standartPace  = True }
 
     (_, phserver) <- runServer serverConf
     sleep 2
@@ -27,13 +31,6 @@ startSimulation = do
     aExit <- waitForProcess phagent
     putStrLn $ "Player exited with " ++ show aExit
     dirtyExitAfter 0
-
---    sExit <- waitForProcess phserver
---    putStrLn $ "Server exited with " ++ show sExit
-
-
-
-
 
 -- | really dirty hack to stop the execution of HFO & friends
 -- @TODO: find a better solution (probably in System.Process) 
