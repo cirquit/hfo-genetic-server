@@ -2,6 +2,8 @@ module HFO.Agent where
 
 import System.IO                (Handle(..))
 import System.Process
+import Control.Concurrent       (threadDelay)
+
 
 data AgentConf = AgentConf
     { agentPort :: Int }
@@ -12,7 +14,7 @@ defaultAgent = AgentConf
     }
 
 runAgent :: AgentConf -> IO (Handle, ProcessHandle)
-runAgent conf = getInfo <$> createProcess cproc { cwd = cwd, std_err = CreatePipe }
+runAgent conf = sleep 1 >> getInfo <$> createProcess cproc { cwd = cwd, std_err = CreatePipe }
     where
 
         cproc :: CreateProcess
@@ -26,3 +28,10 @@ runAgent conf = getInfo <$> createProcess cproc { cwd = cwd, std_err = CreatePip
 
         cwd :: Maybe FilePath
         cwd = Just "/home/rewrite/Documents/Project-Repos/HFO"
+
+
+
+-- | delay execution for i seconds
+--
+sleep :: Int -> IO ()
+sleep i = threadDelay (i * 10^6)

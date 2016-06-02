@@ -8,11 +8,6 @@ import System.Random
 --
 class Mutation a where
 
+-- | How to mutate a single individual
     mutateI :: MonadRandom r => a -> r a
 
-    mutate :: MonadRandom r => [a] -> r [a]
-    mutate = mapM mutateI
-
-    mutationProb :: Fractional a => a
-
---    mutation

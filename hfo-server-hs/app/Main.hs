@@ -4,7 +4,6 @@ import System.IO
 import System.Exit              (exitSuccess)
 import System.Process  
 import Control.Monad
-import Control.Concurrent       (threadDelay)
 import Control.Concurrent.MVar
 import HFO.Server               (ServerConf(..), defaultServer, ToFlags(..), runServer)
 import HFO.Agent                (AgentConf(..), defaultAgent, runAgent)
@@ -18,34 +17,33 @@ main = do
 --   
 startSimulation :: IO ()
 startSimulation = do
-    let serverConf = defaultServer { offenseAgents = 1
+    let serverConf = defaultServer { defenseAgents = 2
+                                   --, defenseAgents = 1
                                    , untouchedTime = 1000
 --                                   , showMonitor   = False
-                                   , recordLogs    = True
+--                                   , recordLogs    = True
                                    , standartPace  = True }
 
     (_, phserver) <- runServer serverConf
-    sleep 2
     (_, phagent)  <- runAgent  defaultAgent
+    (_, phagent2) <- runAgent  defaultAgent
 
     aExit <- waitForProcess phagent
-    putStrLn $ "Player exited with " ++ show aExit
-    dirtyExitAfter 0
+    putStrLn $ " || hfo-genetic-server: Player exited with " ++ show aExit
+    dirtyExit
 
--- | really dirty hack to stop the execution of HFO & friends
--- @TODO: find a better solution (probably in System.Process) 
+
+
+
+-- | stops the execution of HFO & friends
+--  
+--  System.Process.terminateProcess can not be used because HFO itself spawns processes that somehow
+--  are not grouped together. There are no ProcessHandles for those and we have to resort to an ugly solution (for now)
 --
-dirtyExitAfter :: Int -> IO ()
-dirtyExitAfter i = do
-    sleep i
+dirtyExit :: IO ()
+dirtyExit = do
     _ <- rawSystem "killall" ["-9", "rcssserver"]
     _ <- rawSystem "killall" ["-9", "soccerwindow2"]
     _ <- rawSystem "killall" ["-9", "python"]
     _ <- rawSystem "killall" ["-9", "sample_player"]
     return ()
-
-
--- | delay execution for i seconds
---
-sleep :: Int -> IO ()
-sleep i = threadDelay (i * 10^6)
