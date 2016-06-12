@@ -6,49 +6,47 @@ import System.Process
 import Control.Monad
 import Control.Concurrent
 
-
-import HFO.Server               (ServerConf(..), defaultServer, runServer_)
-import HFO.Agent                (AgentConf(..), defaultAgent, runAgent)
+import HFO.Server               (ServerConf(..), defaultServer, runServer_, runServer)
+import HFO.Agent                (AgentConf(..), defaultAgent, runAgent, defaultOffense, defaultDefense)
 import HFO.Parser               (getResults, cleanLog)
--- import System.TimeIt
 
 main :: IO ()
 main = do
     cleanLog
-    replicateM_ 2 startSimulation
+    replicateM_ 1 startSimulation
 
 -- | Main entry point for simulation
 --   
 startSimulation :: IO ()
 startSimulation = do
 
-    let serverConf = defaultServer { offenseAgents = 3
-                                   , defenseAgents = 4      -- minimum is 1 for the goalie
+    let serverConf = defaultServer { offenseAgents = 2
+                                   , defenseAgents = 3      -- minimum is 1 for the goalie
                                    , untouchedTime = 1000
-                                   , trials        = 1
+                                   , trials        = 3
 --                                   , showMonitor   = False
 --                                   , recordLogs    = True
                                    , standartPace  = True
                                    , giveBallToPlayer = 1 }
 
-    let agentConf  = defaultAgent { episodes = trials serverConf
-                                  }
+    let agentConf   = defaultAgent { episodes = trials serverConf    }
+        offenseConf = agentConf    { actions  = Left  defaultOffense , teamName = "base_left"  }
+        defenseConf = agentConf    { actions  = Right defaultDefense , teamName = "base_right" }
 
 --  Start the server
     runServer_ serverConf
 
 --  Start the offensive agents
-    replicateM_ (offenseAgents serverConf) $ runAgent agentConf { teamName = "base_left" }
+    replicateM_ (offenseAgents serverConf) $ runAgent offenseConf
 
 --  Start the goalie (somehow hardcoded in HFO binary)
-    (_, phagent) <- runAgent $ defaultAgent { teamName = "base_right", isGoalie = True }
+    (_, phagent) <- runAgent $ defenseConf { isGoalie = True }
 
 --  Start the defensive agents (minus the goalie)
-    replicateM_ (defenseAgents serverConf - 1) $ runAgent agentConf { teamName = "base_right" }
+    replicateM_ (defenseAgents serverConf - 1) $ runAgent defenseConf
 
     aExit <- waitForProcess phagent
--- putStrLn $ " || hfo-genetic-server: Player exited with " ++ show aExit
-
+--    threadDelay $ 2 * 10^6
     dirtyExit
     getResults >>= mapM_ print
 
