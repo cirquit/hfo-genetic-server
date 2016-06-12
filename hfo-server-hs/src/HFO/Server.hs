@@ -6,6 +6,8 @@ import System.Process
 import System.Exit     (ExitCode(..))
 import System.IO       (Handle(..))
 
+import HFO.ToFlags     (ToFlags(..))
+
 -- | Current implementations of teams in HFO
 --
 data Team = Base | Helios
@@ -15,12 +17,6 @@ instance Show Team where
     show Helios = "helios"
     show Base   = "base"
 
-data Server = Server
-    { mphandle :: Maybe ProcessHandle
-    , mexitc   :: Maybe ExitCode
-    , args     :: ServerConf
-    }
-
 -- | For the following settings a negative value means unlimited
 --
 --   *) framesPerTrail
@@ -29,17 +25,17 @@ data Server = Server
 --   *) untouchedTime
 
 data ServerConf = ServerConf
-    { framespertrial   :: Int  -- | after this many frames there will be a timeout and the server shuts down
-    , seed             :: Int  -- | set custom seed for prng
-    , showMonitor      :: Bool -- | run with a visual output
-    , port             :: Int  -- | server communicates through this port
-    , untouchedTime    :: Int  -- | end trail if ball untouched
-    , trials           :: Int  -- | number of trials to run
-    , frames           :: Int  -- | number of frames to run for
-    , offenseAgents    :: Int  -- | number of agents to run (TODO: check bounds)
-    , defenseAgents    :: Int  -- | number of agents to run (TODO: check bounds)
-    , offenseNpcs      :: Int  -- | number of agents to run (TODO: check bounds)
-    , defenseNpcs      :: Int  -- | number of agents to run (TODO: check bounds)
+    { framespertrial   :: Int        -- | after this many frames there will be a timeout and the server shuts down
+    , seed             :: Int        -- | set custom seed for prng
+    , showMonitor      :: Bool       -- | run with a visual output
+    , port             :: Int        -- | server communicates through this port
+    , untouchedTime    :: Int        -- | end trail if ball untouched
+    , trials           :: Int        -- | number of trials to run
+    , frames           :: Int        -- | number of frames to run for
+    , offenseAgents    :: Int        -- | number of agents to run (TODO: check bounds)
+    , defenseAgents    :: Int        -- | number of agents to run (TODO: check bounds)
+    , offenseNpcs      :: Int        -- | number of agents to run (TODO: check bounds)
+    , defenseNpcs      :: Int        -- | number of agents to run (TODO: check bounds)
     , offenseTeam      :: Maybe Team -- | base/helios (TODO: check relations with other settings)
     , defenseTeam      :: Maybe Team -- | base/helios (TODO: check relations with other settings)
     , standartPace     :: Bool       -- | slows the game to a more human paced steptime
@@ -53,18 +49,10 @@ data ServerConf = ServerConf
     , giveBallToPlayer :: Int        -- | (index-based?), if negative, nobody gets it. of greater than number of offense players -> random
     }
 
-
--- | Simple Interface to work with `proc` and supply it with corresponding
---   command line arguments
-
-class ToFlags a where
-
-    toFlags :: a -> [String]
-
-
 instance ToFlags ServerConf where
 
-    toFlags ServerConf{..} = concat [showMonitor', fpt', port', seed', frames', logdir', standartPace'
+    toFlags ServerConf{..} = concat $
+                                    [ showMonitor', fpt', port', seed', frames', logdir', standartPace'
                                     , trials', noLogging', fullState', ballMaxX', ballMinX'
                                     , recordLogs', untouchedTime', offenseAgents', defenseAgents'
                                     , offenseNpcs', defenseNpcs', offenseTeam', defenseTeam'
@@ -157,20 +145,25 @@ defaultServer = ServerConf
     }
 
 
--- | 
+-- | run server binary with the specified config
 --   
-runServer :: ServerConf -> IO (Handle, ProcessHandle)
-runServer conf = getInfo <$> createProcess cproc { cwd = cwd, std_err = CreatePipe }
+runServer :: ServerConf -> IO ProcessHandle
+runServer conf = getInfo <$> createProcess cproc { cwd = cwd } -- , std_err = CreatePipe }
     where
 
         cproc :: CreateProcess
         cproc = proc "./bin/HFO" args
 
         args :: [String]
-        args = toFlags conf
+        args = toFlags_ conf
 
-        getInfo :: (a, b, Maybe Handle, ProcessHandle) -> (Handle, ProcessHandle)
-        getInfo = (\(_,_,Just err,ph) -> (err, ph))
+        getInfo :: (a, b, Maybe Handle, ProcessHandle) -> ProcessHandle
+        getInfo = (\(_,_,_,ph) -> ph)
 
         cwd :: Maybe FilePath
         cwd = Just "/home/rewrite/Documents/Project-Repos/HFO"
+
+-- | runServer without Handle/ProcessHandle
+--
+runServer_ :: ServerConf -> IO ()
+runServer_ conf = runServer conf >> return ()
