@@ -6,6 +6,8 @@ import System.IO                (Handle(..))
 import System.Process
 import Control.Concurrent       (threadDelay)
 import Debug.Trace              (trace)
+import Data.Foldable
+
 
 import HFO.ToFlags              (ToFlags(..))
 
@@ -41,11 +43,21 @@ defaultOffense = Offense { offActionDist     = [(Move,  50), (Intercept, 20), (C
                          , offBallActionDist = [(Shoot, 50), (Dribble,   50)]
                          }
 
+-- data Team = OffenseTeam { op1 :: Offense, op2 :: Offense, op3 :: Offense }
+--           | DefenseTeam { dp1 :: Defense, dp2 :: Defense, dp3 :: Defense, goalie :: Defense }
+-- 
+-- instance Foldable Team where
+--     
+--     foldr f acc (OffenseTeam op1 op2 op3)        = foldr f acc [op1, op2, op3]
+-- 
+--     foldr f acc (DefenseTeam dp1 dp2 dp3 goalie) = foldr f acc [goalie, op1, op2, op3]
+
+
 data AgentConf = AgentConf
     { teamName   :: String -- this is currently 'base_left' (offense) and 'base_right' (defense) only
     , isGoalie   :: Bool
     , episodes   :: Int    -- how many episodes are played
-    , aseed       :: Int    -- seed for the rng in python
+    , aseed      :: Int    -- seed for the rng in python
     , actions    :: Either Offense Defense
     }
 
