@@ -8,7 +8,7 @@ import sys
 
 from hfo import *
 
-from common import statusToString, actionToString
+from common      import statusToString, actionToString
 from agentaction import getAction
 
 # command line parser for the configurations + genome encoding (TODO)
@@ -17,9 +17,9 @@ def runParser():
 
     parser = argparse.ArgumentParser();
     parser.add_argument("--team",       dest = "team");
-    parser.add_argument("--episodes",   dest = "episodes", type=int);
-    parser.add_argument("--goalie",     dest = 'isGoalie', action = "store_true", default = False)
-    parser.add_argument("--seed ",      dest = "seed",     type=int);
+    parser.add_argument("--episodes",   dest = "episodes",        type=int);
+    parser.add_argument("--goalie",     dest = 'isGoalie',        action = "store_true",   default = False)
+    parser.add_argument("--seed ",      dest = "seed",            type=int);
     parser.add_argument("--offactions", dest = "offense_actions", type = int, nargs = "+", default = [])
     parser.add_argument("--defactions", dest = "defense_actions", type = int, nargs = "+", default = [])
 

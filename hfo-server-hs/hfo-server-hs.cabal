@@ -17,7 +17,10 @@ library
   hs-source-dirs:      src
   exposed-modules:     HFO
                      , HFO.Server
+                     , HFO.Server.Conf
                      , HFO.Agent
+                     , HFO.Agent.Data
+                     , HFO.Agent.Conf
                      , HFO.ToFlags
                      , HFO.Parser
                      , Genetic

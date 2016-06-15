@@ -36,7 +36,7 @@ cleanLog = withFile logpath WriteMode doNothing
 
 
 getResults :: IO [Maybe HFOStates]
-getResults = map toMState . lines <$>readFile logpath
+getResults = map toMState . lines <$> readFile logpath
     where
 
         toMState :: String -> Maybe HFOStates
@@ -47,7 +47,3 @@ getResults = map toMState . lines <$>readFile logpath
         toMState "OUT_OF_TIME"          = Just OutOfTime
         toMState "SERVER_DOWN"          = Just ServerDown
         toMState _                      = Nothing
-
-
-
-

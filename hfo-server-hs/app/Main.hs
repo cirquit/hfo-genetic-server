@@ -1,3 +1,5 @@
+{-# LANGUAGE RecordWildCards #-}
+
 module Main where
 
 import System.IO
@@ -10,24 +12,28 @@ import Control.Concurrent
 
 import HFO.Server               (ServerConf(..), defaultServer, runServer_, runServer)
 import HFO.Agent                (AgentConf(..), defaultAgent, runAgent, defaultOffense, defaultDefense)
+import HFO.Agent.Data           (DefenseTeam(..), OffenseTeam(..), defaultDefenseTeam, defaultOffenseTeam)
 import HFO.Parser               (getResults, cleanLog, HFOStates(..))
 
-
+-- | Tweak your startup configuration here
+--
+--   Half-Field Offense server binary configuration (see HFO.Server.Conf)
 serverConf :: ServerConf
-serverConf = defaultServer { offenseAgents = 3
+serverConf = defaultServer { offenseAgents = 4
                            , defenseAgents = 4      -- minimum is 1 for the goalie
-                           , untouchedTime = 500
+                           , untouchedTime = 100
                            , trials        = 2
 --                           , showMonitor   = False
---                           , recordLogs    = True
                            , standartPace  = True
                            , giveBallToPlayer = 1 }
-
+--
+--  Python agent script configuration (see HFO.Agent.Conf)
 agentConf :: AgentConf
 agentConf = defaultAgent { episodes = trials serverConf }
 
 
-
+-- | Main entry point
+--
 main :: IO ()
 main = do
 
@@ -45,12 +51,13 @@ main = do
 runGA :: IO ()
 runGA = do
     cleanLog
-    replicateM_ 1 startSimulation
+    res <- replicateM 1 $ startSimulation defaultDefenseTeam defaultOffenseTeam
+    mapM_ print res
 
 -- | Main entry point for simulation
 --   
-startSimulation :: IO [Maybe HFOStates]
-startSimulation = do
+startSimulation :: DefenseTeam -> OffenseTeam -> IO [Maybe HFOStates]
+startSimulation DefenseTeam{..} OffenseTeam{..} = do
 
     let agentConf   = defaultAgent { episodes = trials serverConf }
         offenseConf = agentConf    { actions  = Left  defaultOffense , teamName = "base_left"  }
@@ -67,6 +74,7 @@ startSimulation = do
 
 --  Start the defensive agents (minus the goalie)
     replicateM_ (defenseAgents serverConf - 1) $ runAgent defenseConf
+
 
     aExit <- waitForProcess phagent
     dirtyExit
