@@ -7,12 +7,14 @@ import System.Exit              (exitSuccess)
 import System.Process
 import System.Random
 import Control.Monad.Random
+import Control.Monad.Random.Class
 import Control.Monad
 import Control.Concurrent
+import Data.List                (sort)
 
 import HFO.Server               (ServerConf(..), defaultServer, runServer_, runServer)
-import HFO.Agent                (AgentConf(..), defaultAgent, runAgent, defaultOffense, defaultDefense)
-import HFO.Agent.Data           (DefenseTeam(..), OffenseTeam(..), defaultDefenseTeam, defaultOffenseTeam)
+import HFO.Agent                (AgentConf(..), defaultAgent, runAgent, defaultOffense, defaultDefense
+                                ,DefenseTeam(..), OffenseTeam(..), defaultDefenseTeam, defaultOffenseTeam)
 import HFO.Parser               (getResults, cleanLog, HFOStates(..))
 
 -- | Tweak your startup configuration here
@@ -22,10 +24,10 @@ serverConf :: ServerConf
 serverConf = defaultServer { offenseAgents = 4
                            , defenseAgents = 4      -- minimum is 1 for the goalie
                            , untouchedTime = 100
-                           , trials        = 2
+                           , trials        = 5
 --                           , showMonitor   = False
                            , standartPace  = True
-                           , giveBallToPlayer = 1 }
+                           , giveBallToPlayer = 9 }
 --
 --  Python agent script configuration (see HFO.Agent.Conf)
 agentConf :: AgentConf
@@ -46,10 +48,10 @@ main = do
 --        offPopulation :: [Offense]
 --        offPopulation = flip evalRand g $ genIndividuals popsizeOffense
 
-    runGA 
+    runGA [] []
 
-runGA :: IO ()
-runGA = do
+runGA :: [DefenseTeam] -> [OffenseTeam] -> IO ()
+runGA offense defense = do
     cleanLog
     res <- replicateM 1 $ startSimulation defaultDefenseTeam defaultOffenseTeam
     mapM_ print res
@@ -93,3 +95,17 @@ dirtyExit = do
     _ <- rawSystem "killall" ["-9", "python"]
     _ <- rawSystem "killall" ["-9", "sample_player"]
     return ()
+
+
+g0 = mkStdGen 123123999
+g1 = mkStdGen 123123123
+g2 = mkStdGen 123123234
+g3 = mkStdGen 123123345
+g4 = mkStdGen 123123456
+g5 = mkStdGen 123123567
+g6 = mkStdGen 123123678
+g7 = mkStdGen 123123789
+g8 = mkStdGen 123123890
+g9 = mkStdGen 123123901
+
+runRandom f = map (evalRand f) [g0, g1, g2, g3, g4, g5, g6, g7, g8, g9]

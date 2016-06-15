@@ -4,6 +4,10 @@ import Control.Monad.Random
 import System.Random
 import Control.Monad
 
+import Data.List (sort)
+
+import HFO.Agent
+
 -- | This defines the basic representation of an individual
 --
 class Allele a where
@@ -16,4 +20,83 @@ class Allele a where
 -- 
     genIndividuals :: (MonadRandom r) => Int -> r [a]
     genIndividuals n = replicateM n genIndividual
+
+
+-- | Generate a single Offense individual
+--
+-- n = length [minBound .. maxBound] :: [Action]
+-- m = length [minBound .. maxBound] :: [BallAction]
+--
+--                (uniform Dist)      (zip)
+-- Performance: O(n * log n) + O(n) + O(n)
+--            + O(m * log m) + O(m) + O(m)
+--
+instance Allele Offense where
+
+--  genIndividual :: MonadRandom r => r a
+    genIndividual = do
+        let actions         = [minBound .. maxBound] :: [Action]
+            ballActions     = [minBound .. maxBound] :: [BallAction]
+
+            actionsLen      = 1 + fromEnum (maxBound :: Action)
+            ballActionsLen  = 1 + fromEnum (maxBound :: BallAction)
+
+            actionsDist     = zip actions     <$> genUniformDistribution actionsLen
+            ballActionsDist = zip ballActions <$> genUniformDistribution ballActionsLen
+
+        Offense <$> actionsDist <*> ballActionsDist
+
+-- | Generate a single Defense individual
+--
+-- n = length [minBound .. maxBound] :: [Action]
+--
+--                (uniform Dist)      (zip)
+-- Performance: O(n * log n) + O(n) + O(n)
+--
+instance Allele Defense where
+
+--  genIndividual :: MonadRandom r => r a
+    genIndividual = do
+        let actions         = [minBound .. maxBound] :: [Action]
+            actionsLen      = 1 + fromEnum (maxBound :: Action)
+            actionsDist     = zip actions <$> genUniformDistribution actionsLen
+
+        Defense <$> actionsDist
+
+-- | Generate a whole 'Offense team' - individual
+--
+-- Performance: 4 * (genIndividual :: Offense)
+--
+instance Allele OffenseTeam where
+
+--  genIndividual :: MonadRandom r => r a
+    genIndividual = OffenseTeam <$> genIndividual <*> genIndividual <*> genIndividual <*> genIndividual
+
+-- | Generate a whole 'Defense team' - individual
+--
+-- Performance: 4 * (genIndividual :: Offense)
+--
+instance Allele DefenseTeam where
+
+--  genIndividual :: MonadRandom r => r a
+    genIndividual = DefenseTeam <$> genIndividual <*> genIndividual <*> genIndividual <*> genIndividual
+
+
+
+-- | creates a uniform distribution for 'n' Elements 
+--
+--                 (sort)   (zipWith)
+-- Performance: O(n * log n) + O(n)
+--
+-- λ> let g = mkStdGen 123123
+-- λ> flip evalRand g $ genUniformDistribution 5
+-- [30,6,13,22,29]
+-- λ> sum it
+-- 100
+--
+-- TODO: Write tests
+genUniformDistribution :: MonadRandom r => Int -> r [Int]
+genUniformDistribution n = do
+    rs <- sort . (0:) . (100:) . take (n-1) <$> getRandomRs (0,100)
+    return $ zipWith (-) (tail rs) rs
 
