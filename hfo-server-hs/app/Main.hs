@@ -15,7 +15,7 @@ import Data.List                (sort)
 import HFO.Server               (ServerConf(..), defaultServer, runServer_, runServer)
 import HFO.Agent                (AgentConf(..), defaultAgent, runAgent, defaultOffense, defaultDefense
                                 ,DefenseTeam(..), OffenseTeam(..), defaultDefenseTeam, defaultOffenseTeam)
-import HFO.Parser               (getResults, cleanLog, HFOStates(..))
+import HFO.Parser               (getResults, cleanLog, HFOState(..))
 
 -- | Tweak your startup configuration here
 --
@@ -24,7 +24,7 @@ serverConf :: ServerConf
 serverConf = defaultServer { offenseAgents = 4
                            , defenseAgents = 4      -- minimum is 1 for the goalie
                            , untouchedTime = 100
-                           , trials        = 5
+                           , trials        = 2
 --                           , showMonitor   = False
                            , standartPace  = True
                            , giveBallToPlayer = 9 }
@@ -58,7 +58,7 @@ runGA offense defense = do
 
 -- | Main entry point for simulation
 --   
-startSimulation :: DefenseTeam -> OffenseTeam -> IO [Maybe HFOStates]
+startSimulation :: DefenseTeam -> OffenseTeam -> IO [Maybe HFOState]
 startSimulation DefenseTeam{..} OffenseTeam{..} = do
 
     let agentConf   = defaultAgent { episodes = trials serverConf }

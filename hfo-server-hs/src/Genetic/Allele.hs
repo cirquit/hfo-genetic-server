@@ -41,8 +41,8 @@ instance Allele Offense where
             actionsLen      = 1 + fromEnum (maxBound :: Action)
             ballActionsLen  = 1 + fromEnum (maxBound :: BallAction)
 
-            actionsDist     = zip actions     <$> genUniformDistribution actionsLen
-            ballActionsDist = zip ballActions <$> genUniformDistribution ballActionsLen
+            actionsDist     = uncurry ((,) . zip actions)     <$> genUniformDistributionGen actionsLen
+            ballActionsDist = uncurry ((,) . zip ballActions) <$> genUniformDistributionGen ballActionsLen
 
         Offense <$> actionsDist <*> ballActionsDist
 
@@ -59,7 +59,7 @@ instance Allele Defense where
     genIndividual = do
         let actions         = [minBound .. maxBound] :: [Action]
             actionsLen      = 1 + fromEnum (maxBound :: Action)
-            actionsDist     = zip actions <$> genUniformDistribution actionsLen
+            actionsDist     = uncurry ((,) . zip actions)      <$> genUniformDistributionGen actionsLen
 
         Defense <$> actionsDist
 
@@ -69,8 +69,8 @@ instance Allele Defense where
 --
 instance Allele OffenseTeam where
 
---  genIndividual :: MonadRandom r => r a
-    genIndividual = OffenseTeam <$> genIndividual <*> genIndividual <*> genIndividual <*> genIndividual
+--  genIndividual :: MonadRandom r => r OffenseTeam
+    genIndividual = OffenseTeam <$> genIndividual <*> genIndividual <*> genIndividual <*> genIndividual <*> pure (0, [])
 
 -- | Generate a whole 'Defense team' - individual
 --
@@ -78,8 +78,8 @@ instance Allele OffenseTeam where
 --
 instance Allele DefenseTeam where
 
---  genIndividual :: MonadRandom r => r a
-    genIndividual = DefenseTeam <$> genIndividual <*> genIndividual <*> genIndividual <*> genIndividual
+--  genIndividual :: MonadRandom r => DefenseTeam
+    genIndividual = DefenseTeam <$> genIndividual <*> genIndividual <*> genIndividual <*> genIndividual <*> pure (0, [])
 
 
 
@@ -96,7 +96,32 @@ instance Allele DefenseTeam where
 --
 -- TODO: Write tests
 genUniformDistribution :: MonadRandom r => Int -> r [Int]
-genUniformDistribution n = do
-    rs <- sort . (0:) . (100:) . take (n-1) <$> getRandomRs (0,100)
-    return $ zipWith (-) (tail rs) rs
+genUniformDistribution n = fst <$> genUniformDistributionGen n
 
+-- | returns the uniform distribution with the generator list (needed for mutation)
+--
+--   the following should always hold
+--
+--   (xs, ys) <- genUniformDistributionGen n
+--
+--   *) length xs == (length ys) - 1
+--
+--   *) head ys == 0
+--   *) last ys == 100
+--
+-- 
+genUniformDistributionGen :: MonadRandom r => Int -> r ([Int], [Int])
+genUniformDistributionGen n = do
+    rs <- sort . (0:) . (100:) . take (n-1) <$> getRandomRs (0,100)
+    return $ (generateDistributionFrom rs, rs)
+
+-- | uses the generator list to create the uniform distribution
+--
+--   the following should always hold:
+--  
+--   let res = generateDistributionFrom xs
+--
+--   *)  length xs = (length res) + 1
+--
+generateDistributionFrom :: [Int] -> [Int]
+generateDistributionFrom rs = zipWith (-) (tail rs) rs

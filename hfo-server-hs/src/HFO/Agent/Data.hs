@@ -1,5 +1,7 @@
 module HFO.Agent.Data where
 
+import HFO.Parser (HFOState(..))
+
 -- | All possible actions for an agent WITHOUT the possession of the ball
 --
 data Action  = Move           -- high level move based on strategy (whatever this might be - TODO)
@@ -26,42 +28,65 @@ data BallAction  = Shoot                -- shoot in (possibly in looking directi
 --
 --   The following should always be True:
 --
---      1) foldr ((+) . snd) 0 defActionsDist == 100
-
-data Defense = Defense { defActionDist :: [(Action, Int)] }
+--      1) foldr ((+) . snd) 0 (fst . defActionsDist) == 100
+--
+--   The second part of the tuple is the generator list for the distribution (created via Genetic.Allele.uniformDistributionGen)
+--   This is needed for a semi-random mutation
+--
+-- TODO: write tests
+data Defense = Defense { defActionDist :: ([(Action, Int)], [Int]) }
     deriving Show
 
 -- | Wrapper for offense action distribution
 --
 --   The following should always be True:
 --
---       1) foldr ((+) . snd) 0 offActionsDist     == 100
---       2) foldr ((+) . snd) 0 offBallActionsDist == 100
+--       1) foldr ((+) . snd) 0 (fst . offActionsDist)     == 100
+--       2) foldr ((+) . snd) 0 (fst . offBallActionsDist) == 100
 --
-data Offense = Offense { offActionDist :: [(Action, Int)], offBallActionDist :: [(BallAction, Int)] }
+--   The second part of the tuple is the generator list for the distribution (created via Genetic.Allele.uniformDistributionGen)
+--   This is needed for a semi-random mutation
+--
+-- TODO: write tests
+data Offense = Offense { offActionDist :: ([(Action, Int)], [Int]), offBallActionDist :: ([(BallAction, Int)], [Int]) }
     deriving Show
 
 -- | Wrapper for Teams
 --
 --   The Half-Field Offense Task defines 4 offensive and 3 defensive players + goalie
 --
---   These are the main genomes that will be
-data OffenseTeam = OffenseTeam { op1 :: Offense, op2 :: Offense, op3 :: Offense, op4    :: Offense }
+--  *) The fitness is evaluated once in Selection
+--
+--              already       new states from
+--              calculated      simulation
+--                  |              |
+--                (Int, [Maybe HFOState])
+--
+data OffenseTeam = OffenseTeam { op1        :: Offense
+                               , op2        :: Offense
+                               , op3        :: Offense
+                               , op4        :: Offense
+                               , offFitness :: (Int, [Maybe HFOState])
+                               }
     deriving Show
 
-data DefenseTeam = DefenseTeam { goalie :: Defense, dp2 :: Defense, dp3 :: Defense, dp4 :: Defense }
+data DefenseTeam = DefenseTeam { goalie     :: Defense
+                               , dp2        :: Defense
+                               , dp3        :: Defense
+                               , dp4        :: Defense
+                               , defFitness :: (Int, [Maybe HFOState])}
     deriving Show
 
 -- | Defaults
 --
 -- (testing purposes only)
 defaultDefense :: Defense
-defaultDefense = Defense { defActionDist = [(Move, 50), (Intercept, 20), (Catch, 15), (NoOp, 15)]}
+defaultDefense = Defense { defActionDist = ([(Move, 50), (Intercept, 20), (Catch, 15), (NoOp, 15)], [0, 50, 70, 85, 100]) }
 
 -- (testing purposes only)
 defaultOffense :: Offense
-defaultOffense = Offense { offActionDist     = [(Move,  50), (Intercept, 20), (Catch, 15), (NoOp, 15)]
-                         , offBallActionDist = [(Shoot, 50), (Dribble,   50)]
+defaultOffense = Offense { offActionDist     = ([(Move,  50), (Intercept, 20), (Catch, 15), (NoOp, 15)], [0, 50, 70, 85, 100])
+                         , offBallActionDist = ([(Shoot, 50), (Dribble,   50)],                          [0, 50, 100])
                          }
 
 -- (testing purposes only)
@@ -70,6 +95,7 @@ defaultDefenseTeam  = DefenseTeam { goalie = defaultDefense
                                   , dp2    = defaultDefense
                                   , dp3    = defaultDefense
                                   , dp4    = defaultDefense
+                                  , defFitness = (0, [])
                                   }
 
 -- (testing purposes only)
@@ -78,4 +104,5 @@ defaultOffenseTeam = OffenseTeam { op1 = defaultOffense
                                  , op2 = defaultOffense
                                  , op3 = defaultOffense
                                  , op4 = defaultOffense
+                                 , offFitness = (0, [])
                                  }

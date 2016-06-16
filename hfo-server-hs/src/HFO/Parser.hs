@@ -4,14 +4,14 @@ import System.Directory
 import System.IO
 
 
-data HFOStates = Ingame
-               | Goal
-               | CapturedByDefense
-               | OutOfBounds
-               | OutOfTime
-               | ServerDown
+data HFOState = Ingame
+              | Goal
+              | CapturedByDefense
+              | OutOfBounds
+              | OutOfTime
+              | ServerDown
 
-instance Show HFOStates where
+instance Show HFOState where
 
     show Ingame            = "IN_GAME"
 
@@ -35,11 +35,11 @@ cleanLog = withFile logpath WriteMode doNothing
     where doNothing = \_ -> return ()
 
 
-getResults :: IO [Maybe HFOStates]
+getResults :: IO [Maybe HFOState]
 getResults = map toMState . lines <$> readFile logpath
     where
 
-        toMState :: String -> Maybe HFOStates
+        toMState :: String -> Maybe HFOState
         toMState "IN_GAME"              = Just Ingame
         toMState "GOAL"                 = Just Goal
         toMState "CAPTURED_BY_DEFENSE"  = Just CapturedByDefense

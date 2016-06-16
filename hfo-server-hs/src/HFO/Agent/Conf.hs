@@ -39,8 +39,8 @@ instance ToFlags AgentConf where
 
             actions' =
                 case actions of
-                    Left  (Offense actions ballActions) -> ["--offactions"] ++ map (show . snd) actions ++ map (show . snd) ballActions
-                    Right (Defense actions            ) -> ["--defactions"] ++ map (show . snd) actions
+                    Left  (Offense actions ballActions) -> ["--offactions"] ++ map (show . snd) (fst actions) ++ map (show . snd) (fst ballActions)
+                    Right (Defense actions            ) -> ["--defactions"] ++ map (show . snd) (fst actions)
 
             seed' = ["--seed", show aseed]
 

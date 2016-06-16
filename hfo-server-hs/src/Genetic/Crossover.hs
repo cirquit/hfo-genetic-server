@@ -11,7 +11,7 @@ import Genetic.Selection
 --
 class Selection a => Crossover a where
 
--- | Basic combination for two indivduals (default: uniformly distributed)
+-- | Basic combination for two individuals (default: uniformly distributed)
 --
     crossover :: MonadRandom r => a -> a -> r (a,a)
     crossover = uniformCO
@@ -26,9 +26,5 @@ class Selection a => Crossover a where
     nPointCO :: (MonadRandom r, Integral i) => i -> a -> a -> r (a,a)
 
 
--- @TODO think about a nice representation where we can group individuals of the same type and combine them in a not
---       monomorphic list
---
--- class (Crossover a, Traversable t) => Evolution (t a) where
---
---    evolve :: t a -> t a
+
+
