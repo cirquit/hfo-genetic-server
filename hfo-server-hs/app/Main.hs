@@ -128,17 +128,3 @@ dirtyExit = do
     _ <- rawSystem "killall" ["-9", "python"]
     _ <- rawSystem "killall" ["-9", "sample_player"]
     return ()
-
-
-g0 = mkStdGen 123123999
-g1 = mkStdGen 123123123
-g2 = mkStdGen 123123234
-g3 = mkStdGen 123123345
-g4 = mkStdGen 123123456
-g5 = mkStdGen 123123567
-g6 = mkStdGen 123123678
-g7 = mkStdGen 123123789
-g8 = mkStdGen 123123890
-g9 = mkStdGen 123123901
-
-runRandom f = map (evalRand f) [g0, g1, g2, g3, g4, g5, g6, g7, g8, g9]
