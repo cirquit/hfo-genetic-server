@@ -47,7 +47,7 @@ data Defense = Defense { defActionDist :: ([(Action, Int)], [Int]) }
 --   The second part of the tuple is the generator list for the distribution (created via Genetic.Allele.uniformDistributionGen)
 --   This is needed for a semi-random mutation
 --
--- TODO: write tests
+-- TODO: tests for autmatic creating in Genetic.Allele
 data Offense = Offense { offActionDist :: ([(Action, Int)], [Int]), offBallActionDist :: ([(BallAction, Int)], [Int]) }
     deriving Show
 

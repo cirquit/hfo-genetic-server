@@ -74,7 +74,7 @@ instance Mutation Offense where
                 mutateActions (_, generator) = do
                     let actions    = [minBound .. maxBound] :: [Action]
                         actionsLen = 1 + fromEnum (maxBound :: Action)
-                    
+
                     summands <- splitDelta delta (actionsLen - 1)
 
                     let newGenerator  = mutateGenerator generator summands

@@ -41,10 +41,10 @@ executable hfo-server
   ghc-options:         -threaded -rtsopts -with-rtsopts=-N
   build-depends:       base
                      , hfo-server-hs
-                     , process >= 1.2.0.0 && < 1.5.0.0
+                     , process      >= 1.2.0.0 && < 1.5.0.0
                      , MonadRandom  >= 0.4.0.0 && < 0.5.0.0
                      , random       >= 1.0.0.0 && < 2.0.0.0
-                     , timeit  >= 1.0.0.0 && < 2.0.0.0
+                     , timeit       >= 1.0.0.0 && < 2.0.0.0
   default-language:    Haskell2010
 
 test-suite hfo-server-test
@@ -53,6 +53,8 @@ test-suite hfo-server-test
   main-is:             Spec.hs
   build-depends:       base
                      , hfo-server-hs
+                     , hspec            == 2.2.*
+                     , directory        >= 1.2.0.0
   ghc-options:         -threaded -rtsopts -with-rtsopts=-N
   default-language:    Haskell2010
 

@@ -3,7 +3,7 @@ module HFO.Agent
     module HFO.Agent.Data
   , module HFO.Agent.Conf
   , runAgent
-    )where
+    ) where
 
 import System.IO                (Handle(..))
 import System.Process
