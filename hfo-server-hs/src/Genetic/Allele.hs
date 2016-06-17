@@ -22,6 +22,16 @@ class Allele a where
     genIndividuals n = replicateM n genIndividual
 
 
+-- | Repopulates a list of individuals up to a maximal length and appends from behind
+--
+    repopulate :: (MonadRandom r) => Int -> [a] -> r [a]
+    repopulate maxLength l = do
+        let len = length l
+
+        if maxLength > len
+            then (l ++) <$> genIndividuals (maxLength - len)
+            else return l
+
 -- | Generate a single Offense individual
 --
 -- n = length [minBound .. maxBound] :: [Action]

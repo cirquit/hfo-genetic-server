@@ -1,5 +1,3 @@
-{-# LANGUAGE FlexibleContexts #-}
-
 module Genetic.Crossover where
 
 import System.Random
@@ -9,7 +7,7 @@ import Genetic.Selection
 
 import HFO.Agent
 
--- import System.Random.Shuffle (shuffleM)
+import System.Random.Shuffle (shuffleM)
 
 
 -- | This defines the crossover method on individuals
@@ -20,8 +18,8 @@ class Selection a => Crossover a where
 
 -- | Basic combination for two individuals (default: uniformly distributed)
 --
-    crossover :: MonadRandom r => a -> a -> r (a,a)
-    crossover = uniformCO
+    crossoverI :: MonadRandom r => a -> a -> r (a,a)
+    crossoverI = uniformCO
 
 -- | Uniform distribution of the allele between the parents
 --
@@ -32,6 +30,20 @@ class Selection a => Crossover a where
 --   This may be favorable in learner where the hyperparameter have a higher dependency on each other
     nPointCO :: (MonadRandom r, Integral i) => i -> a -> a -> r (a,a)
     nPointCO = undefined
+
+-- | Main crossover function that uses crossoverI to create new individuals
+--
+--   *) currently only using the first child of two
+--
+--   the following should hold:
+--
+--      *) length (crossover l) = length l
+--
+--
+    crossover :: MonadRandom r => [a] -> r [a]
+    crossover l = do
+          shuffled <- shuffleM l
+          zipWithM (\x y -> fst <$> crossoverI x y) shuffled (reverse shuffled)
 
 instance Crossover DefenseTeam where
 
@@ -67,7 +79,7 @@ instance Crossover OffenseTeam where
 
 
 switch :: MonadRandom r => (a, a) -> r (a, a)
-switch (x,y) = go <$> getRandomR (True,False)
+switch (x,y) = go <$> getRandomR (True, False)
     where go True  = (y,x)
           go False = (x,y)
 

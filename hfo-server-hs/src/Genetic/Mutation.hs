@@ -87,7 +87,7 @@ instance Mutation Offense where
                     let ballActions    = [minBound .. maxBound] :: [BallAction]
                         ballActionsLen = 1 + fromEnum (maxBound :: BallAction)
 
-                    summands       <- splitDelta delta (ballActionsLen - 1)
+                    summands <- splitDelta delta (ballActionsLen - 1)
 
                     let newGenerator      = mutateGenerator generator summands
                         newBallActionDist = zip ballActions $ generateDistributionFrom newGenerator
