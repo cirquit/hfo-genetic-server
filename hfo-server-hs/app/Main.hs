@@ -1,4 +1,4 @@
-{-# LANGUAGE RecordWildCards #-}
+{-# LANGUAGE RecordWildCards, BangPatterns #-}
 
 module Main where
 
@@ -77,9 +77,11 @@ main = do
 
 runGA :: [DefenseTeam] -> [OffenseTeam] -> Int -> IO ()
 runGA defense offense gen = do
-
-    (defenseTeams, offenseTeams) <- unzipWithM startSimulation (zip defense offense)
-    print "Fukin done, mate"
+--    (d1, o1) <- startSimulation ((head defense), (head offense))
+--    print d1
+--    print o1
+    (defenseTeams, offenseTeams) <- unzipWithM' startSimulation (zip defense offense)
+    print "Done"
 
 -- | Main entry point for simulation
 --   
@@ -104,7 +106,7 @@ startSimulation (defenseTeam, offenseTeam) = do
     dirtyExit
 
 --  Get simulation results
-    results <- getResults
+    !results <- getResults
 
 --  Update the team fitness
     let (defScore, defList) = defFitness defenseTeam

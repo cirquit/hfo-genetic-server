@@ -130,7 +130,7 @@ instance Mutation OffenseTeam where
                                                 <*> mutateI delta op4
                                                 <*> pure (0, [])
 
--- | splits delta (0-100) in n parts  (partition - number theory)
+-- | splits delta (0-100) in n parts  (negative partition - number theory)
 --
 --   the following should hold (but does not for now):
 --
@@ -151,7 +151,6 @@ splitDelta :: MonadRandom r => Int -> Int -> r [Int]
 splitDelta delta parts = zipWith (*) partList . filter (/= 0) <$> getRandomRs (-1, 1)
     where
        partList = replicate parts $ delta `div` parts
-
 
 -- | takes the generator from Genetic.Allele and the partitioned list of deltas
 --   

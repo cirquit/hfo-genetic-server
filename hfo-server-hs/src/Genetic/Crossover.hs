@@ -1,3 +1,5 @@
+{-# LANGUAGE BangPatterns #-}
+
 module Genetic.Crossover where
 
 import System.Random
@@ -83,7 +85,7 @@ switch (x,y) = go <$> getRandomR (True, False)
     where go True  = (y,x)
           go False = (x,y)
 
--- | This should be a fold left
+-- | This should be a fold left without reversing the list
 --
 --   TODO: Test this or else the players are in reverse order
 --
@@ -91,3 +93,13 @@ unzipWithM :: Monad m => ((a,b) -> m (c,d)) -> [(a,b)] -> m ([c], [d])
 unzipWithM f = foldM go ([], [])
     where
         go (xs, ys) (x,y) = (\(c,d) -> (xs ++ [c], ys ++ [d])) <$> f (x,y)
+
+-- | Strict unzipWithM (fold left without reversing the list)
+--
+unzipWithM' :: Monad m => ((a,b) -> m (c,d)) -> [(a,b)] -> m ([c], [d])
+unzipWithM' f = go ([],[])
+    where
+
+        go (xs, ys) ((a,b) : abs) = do
+            (!x,!y) <- f (a,b)
+            go (xs ++ [x], ys ++ [y]) abs
