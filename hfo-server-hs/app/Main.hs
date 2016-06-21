@@ -2,21 +2,14 @@
 
 module Main where
 
-import System.IO
-import System.Exit              (exitSuccess)
 import System.Process
 import System.Random
 import Control.Monad.Random
-import Control.Monad.Random.Class
-import Control.Monad
-import Control.Concurrent
-import Data.List                (sort)
 
 import HFO.Server               (ServerConf(..), defaultServer, runServer_, runServer)
-import HFO.Agent                (AgentConf(..), defaultAgent, runAgent, defaultOffense, defaultDefense
-                                ,DefenseTeam(..), OffenseTeam(..), defaultDefenseTeam, defaultOffenseTeam
-                                ,Defense(..), Offense(..), runDefenseTeam, runOffenseTeam)
-import HFO.Parser               (getResults, cleanLog, HFOState(..))
+import HFO.Agent                (AgentConf(..), defaultAgent, DefenseTeam(..), OffenseTeam(..)
+                                ,runDefenseTeam, runOffenseTeam, waitForProcesses)
+import HFO.StateParser          (getResults, cleanLog)
 
 
 
@@ -29,9 +22,9 @@ import Genetic.Selection
 --
 --   Half-Field Offense server binary configuration (see HFO.Server.Conf)
 serverConf :: ServerConf
-serverConf = defaultServer { untouchedTime = 100
+serverConf = defaultServer { untouchedTime = 50
                            , trials        = 3
---                           , showMonitor   = False
+                           , showMonitor   = False
 --                           , standartPace  = True
                            , giveBallToPlayer = 9 }
 --
@@ -59,6 +52,9 @@ beta  = 0.20   -- % of individuals that will be mutated  - [0.0, 1.0]
 delta :: Int
 delta = 15     -- by how many units will the distribution of actions be changed - [0,100]
 
+resultsFile :: FilePath
+resultsFile = "/home/rewrite/Documents/Project-Repos/hfo-genetic-server/results.txt"
+
 
 -- | Main entry point
 --
@@ -76,12 +72,14 @@ main = do
     runGA defPopulation offPopulation generations
 
 runGA :: [DefenseTeam] -> [OffenseTeam] -> Int -> IO ()
+runGA defense offense 0   = putStrLn "Defense: " >> print (map updateFitness defense) >> putStrLn "Offense: " >> print (map updateFitness offense)
 runGA defense offense gen = do
 
     (!defenseTeams, !offenseTeams) <- unzipWithM' startSimulation (zip defense offense)
 
     print defenseTeams
     print offenseTeams
+    runGA defenseTeams offenseTeams (gen - 1)
 
 -- | Main entry point for simulation
 --   
@@ -94,13 +92,13 @@ startSimulation (defenseTeam, offenseTeam) = do
     runServer_ serverConf
 
 --  Start the offensive agents
-    runOffenseTeam agentConf offenseTeam
+    offphs <- runOffenseTeam agentConf offenseTeam
 
 --  Start the defensive agents and return the handle from goalie
-    goalieHandle <- runDefenseTeam agentConf defenseTeam
+    defphs <- runDefenseTeam agentConf defenseTeam
 
---  If goalie terminated, the simualtion is over
-    aExit <- waitForProcess goalieHandle
+--  If any player terminated, the simualtion is over
+    waitForProcesses (offphs ++ defphs)
 
 --  Securely terminate all running processes of the HFO instances + python scripts (which should not be running anyways)
     dirtyExit
@@ -108,7 +106,7 @@ startSimulation (defenseTeam, offenseTeam) = do
 --  Get simulation results
     !results <- getResults
 
---  Update the team fitness
+--  Update the team fitness (with Bangs so we avoid lazy IO for sure)
     let (!defScore, !defList) = defFitness defenseTeam
         (!offScore, !offList) = offFitness offenseTeam
 

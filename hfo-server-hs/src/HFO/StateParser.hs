@@ -1,6 +1,6 @@
 {-# LANGUAGE BangPatterns #-}
 
-module HFO.Parser where
+module HFO.StateParser where
 
 import System.Directory
 import System.IO

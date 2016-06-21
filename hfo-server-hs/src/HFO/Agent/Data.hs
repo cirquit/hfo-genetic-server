@@ -1,6 +1,8 @@
+{-# LANGUAGE RecordWildCards #-}
+
 module HFO.Agent.Data where
 
-import HFO.Parser (HFOState(..))
+import HFO.StateParser (HFOState(..))
 
 -- | All possible actions for an agent WITHOUT the possession of the ball
 --
@@ -68,14 +70,20 @@ data OffenseTeam = OffenseTeam { op1        :: Offense
                                , op4        :: Offense
                                , offFitness :: (Int, [Maybe HFOState])
                                }
-    deriving Show
+
+instance Show OffenseTeam where
+
+    show OffenseTeam{..} = unlines [show op1, show op2, show op3, show op4, show offFitness]
 
 data DefenseTeam = DefenseTeam { goalie     :: Defense
                                , dp2        :: Defense
                                , dp3        :: Defense
                                , dp4        :: Defense
                                , defFitness :: (Int, [Maybe HFOState])}
-    deriving Show
+
+instance Show DefenseTeam where
+
+    show DefenseTeam{..} = unlines [show goalie, show dp2, show dp3, show dp4, show defFitness]
 
 -- | Defaults
 --
