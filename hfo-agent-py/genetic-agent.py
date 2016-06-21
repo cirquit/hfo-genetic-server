@@ -8,8 +8,9 @@ import sys
 
 from hfo import *
 
-from common      import statusToString, actionToString
-from agentaction import getAction
+from coloredoutput import info, warn
+from common        import statusToString, actionToString
+from agentaction   import getAction
 
 # command line parser for the configurations + genome encoding (TODO)
 #
@@ -64,9 +65,10 @@ def main():
 
         # Goalie logs every result to a file
         if isGoalie:
-            log = open(logPath, "a")
-            log.write(statusToString(status) + "\n")
-            log.close()
+            warn ("Opening log to write...")
+            with open(logPath, "a") as log:
+                log.write(statusToString(status) + "\n")
+            warn ("Done writing!")
 
 if __name__ == "__main__":
     main()

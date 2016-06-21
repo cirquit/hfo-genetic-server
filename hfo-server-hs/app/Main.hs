@@ -30,9 +30,9 @@ import Genetic.Selection
 --   Half-Field Offense server binary configuration (see HFO.Server.Conf)
 serverConf :: ServerConf
 serverConf = defaultServer { untouchedTime = 100
-                           , trials        = 2
+                           , trials        = 3
 --                           , showMonitor   = False
-                           , standartPace  = True
+--                           , standartPace  = True
                            , giveBallToPlayer = 9 }
 --
 --  Python agent script configuration (see HFO.Agent.Conf)
@@ -45,10 +45,10 @@ generations :: Int
 generations    = 5 -- how many times does the GA loop (Simulation -> Selection -> Crossover -> Mutation)
 
 popsizeDefense :: Int
-popsizeDefense = 2
+popsizeDefense = 1
 
 popsizeOffense :: Int
-popsizeOffense = 2
+popsizeOffense = 1
 
 alpha :: Double
 alpha = 0.30   -- % of best individuals will be selected - [0.0, 1.0]
@@ -77,11 +77,11 @@ main = do
 
 runGA :: [DefenseTeam] -> [OffenseTeam] -> Int -> IO ()
 runGA defense offense gen = do
---    (d1, o1) <- startSimulation ((head defense), (head offense))
---    print d1
---    print o1
-    (defenseTeams, offenseTeams) <- unzipWithM' startSimulation (zip defense offense)
-    print "Done"
+
+    (!defenseTeams, !offenseTeams) <- unzipWithM' startSimulation (zip defense offense)
+
+    print defenseTeams
+    print offenseTeams
 
 -- | Main entry point for simulation
 --   
@@ -97,10 +97,10 @@ startSimulation (defenseTeam, offenseTeam) = do
     runOffenseTeam agentConf offenseTeam
 
 --  Start the defensive agents and return the handle from goalie
-    processHandle <- runDefenseTeam agentConf defenseTeam
+    goalieHandle <- runDefenseTeam agentConf defenseTeam
 
 --  If goalie terminated, the simualtion is over
-    aExit <- waitForProcess processHandle
+    aExit <- waitForProcess goalieHandle
 
 --  Securely terminate all running processes of the HFO instances + python scripts (which should not be running anyways)
     dirtyExit
@@ -109,11 +109,11 @@ startSimulation (defenseTeam, offenseTeam) = do
     !results <- getResults
 
 --  Update the team fitness
-    let (defScore, defList) = defFitness defenseTeam
-        (offScore, offList) = offFitness offenseTeam
+    let (!defScore, !defList) = defFitness defenseTeam
+        (!offScore, !offList) = offFitness offenseTeam
 
-        defense = defenseTeam { defFitness = (defScore, defList ++ results) }
-        offense = offenseTeam { offFitness = (offScore, offList ++ results) }
+        !defense = defenseTeam { defFitness = (defScore, defList ++ results) }
+        !offense = offenseTeam { offFitness = (offScore, offList ++ results) }
 
     return (defense, offense)
 

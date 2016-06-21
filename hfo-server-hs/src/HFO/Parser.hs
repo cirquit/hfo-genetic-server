@@ -1,3 +1,5 @@
+{-# LANGUAGE BangPatterns #-}
+
 module HFO.Parser where
 
 import System.Directory
@@ -34,9 +36,19 @@ cleanLog :: IO ()
 cleanLog = withFile logpath WriteMode doNothing
     where doNothing = \_ -> return ()
 
+-- | Lazy IO...
+--   
+--   This somehow does not work (or withFile):
+--
+--       map toMState . lines <$> readFile logpath
+--
+--   Because the handle is semiclosed if we don't 'use' the content
 
 getResults :: IO [Maybe HFOState]
-getResults = map toMState . lines <$> readFile logpath
+getResults = do
+          content <- readFile logpath
+          let !result = (map toMState . lines) content
+          return result
     where
 
         toMState :: String -> Maybe HFOState

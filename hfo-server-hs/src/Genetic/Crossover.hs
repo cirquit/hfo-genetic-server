@@ -100,6 +100,7 @@ unzipWithM' :: Monad m => ((a,b) -> m (c,d)) -> [(a,b)] -> m ([c], [d])
 unzipWithM' f = go ([],[])
     where
 
+        go (xs, ys) []            = return (xs,ys)
         go (xs, ys) ((a,b) : abs) = do
             (!x,!y) <- f (a,b)
             go (xs ++ [x], ys ++ [y]) abs
