@@ -7,6 +7,8 @@ import System.Random
 import Control.Monad.Random
 import System.Console.ANSI
 
+import qualified Data.Text.IO as T (appendFile)
+import           Data.Text    as T (pack)
 
 import HFO.Server               (ServerConf(..), defaultServer, runServer_, runServer)
 import HFO.Agent                (AgentConf(..), defaultAgent, DefenseTeam(..), OffenseTeam(..)
@@ -24,7 +26,7 @@ import Genetic.Selection
 --   Half-Field Offense server binary configuration (see HFO.Server.Conf)
 serverConf :: ServerConf
 serverConf = defaultServer { untouchedTime = 50
-                           , trials        = 2
+                           , trials        = 5
 --                           , showMonitor   = False
 --                           , standartPace  = True
                            , giveBallToPlayer = 11 }
@@ -36,13 +38,13 @@ agentConf = defaultAgent { episodes = trials serverConf }
 -- | Genetic algorithms parameters
 --
 generations :: Int
-generations    = 1 -- how many times does the GA loop (Simulation -> Selection -> Crossover -> Mutation)
+generations    = 5 -- how many times does the GA loop (Simulation -> Selection -> Crossover -> Mutation)
 
 popsizeDefense :: Int
-popsizeDefense = 10
+popsizeDefense = 20
 
 popsizeOffense :: Int
-popsizeOffense = 10
+popsizeOffense = 20
 
 alpha :: Double
 alpha = 0.30   -- % of best individuals will be selected - [0.0, 0.5] (if its >= 0.5 then we won't have any inherently new individuals)
@@ -66,7 +68,7 @@ main = do
     setSGR [SetColor Foreground Vivid Black]
     setSGR [SetColor Background Vivid Magenta]
 
---  start with a set seed
+--  start with a seed
     let g = mkStdGen 31415926
 
         defPopulation :: [DefenseTeam]
@@ -77,14 +79,16 @@ main = do
 
     runGA defPopulation offPopulation generations
 
+-- |  
+--
 runGA :: [DefenseTeam] -> [OffenseTeam] -> Int -> IO ()
-runGA defense offense 0   = return () -- putStrLn "Defense: " >> print (map updateFitness defense) >> putStrLn "Offense: " >> print (map updateFitness offense)
+runGA defense offense 0   = return ()
 runGA defense offense gen = do
 
 --  Start the simulation for every pair of (defense <-> offense)
     (defenseTeams, offenseTeams) <- unzipWithM' startSimulation (zip defense offense)
 
- --  Selection of alpha % best individuals
+ -- Selection of alpha % best individuals
     let defSelected = select alpha defenseTeams
         offSelected = select alpha offenseTeams
 
@@ -102,8 +106,10 @@ runGA defense offense gen = do
     newDefense <- repopulate popsizeDefense (defSelected ++ defMutated)
     newOffense <- repopulate popsizeOffense (offSelected ++ offMutated)
 
-    print newDefense
-    print newOffense
+    T.appendFile resultsFile (T.pack $ unlines ["Generation: " ++ show gen, show newDefense, show newOffense])
+
+--    print newDefense
+--    print newOffense
 
     runGA newDefense newOffense (gen - 1)
 

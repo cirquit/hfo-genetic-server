@@ -1,8 +1,11 @@
-{-# LANGUAGE RecordWildCards, BangPatterns #-}
+{-# LANGUAGE RecordWildCards, BangPatterns, DeriveGeneric, DeriveAnyClass, OverloadedStrings #-}
 
 module HFO.Agent.Data where
 
 import HFO.StateParser (HFOState(..))
+import GHC.Generics
+import Data.Aeson
+import Data.Aeson.Types
 
 -- | All possible actions for an agent WITHOUT the possession of the ball
 --
@@ -14,17 +17,17 @@ data Action  = Move           -- high level move based on strategy (whatever thi
 --             | Dash Int Int   -- power in [0,100], direction in [-180,180]
 --             | Turn Int       -- direction in [-180,180]
 --             | Attract
-    deriving (Show, Enum, Bounded)
+    deriving (Show, Enum, Bounded, Generic, FromJSON, ToJSON)
 
 -- | All possible actions for an agent WITH the possesion of the ball
 --
-data BallAction  = Shoot                -- shoot in (possibly in looking direction)
-                 | Dribble              -- dribble in whatever direction?...
+data BallAction  = Shoot                  -- shoot in (possibly in looking direction)
+                 | Dribble                -- dribble in whatever direction?...
 --                 | Pass Int             -- pass to teammate in [0,11]
 --                 | Kick   Int Int       -- power in [0,100], direction in [-180, 180]
 --                 | KickTo Int Int Int   -- x in [-1,1], y in [-1,1], power in [0,3]
 --                 | DribbleTo Int Int    -- x in [-1,1], y in [-1,1]
-    deriving (Show, Enum, Bounded)
+    deriving (Show, Enum, Bounded, Generic, FromJSON, ToJSON)
 
 -- | Wrapper for defense action distribution
 --
@@ -37,7 +40,22 @@ data BallAction  = Shoot                -- shoot in (possibly in looking directi
 --
 -- TODO: write tests
 data Defense = Defense { defActionDist :: ([(Action, Int)], [Int]) }
-    deriving Show
+    deriving (Show)
+
+instance ToJSON Defense where
+
+    toJSON (Defense (actions, generator)) = object [
+        "defActions"          .= actions
+      , "defActionsGenerator" .= generator
+      ]
+
+instance FromJSON Defense where
+
+    parseJSON = withObject "defense" $ \o -> do 
+        actions   <- o .: "defActions"
+        generator <- o .: "defActionsGenerator"
+        return $ Defense (actions, generator)
+
 
 -- | Wrapper for offense action distribution
 --
@@ -51,7 +69,26 @@ data Defense = Defense { defActionDist :: ([(Action, Int)], [Int]) }
 --
 -- TODO: tests for autmatic creating in Genetic.Allele
 data Offense = Offense { offActionDist :: ([(Action, Int)], [Int]), offBallActionDist :: ([(BallAction, Int)], [Int]) }
-    deriving Show
+    deriving (Show)
+
+instance ToJSON Offense where
+
+    toJSON (Offense (actions, generator) (ballActions, ballGenerator)) = object [
+        "offActions"              .= actions
+      , "offActionsGenerator"     .= generator
+      , "offBallActions"          .= ballActions
+      , "offBallActionsGenerator" .= ballGenerator
+      ]
+
+instance FromJSON Offense where
+
+    parseJSON = withObject "offense" $ \o -> do 
+        actions       <- o .: "offActions"
+        generator     <- o .: "offActionsGenerator"
+        ballActions   <- o .: "offBallActions"
+        ballGenerator <- o .: "offBallActionsGenerator"
+        return $ Offense (actions, generator) (ballActions, ballGenerator)
+
 
 -- | Wrapper for Teams
 --
@@ -70,20 +107,26 @@ data OffenseTeam = OffenseTeam { op1        :: Offense
                                , op4        :: Offense
                                , offFitness :: (Int, [Maybe HFOState])
                                }
+    deriving (Show)
 
-instance Show OffenseTeam where
+-- instance ToJSON OffenseTeam where
+-- 
+--     toJSON OffenseTeam{..} = 
 
-    show OffenseTeam{..} = unlines [show op1, show op2, show op3, show op4, show offFitness]
+-- instance Show OffenseTeam where
+-- 
+--     show OffenseTeam{..} = unlines [show op1, show op2, show op3, show op4, show offFitness]
 
 data DefenseTeam = DefenseTeam { goalie     :: Defense
                                , dp2        :: Defense
                                , dp3        :: Defense
                                , dp4        :: Defense
                                , defFitness :: (Int, [Maybe HFOState])}
+    deriving (Show)
 
-instance Show DefenseTeam where
-
-    show DefenseTeam{..} = unlines [show goalie, show dp2, show dp3, show dp4, show defFitness]
+-- instance Show DefenseTeam where
+-- 
+--     show DefenseTeam{..} = unlines [show goalie, show dp2, show dp3, show dp4, show defFitness]
 
 -- | Defaults
 --
