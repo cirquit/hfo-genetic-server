@@ -2,11 +2,6 @@
 
 module HFO.StateParser where
 
--- import System.Directory
--- import System.IO
-
--- import Prelude hiding (readFile, writeFile, lines)
-
 import qualified Data.Text.IO as T (readFile, writeFile)
 import           Data.Text    as T (unpack, lines, Text(..))
 

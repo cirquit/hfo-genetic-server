@@ -24,7 +24,7 @@ import Genetic.Selection
 --   Half-Field Offense server binary configuration (see HFO.Server.Conf)
 serverConf :: ServerConf
 serverConf = defaultServer { untouchedTime = 50
-                           , trials        = 1
+                           , trials        = 2
 --                           , showMonitor   = False
 --                           , standartPace  = True
                            , giveBallToPlayer = 11 }
@@ -82,50 +82,28 @@ runGA defense offense 0   = return () -- putStrLn "Defense: " >> print (map upda
 runGA defense offense gen = do
 
 --  Start the simulation for every pair of (defense <-> offense)
---    (defenseTeams, offenseTeams) <- unzipWithM' startSimulation (zip defense offense)
-    print "After simulation:"
-    print (length defense)
-    print (length offense)
-
+    (defenseTeams, offenseTeams) <- unzipWithM' startSimulation (zip defense offense)
 
  --  Selection of alpha % best individuals
-    let defSelected = select alpha defense
-        offSelected = select alpha offense
-
-    print "After selection:"
-    print (length defSelected)
-    print (length offSelected)
+    let defSelected = select alpha defenseTeams
+        offSelected = select alpha offenseTeams
 
 --  Crossover of every selected defense and offense among each other (size is equivalent to the parentlist)
     defChildren <- crossover defSelected
     offChildren <- crossover offSelected
-
-    print "After Crossover:"
-    print (length defChildren)
-    print (length offChildren)
-    print defChildren
-    print offChildren
 
 
 --  Mutation of beta % children by delta units
     defMutated  <- mutate beta delta defChildren
     offMutated  <- mutate beta delta offChildren
 
-    print "After Mutation:"
-    print (length defMutated)
-    print (length offMutated)
-    print defMutated
-    print offMutated
-
-
 --  Repopulation with new individuals - these should amount to popSize - (popSize * alpha * 2)
 --  because of parents (popSize * alpha) and children (popSize * alpha)
     newDefense <- repopulate popsizeDefense (defSelected ++ defMutated)
     newOffense <- repopulate popsizeOffense (offSelected ++ offMutated)
 
-    print "After Repopulation:"
-    print (length newDefense)
-    print (length newOffense)
+    print newDefense
+    print newOffense
 
     runGA newDefense newOffense (gen - 1)
 
@@ -152,14 +130,14 @@ startSimulation (defenseTeam, offenseTeam) = do
     dirtyExit
 
 --  Get simulation results
-    !results <- getResults
+    results <- getResults
 
 --  Update the team fitness (with Bangs so we avoid lazy IO for sure)
-    let !(!defScore, !defList) = defFitness defenseTeam
-        !(!offScore, !offList) = offFitness offenseTeam
+    let (defScore, defList) = defFitness defenseTeam
+        (offScore, offList) = offFitness offenseTeam
 
-        !defense = defenseTeam { defFitness = (defScore, defList ++ results) }
-        !offense = offenseTeam { offFitness = (offScore, offList ++ results) }
+        defense = defenseTeam { defFitness = (defScore, defList ++ results) }
+        offense = offenseTeam { offFitness = (offScore, offList ++ results) }
 
     return (defense, offense)
 

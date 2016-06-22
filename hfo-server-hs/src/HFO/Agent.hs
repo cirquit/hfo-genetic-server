@@ -67,10 +67,10 @@ waitForProcesses phs = do
 
 -- | run agent python script with the corresponding configuration
 --
---   the HFO binary needs at least 550ms between every agent...at least on my machine
+--   the HFO binary needs at least 550-600ms between every agent...at least on my machine
 --
 runAgent :: AgentConf -> IO (Handle, ProcessHandle)
-runAgent conf = sleep 550 >> getInfo <$> createProcess cproc { cwd = cwd, std_err = CreatePipe }
+runAgent conf = sleep 600 >> getInfo <$> createProcess cproc { cwd = cwd, std_err = CreatePipe }
     where
 
         cproc :: CreateProcess

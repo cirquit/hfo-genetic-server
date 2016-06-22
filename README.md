@@ -24,4 +24,5 @@ A server written in Haskell for to communicate with Half-Field Offense for my un
 
   * If the server runs int '-no-sync' mode (~ not a realtime simulation), one can not check only one of the python agents for an exitcode to notice if the simulation is done. This behaviour is undefined und random. One solution to this would be to check every agent script and if anyone terminates, then the simulation should be over (this problem does not occur without -no-synch)
   * One can not connect the players to the server without a delay (currently 1s after every player), so it would be better to start the server only once for all simulations
-  * txt-file based data exchange is not a very good idea because of lazy io in Haskell
+  * This delay is dependent of the workload on your machine...without -no-synch and without a monitor it needs to be >600ms. without -no-synch 500-600ms...in conclusion it's a very bad idea to connect more than once
+  * txt-file based data exchange is not a very good idea because of lazy io in Haskell (text-package fixed it nonetheless)

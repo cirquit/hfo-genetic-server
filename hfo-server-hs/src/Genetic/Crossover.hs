@@ -102,5 +102,5 @@ unzipWithM' f = go ([],[])
 
         go (xs, ys) []            = return (xs,ys)
         go (xs, ys) ((a,b) : abs) = do
-            (!x,!y) <- f (a,b)
+            !(!x,!y) <- f (a,b)
             go (xs ++ [x], ys ++ [y]) abs
