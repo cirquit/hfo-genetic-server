@@ -28,7 +28,7 @@ class Allele a where
     repopulate maxLength l = do
         let len = length l
 
-        if maxLength > len
+        if maxLength >= len
             then (l ++) <$> genIndividuals (maxLength - len)
             else return l
 

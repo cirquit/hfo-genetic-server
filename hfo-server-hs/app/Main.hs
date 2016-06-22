@@ -5,12 +5,13 @@ module Main where
 import System.Process
 import System.Random
 import Control.Monad.Random
+import System.Console.ANSI
+
 
 import HFO.Server               (ServerConf(..), defaultServer, runServer_, runServer)
 import HFO.Agent                (AgentConf(..), defaultAgent, DefenseTeam(..), OffenseTeam(..)
                                 ,runDefenseTeam, runOffenseTeam, waitForProcesses)
 import HFO.StateParser          (getResults, cleanLog)
-
 
 
 import Genetic.Allele
@@ -23,10 +24,10 @@ import Genetic.Selection
 --   Half-Field Offense server binary configuration (see HFO.Server.Conf)
 serverConf :: ServerConf
 serverConf = defaultServer { untouchedTime = 50
-                           , trials        = 3
-                           , showMonitor   = False
+                           , trials        = 1
+--                           , showMonitor   = False
 --                           , standartPace  = True
-                           , giveBallToPlayer = 9 }
+                           , giveBallToPlayer = 11 }
 --
 --  Python agent script configuration (see HFO.Agent.Conf)
 agentConf :: AgentConf
@@ -35,19 +36,19 @@ agentConf = defaultAgent { episodes = trials serverConf }
 -- | Genetic algorithms parameters
 --
 generations :: Int
-generations    = 5 -- how many times does the GA loop (Simulation -> Selection -> Crossover -> Mutation)
+generations    = 1 -- how many times does the GA loop (Simulation -> Selection -> Crossover -> Mutation)
 
 popsizeDefense :: Int
-popsizeDefense = 1
+popsizeDefense = 10
 
 popsizeOffense :: Int
-popsizeOffense = 1
+popsizeOffense = 10
 
 alpha :: Double
-alpha = 0.30   -- % of best individuals will be selected - [0.0, 1.0]
+alpha = 0.30   -- % of best individuals will be selected - [0.0, 0.5] (if its >= 0.5 then we won't have any inherently new individuals)
 
 beta  :: Double
-beta  = 0.20   -- % of individuals that will be mutated  - [0.0, 1.0]
+beta  = 0.50   -- % of individuals that will be mutated  - [0.0, 1.0]
 
 delta :: Int
 delta = 15     -- by how many units will the distribution of actions be changed - [0,100]
@@ -61,6 +62,11 @@ resultsFile = "/home/rewrite/Documents/Project-Repos/hfo-genetic-server/results.
 main :: IO ()
 main = do
 
+--  color everything in red to differentiate between the output of the hfo-binary and python-agents
+    setSGR [SetColor Foreground Vivid Black]
+    setSGR [SetColor Background Vivid Magenta]
+
+--  start with a set seed
     let g = mkStdGen 31415926
 
         defPopulation :: [DefenseTeam]
@@ -72,14 +78,56 @@ main = do
     runGA defPopulation offPopulation generations
 
 runGA :: [DefenseTeam] -> [OffenseTeam] -> Int -> IO ()
-runGA defense offense 0   = putStrLn "Defense: " >> print (map updateFitness defense) >> putStrLn "Offense: " >> print (map updateFitness offense)
+runGA defense offense 0   = return () -- putStrLn "Defense: " >> print (map updateFitness defense) >> putStrLn "Offense: " >> print (map updateFitness offense)
 runGA defense offense gen = do
 
-    (!defenseTeams, !offenseTeams) <- unzipWithM' startSimulation (zip defense offense)
+--  Start the simulation for every pair of (defense <-> offense)
+--    (defenseTeams, offenseTeams) <- unzipWithM' startSimulation (zip defense offense)
+    print "After simulation:"
+    print (length defense)
+    print (length offense)
 
-    print defenseTeams
-    print offenseTeams
-    runGA defenseTeams offenseTeams (gen - 1)
+
+ --  Selection of alpha % best individuals
+    let defSelected = select alpha defense
+        offSelected = select alpha offense
+
+    print "After selection:"
+    print (length defSelected)
+    print (length offSelected)
+
+--  Crossover of every selected defense and offense among each other (size is equivalent to the parentlist)
+    defChildren <- crossover defSelected
+    offChildren <- crossover offSelected
+
+    print "After Crossover:"
+    print (length defChildren)
+    print (length offChildren)
+    print defChildren
+    print offChildren
+
+
+--  Mutation of beta % children by delta units
+    defMutated  <- mutate beta delta defChildren
+    offMutated  <- mutate beta delta offChildren
+
+    print "After Mutation:"
+    print (length defMutated)
+    print (length offMutated)
+    print defMutated
+    print offMutated
+
+
+--  Repopulation with new individuals - these should amount to popSize - (popSize * alpha * 2)
+--  because of parents (popSize * alpha) and children (popSize * alpha)
+    newDefense <- repopulate popsizeDefense (defSelected ++ defMutated)
+    newOffense <- repopulate popsizeOffense (offSelected ++ offMutated)
+
+    print "After Repopulation:"
+    print (length newDefense)
+    print (length newOffense)
+
+    runGA newDefense newOffense (gen - 1)
 
 -- | Main entry point for simulation
 --   
@@ -107,8 +155,8 @@ startSimulation (defenseTeam, offenseTeam) = do
     !results <- getResults
 
 --  Update the team fitness (with Bangs so we avoid lazy IO for sure)
-    let (!defScore, !defList) = defFitness defenseTeam
-        (!offScore, !offList) = offFitness offenseTeam
+    let !(!defScore, !defList) = defFitness defenseTeam
+        !(!offScore, !offList) = offFitness offenseTeam
 
         !defense = defenseTeam { defFitness = (defScore, defList ++ results) }
         !offense = offenseTeam { offFitness = (offScore, offList ++ results) }

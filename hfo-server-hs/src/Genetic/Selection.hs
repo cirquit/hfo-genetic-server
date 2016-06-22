@@ -49,7 +49,7 @@ class Selection a where
 --
     select :: Double -> [a] -> [a]
     select alpha xs = take best (sortByDescFitness xs)
-        where best = length xs - round (alpha * genericLength xs)
+        where best = round (alpha * genericLength xs)
 
 
 instance Selection OffenseTeam where

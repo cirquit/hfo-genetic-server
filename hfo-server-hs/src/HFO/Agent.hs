@@ -34,6 +34,7 @@ runOffenseTeam conf OffenseTeam{..} = do
     (_, ph3) <- runAgent $ conf { actions  = Left op3 , teamName = "base_left" }
     (_, ph4) <- runAgent $ conf { actions  = Left op4 , teamName = "base_left" }
     return [ph1, ph2, ph3, ph4]
+--    return []
 
 -- | shortcut to start a whole defense team
 -- 
@@ -66,8 +67,10 @@ waitForProcesses phs = do
 
 -- | run agent python script with the corresponding configuration
 --
+--   the HFO binary needs at least 550ms between every agent...at least on my machine
+--
 runAgent :: AgentConf -> IO (Handle, ProcessHandle)
-runAgent conf = sleep 1000 >> getInfo <$> createProcess cproc { cwd = cwd, std_err = CreatePipe }
+runAgent conf = sleep 550 >> getInfo <$> createProcess cproc { cwd = cwd, std_err = CreatePipe }
     where
 
         cproc :: CreateProcess

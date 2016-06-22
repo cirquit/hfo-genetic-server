@@ -1,10 +1,14 @@
-{-# LANGUAGE BangPatterns #-}
+{-# LANGUAGE OverloadedStrings, BangPatterns #-}
 
 module HFO.StateParser where
 
-import System.Directory
-import System.IO
+-- import System.Directory
+-- import System.IO
 
+-- import Prelude hiding (readFile, writeFile, lines)
+
+import qualified Data.Text.IO as T (readFile, writeFile)
+import           Data.Text    as T (unpack, lines, Text(..))
 
 data HFOState = Ingame
               | Goal
@@ -32,26 +36,22 @@ logpath :: FilePath
 logpath = "/home/rewrite/Documents/Project-Repos/hfo-genetic-server/hfo-agent-py/goalie-log.txt"
 
 
+-- | Cleans the log for future simulations
+--
 cleanLog :: IO ()
-cleanLog = withFile logpath WriteMode doNothing
-    where doNothing = \_ -> return ()
+cleanLog = T.writeFile logpath ""
 
--- | Lazy IO...
---   
---   This somehow does not work (or withFile):
---
---       map toMState . lines <$> readFile logpath
---
---   Because the handle is semiclosed if we don't 'use' the content
 
+-- | Using strict readFile/writeFile from text-package to get the results and concat them into a list of states
+--  
+--   *) Nothing if there is no parse for the line (should not happen anyways if the pythonagent is correct)
+-- 
 getResults :: IO [Maybe HFOState]
-getResults = do
-          content <- readFile logpath
-          let !result = (map toMState . lines) content
-          return result
+getResults = map toMState . T.lines <$> T.readFile logpath
+
     where
 
-        toMState :: String -> Maybe HFOState
+        toMState :: Text -> Maybe HFOState
         toMState "IN_GAME"              = Just Ingame
         toMState "GOAL"                 = Just Goal
         toMState "CAPTURED_BY_DEFENSE"  = Just CapturedByDefense
