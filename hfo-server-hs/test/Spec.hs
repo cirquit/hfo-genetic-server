@@ -1,14 +1,11 @@
 {-# LANGUAGE ViewPatterns #-}
 
 import Test.Hspec
-import System.Directory
-import Data.List  (sort)
-import Data.Aeson
+import Test.Hspec.QuickCheck (prop)
 
-import Genetic
+import Test
 import HFO
 import HFO.ToFlags
-import HFO.StateParser
 
 
 main :: IO ()
@@ -17,31 +14,16 @@ main = hspec $ do
         describe "HFO" $ do
             describe "HFO.Agent" $ do
 
-                it "offense agent toFlags instance" $ do
-                    let offense = Offense { offActionDist     = ([(Move,  25), (Intercept, 30), (Catch, 40), (NoOp, 5)], [])
-                                          , offBallActionDist = ([(Shoot, 40), (Dribble,   60)],                         [])
-                                          }
-                        agent = AgentConf { teamName = "base_left"
-                                          , isGoalie = False
-                                          , aseed    = 123
-                                          , episodes = 1
-                                          , actions  = Left offense
-                                          }
-                    toFlags_ agent `shouldBe` ["--team","base_left","--episodes","1","--seed","123","--offactions","25","30","40","5","40","60"]
-
-                it "defense agent toFlags instance" $ do
-                    let defense = Defense { defActionDist = ([(Move,  45), (Intercept, 0), (Catch, 20), (NoOp, 35)], []) }
-                        agent = AgentConf { teamName = "base_right"
-                                          , isGoalie = True
-                                          , aseed    = 456
-                                          , episodes = 4
-                                          , actions  = Right defense
-                                          }
-                    toFlags_ agent `shouldBe` ["--team","base_right","--goalie","--episodes","4","--seed","456","--defactions","45","0","20","35"]
+                prop "offense agent toFlags instance" flagPropOffenseAgent
+                prop "defense agent toFlags instance" flagPropDefenseAgent
+                prop "offense agent actionDistribution amounts to 100"     actionDistOffenseGeneration
+                prop "offense agent ballActionDistribution amounts to 100" ballActionDistOffenseGeneration
+                prop "defense agent actionDistribution amounts to 100"     actionDistDefenseGeneration
 
             describe "HFO.Server" $ do
                 it "server toFlags instance" $ do
-                    let server = ServerConf { showMonitor      = True
+                    let server = ServerConf
+                          { showMonitor      = True
                           , trials           = -1
                           , frames           = -1
                           , framespertrial   = 1000
@@ -83,24 +65,11 @@ main = hspec $ do
                                                ]
             describe "HFO.Agent.Data" $ do
                 describe "JSON Encoding / Decoding" $ do
-                    it "DefenseTeam" $ do
-                        let testDefenseTeam = DefenseTeam { goalie     = testDefaultDefense
-                                                          , dp2        = testDefaultDefense
-                                                          , dp3        = testDefaultDefense
-                                                          , dp4        = testDefaultDefense
-                                                          , defFitness = (0, [Just Goal, Nothing, Just ServerDown, Just OutOfTime])}
-
-                        eitherDecode (encode testDefenseTeam) `shouldBe` (Right testDefenseTeam)
-
-                    it "OffenseTeam" $ do
-                        let testOffenseTeam = OffenseTeam { op1        = testDefaultOffense
-                                                          , op2        = testDefaultOffense
-                                                          , op3        = testDefaultOffense
-                                                          , op4        = testDefaultOffense
-                                                          , offFitness = (25, [Nothing, Nothing, Just CapturedByDefense, Just OutOfBounds, Just Ingame, Just Goal])}
-
-                        eitherDecode (encode testOffenseTeam) `shouldBe`  (Right testOffenseTeam)
-                        
+                    prop "Offense"     jsonPropOffense
+                    prop "Defense"     jsonPropDefense
+                    prop "DefenseTeam" jsonPropDefenseTeam
+                    prop "OffenseTeam" jsonPropOffenseTeam
+                    prop "HFOState"    jsonPropHFOState
 
         describe "Genetic" $ do
             describe "Genetic.Allele"    $ do
@@ -108,17 +77,7 @@ main = hspec $ do
             describe "Genetic.Crossover" $ do
                 return ()
             describe "Genetic.Mutation"  $ do
-                return ()
+                prop "offense mutations does not affect the sum rule of the distribution (sum dist = 100)" mutationOffenseDist
+                prop "defense mutations does not affect the sum rule of the distribution (sum dist = 100)" mutationDefenseDist
             describe "Genetic.Selection" $ do
                 return ()
-
-
-testDefaultDefense :: Defense
-testDefaultDefense = Defense { defActionDist = ([(Move, 50), (Intercept, 20), (Catch, 15), (NoOp, 15)], [0, 50, 70, 85, 100]) }
-
--- (testing purposes only)
-testDefaultOffense :: Offense
-testDefaultOffense = Offense { offActionDist     = ([(Move,  50), (Intercept, 20), (Catch, 15), (NoOp, 15)], [0, 50, 70, 85, 100])
-                         , offBallActionDist = ([(Shoot, 50), (Dribble,   50)],                          [0, 50, 100])
-                         }
-

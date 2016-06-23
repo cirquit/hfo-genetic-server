@@ -10,15 +10,16 @@ A server written in Haskell for to communicate with Half-Field Offense for my un
   * Dispatch multiple agent scripts in parallel
   * look up every possivle action for defender / attacker and try to run them in the python script from a cmd given distribution 
   * Create a python script that takes information based on cmd-flags OR designated config-files (look up YAML)
+  * Automatic property tests for mutation, generation of offense/defense individuals, (de)/serializing JSON of every data type (in Haskell)
 
 ## TODO:
-  * Rewrite the python + haskell code to start the server only ONCE for all genomes and create a serializable format for the genomes which Haskell and Python can parse and update with ease (probably JSON)
+  * Rewrite the python + haskell code to start the server only ONCE for all genomes and create a serializable format for the genomes which Haskell and Python can parse and update with ease in JSON (in progress)
   * create repl
     * Start/Stop the simulation
     * Start with flag-options
     * Rerun simulation with seed
     * Rerun simulation based on log-files (this won't work because every logs after the first run are broken (?))
-
+  * create json parser in python for my data type
 
 ## Info for the future:
 

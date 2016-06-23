@@ -39,7 +39,6 @@ data BallAction  = Shoot                  -- shoot in (possibly in looking direc
 --   The second part of the tuple is the generator list for the distribution (created via Genetic.Allele.uniformDistributionGen)
 --   This is needed for a semi-random mutation
 --
--- TODO: write tests
 data Defense = Defense { defActionDist :: ([(Action, Int)], [Int]) }
     deriving (Show, Eq)
 
@@ -67,7 +66,6 @@ instance FromJSON Defense where
 --   The second part of the tuple is the generator list for the distribution (created via Genetic.Allele.uniformDistributionGen)
 --   This is needed for a semi-random mutation
 --
--- TODO: tests for autmatic creating in Genetic.Allele
 data Offense = Offense { offActionDist :: ([(Action, Int)], [Int]), offBallActionDist :: ([(BallAction, Int)], [Int]) }
     deriving (Show, Eq)
 
@@ -176,18 +174,18 @@ defaultOffense = Offense { offActionDist     = ([(Move,  50), (Intercept, 20), (
 
 -- (testing purposes only)
 defaultDefenseTeam :: DefenseTeam
-defaultDefenseTeam  = DefenseTeam { goalie = defaultDefense
-                                  , dp2    = defaultDefense
-                                  , dp3    = defaultDefense
-                                  , dp4    = defaultDefense
+defaultDefenseTeam  = DefenseTeam { goalie     = defaultDefense
+                                  , dp2        = defaultDefense
+                                  , dp3        = defaultDefense
+                                  , dp4        = defaultDefense
                                   , defFitness = (0, [])
                                   }
 
 -- (testing purposes only)
 defaultOffenseTeam ::OffenseTeam
-defaultOffenseTeam = OffenseTeam { op1 = defaultOffense
-                                 , op2 = defaultOffense
-                                 , op3 = defaultOffense
-                                 , op4 = defaultOffense
+defaultOffenseTeam = OffenseTeam { op1        = defaultOffense
+                                 , op2        = defaultOffense
+                                 , op3        = defaultOffense
+                                 , op4        = defaultOffense
                                  , offFitness = (0, [])
                                  }

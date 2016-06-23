@@ -13,7 +13,7 @@ data HFOState = Ingame
               | OutOfBounds
               | OutOfTime
               | ServerDown
-    deriving Eq
+    deriving (Eq, Bounded, Enum)
 
 instance ToJSON HFOState where
 
