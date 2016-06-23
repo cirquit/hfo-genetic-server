@@ -1,9 +1,11 @@
-{-# LANGUAGE OverloadedStrings, BangPatterns #-}
+{-# LANGUAGE RecordWildCards, BangPatterns, DeriveGeneric, DeriveAnyClass, OverloadedStrings #-}
 
 module HFO.StateParser where
 
 import qualified Data.Text.IO as T (readFile, writeFile)
-import           Data.Text    as T (unpack, lines, Text(..))
+import           Data.Text    as T (pack, unpack, lines, Text())
+
+import Data.Aeson
 
 data HFOState = Ingame
               | Goal
@@ -11,6 +13,19 @@ data HFOState = Ingame
               | OutOfBounds
               | OutOfTime
               | ServerDown
+
+instance ToJSON HFOState where
+
+    toJSON s = String . T.pack . show $ s
+
+instance FromJSON HFOState where
+
+    parseJSON (String s) = do
+        case toMState s of
+            (Just x) -> return x
+            Nothing  -> fail $ "Could not parse " ++ T.unpack s
+
+    parseJSON o          = fail $ "Could not parse this object type - expected String (HFOState)" ++ show o
 
 instance Show HFOState where
 
@@ -41,16 +56,16 @@ cleanLog = T.writeFile logpath ""
 --  
 --   *) Nothing if there is no parse for the line (should not happen anyways if the pythonagent is correct)
 -- 
+-- This will be deprecated because we store the serialized teams in as JSON
+--
 getResults :: IO [Maybe HFOState]
 getResults = map toMState . T.lines <$> T.readFile logpath
 
-    where
-
-        toMState :: Text -> Maybe HFOState
-        toMState "IN_GAME"              = Just Ingame
-        toMState "GOAL"                 = Just Goal
-        toMState "CAPTURED_BY_DEFENSE"  = Just CapturedByDefense
-        toMState "OUT_OF_BOUNDS"        = Just OutOfBounds
-        toMState "OUT_OF_TIME"          = Just OutOfTime
-        toMState "SERVER_DOWN"          = Just ServerDown
-        toMState _                      = Nothing
+toMState :: Text -> Maybe HFOState
+toMState "IN_GAME"              = Just Ingame
+toMState "GOAL"                 = Just Goal
+toMState "CAP TURED_BY_DEFENSE" = Just CapturedByDefense
+toMState "OUT_OF_BOUNDS"        = Just OutOfBounds
+toMState "OUT_OF_TIME"          = Just OutOfTime
+toMState "SERVER_DOWN"          = Just ServerDown
+toMState _                      = Nothing

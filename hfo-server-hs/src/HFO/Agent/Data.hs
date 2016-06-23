@@ -6,6 +6,7 @@ import HFO.StateParser (HFOState(..))
 import GHC.Generics
 import Data.Aeson
 import Data.Aeson.Types
+import Data.Text
 
 -- | All possible actions for an agent WITHOUT the possession of the ball
 --
@@ -51,11 +52,10 @@ instance ToJSON Defense where
 
 instance FromJSON Defense where
 
-    parseJSON = withObject "defense" $ \o -> do 
+    parseJSON (Object o) = do 
         actions   <- o .: "defActions"
         generator <- o .: "defActionsGenerator"
         return $ Defense (actions, generator)
-
 
 -- | Wrapper for offense action distribution
 --
@@ -82,7 +82,7 @@ instance ToJSON Offense where
 
 instance FromJSON Offense where
 
-    parseJSON = withObject "offense" $ \o -> do 
+    parseJSON (Object o) =  do 
         actions       <- o .: "offActions"
         generator     <- o .: "offActionsGenerator"
         ballActions   <- o .: "offBallActions"
@@ -96,10 +96,11 @@ instance FromJSON Offense where
 --
 --  *) The fitness is evaluated once in Selection
 --
---              already       new states from
---              calculated      simulation
---                  |              |
---                (Int, [Maybe HFOState])
+--              already      new states from
+--              calculated     simulation
+--                  |          /
+--                  |         |
+--                (Int, [HFOState])
 --
 data OffenseTeam = OffenseTeam { op1        :: Offense
                                , op2        :: Offense
@@ -109,13 +110,27 @@ data OffenseTeam = OffenseTeam { op1        :: Offense
                                }
     deriving (Show)
 
--- instance ToJSON OffenseTeam where
--- 
---     toJSON OffenseTeam{..} = 
+instance ToJSON OffenseTeam where
 
--- instance Show OffenseTeam where
--- 
---     show OffenseTeam{..} = unlines [show op1, show op2, show op3, show op4, show offFitness]
+    toJSON OffenseTeam{..} = object [
+       "op1" .= op1
+      ,"op2" .= op2
+      ,"op3" .= op3
+      ,"op4" .= op4
+      ,"offFitness"       .= fst offFitness
+      ,"offFutureFitness" .= snd offFitness
+      ]
+
+instance FromJSON OffenseTeam where
+
+    parseJSON (Object o) = do
+        op1 <- o .: "op1"
+        op2 <- o .: "op2"
+        op3 <- o .: "op3"
+        op4 <- o .: "op4"
+        offFitness       <- o .: "offFitness"
+        offFutureFitness <- o .: "offFutureFitness"
+        return $ OffenseTeam op1 op2 op3 op4 (offFitness, offFutureFitness)
 
 data DefenseTeam = DefenseTeam { goalie     :: Defense
                                , dp2        :: Defense
@@ -124,9 +139,28 @@ data DefenseTeam = DefenseTeam { goalie     :: Defense
                                , defFitness :: (Int, [Maybe HFOState])}
     deriving (Show)
 
--- instance Show DefenseTeam where
--- 
---     show DefenseTeam{..} = unlines [show goalie, show dp2, show dp3, show dp4, show defFitness]
+instance ToJSON DefenseTeam where
+
+    toJSON DefenseTeam{..} = object [
+       "goalie" .= goalie
+      ,"dp2" .= dp2
+      ,"dp3" .= dp3
+      ,"dp4" .= dp4
+      ,"defFitness"       .= fst defFitness
+      ,"defFutureFitness" .= snd defFitness
+      ]
+
+
+instance FromJSON DefenseTeam where
+
+    parseJSON (Object o) = do
+        goalie <- o .: "goalie"
+        dp2    <- o .: "dp2"
+        dp3    <- o .: "dp3"
+        dp4    <- o .: "dp4"
+        defFitness       <- o .: "defFitness"
+        defFutureFitness <- o .: "defFutureFitness"
+        return $ DefenseTeam goalie dp2 dp3 dp4 (defFitness, defFutureFitness)
 
 -- | Defaults
 --

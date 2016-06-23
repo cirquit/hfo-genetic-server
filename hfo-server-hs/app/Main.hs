@@ -6,7 +6,9 @@ import System.Process
 import System.Random
 import Control.Monad.Random
 import System.Console.ANSI
+import Data.Aeson
 
+import Data.Aeson.Encode.Pretty    (encodePretty)
 import qualified Data.Text.IO as T (appendFile)
 import           Data.Text    as T (pack)
 
@@ -65,8 +67,8 @@ main :: IO ()
 main = do
 
 --  color everything in red to differentiate between the output of the hfo-binary and python-agents
-    setSGR [SetColor Foreground Vivid Black]
-    setSGR [SetColor Background Vivid Magenta]
+--    setSGR [SetColor Foreground Vivid Black]
+--    setSGR [SetColor Background Vivid Magenta]
 
 --  start with a seed
     let g = mkStdGen 31415926
@@ -77,7 +79,9 @@ main = do
         offPopulation :: [OffenseTeam]
         offPopulation = flip evalRand g $ genIndividuals popsizeOffense
 
-    runGA defPopulation offPopulation generations
+--    runGA defPopulation offPopulation generations
+
+    print $ encodePretty $ head defPopulation
 
 -- |  
 --
