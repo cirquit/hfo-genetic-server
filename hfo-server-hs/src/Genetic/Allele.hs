@@ -92,7 +92,6 @@ instance Allele DefenseTeam where
     genIndividual = DefenseTeam <$> genIndividual <*> genIndividual <*> genIndividual <*> genIndividual <*> pure (0, [])
 
 
-
 -- | creates a uniform distribution for 'n' Elements 
 --
 --                 (sort)   (zipWith)

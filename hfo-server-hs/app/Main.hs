@@ -12,9 +12,11 @@ import Data.Aeson.Encode.Pretty    (encodePretty)
 import qualified Data.Text.IO as T (appendFile)
 import           Data.Text    as T (pack)
 
+
+
 import HFO.Server               (ServerConf(..), defaultServer, runServer_, runServer)
 import HFO.Agent                (AgentConf(..), defaultAgent, DefenseTeam(..), OffenseTeam(..)
-                                ,runDefenseTeam, runOffenseTeam, waitForProcesses)
+                                ,runDefenseTeam, runOffenseTeam, waitForProcesses, SerializedTeams(..))
 import HFO.StateParser          (getResults, cleanLog)
 
 
@@ -82,7 +84,7 @@ main = do
     runGA defPopulation offPopulation generations
 
 
--- |  
+-- | Main loop for the genetic algorithm
 --
 runGA :: [DefenseTeam] -> [OffenseTeam] -> Int -> IO ()
 runGA defense offense 0   = return ()
@@ -108,11 +110,6 @@ runGA defense offense gen = do
 --  because of parents (popSize * alpha) and children (popSize * alpha)
     newDefense <- repopulate popsizeDefense (defSelected ++ defMutated)
     newOffense <- repopulate popsizeOffense (offSelected ++ offMutated)
-
-    T.appendFile resultsFile (T.pack $ unlines ["Generation: " ++ show gen, show newDefense, show newOffense])
-
---    print newDefense
---    print newOffense
 
     runGA newDefense newOffense (gen - 1)
 

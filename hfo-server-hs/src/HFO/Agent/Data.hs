@@ -160,6 +160,25 @@ instance FromJSON DefenseTeam where
         defFutureFitness <- o .: "defFutureFitness"
         return $ DefenseTeam goalie dp2 dp3 dp4 (defFitness, defFutureFitness)
 
+-- | This data type is only used to create a better JSON representation to parse with Python
+--
+data SerializedTeams = SerializedTeams { defenseTeams :: [Defense], offenseTeams :: [Offense] }
+    deriving (Show, Eq)
+
+instance ToJSON SerializedTeams where
+
+    toJSON SerializedTeams{..} = object [
+        "defenseTeams" .= defenseTeams
+      , "offenseTeams" .= offenseTeams
+      ]
+
+instance FromJSON SerializedTeams where
+
+    parseJSON (Object o) = do
+        defenseTeams <- o .: "defenseTeams"
+        offenseTeams <- o .: "offenseTeams"
+        return $ SerializedTeams defenseTeams offenseTeams
+
 -- | Defaults
 --
 -- (testing purposes only)
@@ -189,3 +208,9 @@ defaultOffenseTeam = OffenseTeam { op1        = defaultOffense
                                  , op4        = defaultOffense
                                  , offFitness = (0, [])
                                  }
+
+-- (testing purposes only)
+defaultTeams :: SerializedTeams
+defaultTeams = SerializedTeams { defenseTeams = [defaultDefense]
+                               , offenseTeams = [defaultOffense]
+                               }

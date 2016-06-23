@@ -14,7 +14,7 @@ data AgentConf = AgentConf
     , isGoalie   :: Bool
     , episodes   :: Int                     -- how many episodes are played
     , aseed      :: Int                     -- seed for the rng in python
-    , actions    :: Either Offense Defense
+    , actions    :: Either Offense Defense  -- this will be changed 
     }
 
 -- | ToFlag Instace that will be used by 'createProcess' in HFO.Agent.runAgent

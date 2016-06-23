@@ -152,3 +152,6 @@ jsonPropDefenseTeam defTeam = eitherDecode (encode defTeam) == (Right defTeam)
 
 jsonPropOffenseTeam :: OffenseTeam -> Bool
 jsonPropOffenseTeam offTeam = eitherDecode (encode offTeam) == (Right offTeam)
+
+jsonPropSerializedTeams :: SerializedTeams -> Bool
+jsonPropSerializedTeams teams = eitherDecode (encode teams) == (Right teams)
