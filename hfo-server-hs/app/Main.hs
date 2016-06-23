@@ -79,9 +79,8 @@ main = do
         offPopulation :: [OffenseTeam]
         offPopulation = flip evalRand g $ genIndividuals popsizeOffense
 
---    runGA defPopulation offPopulation generations
+    runGA defPopulation offPopulation generations
 
-    print $ encodePretty $ head defPopulation
 
 -- |  
 --

@@ -3,10 +3,13 @@
 import Test.Hspec
 import System.Directory
 import Data.List  (sort)
+import Data.Aeson
 
 import Genetic
 import HFO
 import HFO.ToFlags
+import HFO.StateParser
+
 
 main :: IO ()
 main = hspec $ do
@@ -78,13 +81,26 @@ main = hspec $ do
                                                ,"--offense-on-ball","0"
                                                ,"--message-size","128"
                                                ]
+            describe "HFO.Agent.Data" $ do
+                describe "JSON Encoding / Decoding" $ do
+                    it "DefenseTeam" $ do
+                        let testDefenseTeam = DefenseTeam { goalie     = testDefaultDefense
+                                                          , dp2        = testDefaultDefense
+                                                          , dp3        = testDefaultDefense
+                                                          , dp4        = testDefaultDefense
+                                                          , defFitness = (0, [Just Goal, Nothing, Just ServerDown, Just OutOfTime])}
 
+                        eitherDecode (encode testDefenseTeam) `shouldBe` (Right testDefenseTeam)
 
---            describe "HFO.Parser" $ do
---                it "try valid parse from file" $ do
---                    let info = unlines ["IN_GAME", "SERVER_DOWN", "OUT_OF_TIME", "CAPTURED_BY_DEFENSE", "GOAL", "OUT_OF_BOUNDS"]
---                        fp   = "temp.txt"
---                    True `shouldBe` True
+                    it "OffenseTeam" $ do
+                        let testOffenseTeam = OffenseTeam { op1        = testDefaultOffense
+                                                          , op2        = testDefaultOffense
+                                                          , op3        = testDefaultOffense
+                                                          , op4        = testDefaultOffense
+                                                          , offFitness = (25, [Nothing, Nothing, Just CapturedByDefense, Just OutOfBounds, Just Ingame, Just Goal])}
+
+                        eitherDecode (encode testOffenseTeam) `shouldBe`  (Right testOffenseTeam)
+                        
 
         describe "Genetic" $ do
             describe "Genetic.Allele"    $ do
@@ -95,3 +111,14 @@ main = hspec $ do
                 return ()
             describe "Genetic.Selection" $ do
                 return ()
+
+
+testDefaultDefense :: Defense
+testDefaultDefense = Defense { defActionDist = ([(Move, 50), (Intercept, 20), (Catch, 15), (NoOp, 15)], [0, 50, 70, 85, 100]) }
+
+-- (testing purposes only)
+testDefaultOffense :: Offense
+testDefaultOffense = Offense { offActionDist     = ([(Move,  50), (Intercept, 20), (Catch, 15), (NoOp, 15)], [0, 50, 70, 85, 100])
+                         , offBallActionDist = ([(Shoot, 50), (Dribble,   50)],                          [0, 50, 100])
+                         }
+

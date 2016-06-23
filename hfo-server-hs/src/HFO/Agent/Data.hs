@@ -1,4 +1,4 @@
-{-# LANGUAGE RecordWildCards, BangPatterns, DeriveGeneric, DeriveAnyClass, OverloadedStrings #-}
+{-# LANGUAGE RecordWildCards, BangPatterns, DeriveGeneric, DeriveAnyClass, OverloadedStrings, FlexibleInstances #-}
 
 module HFO.Agent.Data where
 
@@ -18,7 +18,7 @@ data Action  = Move           -- high level move based on strategy (whatever thi
 --             | Dash Int Int   -- power in [0,100], direction in [-180,180]
 --             | Turn Int       -- direction in [-180,180]
 --             | Attract
-    deriving (Show, Enum, Bounded, Generic, FromJSON, ToJSON)
+    deriving (Show, Enum, Bounded, Generic, FromJSON, ToJSON, Eq)
 
 -- | All possible actions for an agent WITH the possesion of the ball
 --
@@ -28,7 +28,7 @@ data BallAction  = Shoot                  -- shoot in (possibly in looking direc
 --                 | Kick   Int Int       -- power in [0,100], direction in [-180, 180]
 --                 | KickTo Int Int Int   -- x in [-1,1], y in [-1,1], power in [0,3]
 --                 | DribbleTo Int Int    -- x in [-1,1], y in [-1,1]
-    deriving (Show, Enum, Bounded, Generic, FromJSON, ToJSON)
+    deriving (Show, Enum, Bounded, Generic, FromJSON, ToJSON, Eq)
 
 -- | Wrapper for defense action distribution
 --
@@ -41,7 +41,7 @@ data BallAction  = Shoot                  -- shoot in (possibly in looking direc
 --
 -- TODO: write tests
 data Defense = Defense { defActionDist :: ([(Action, Int)], [Int]) }
-    deriving (Show)
+    deriving (Show, Eq)
 
 instance ToJSON Defense where
 
@@ -69,7 +69,7 @@ instance FromJSON Defense where
 --
 -- TODO: tests for autmatic creating in Genetic.Allele
 data Offense = Offense { offActionDist :: ([(Action, Int)], [Int]), offBallActionDist :: ([(BallAction, Int)], [Int]) }
-    deriving (Show)
+    deriving (Show, Eq)
 
 instance ToJSON Offense where
 
@@ -108,7 +108,7 @@ data OffenseTeam = OffenseTeam { op1        :: Offense
                                , op4        :: Offense
                                , offFitness :: (Int, [Maybe HFOState])
                                }
-    deriving (Show)
+    deriving (Show, Eq)
 
 instance ToJSON OffenseTeam where
 
@@ -137,7 +137,7 @@ data DefenseTeam = DefenseTeam { goalie     :: Defense
                                , dp3        :: Defense
                                , dp4        :: Defense
                                , defFitness :: (Int, [Maybe HFOState])}
-    deriving (Show)
+    deriving (Show, Eq)
 
 instance ToJSON DefenseTeam where
 

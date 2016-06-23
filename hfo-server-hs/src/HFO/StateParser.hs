@@ -13,6 +13,7 @@ data HFOState = Ingame
               | OutOfBounds
               | OutOfTime
               | ServerDown
+    deriving Eq
 
 instance ToJSON HFOState where
 
@@ -42,6 +43,15 @@ instance Show HFOState where
     show ServerDown        = "SERVER_DOWN"
 
 
+toMState :: Text -> Maybe HFOState
+toMState "IN_GAME"              = Just Ingame
+toMState "GOAL"                 = Just Goal
+toMState "CAPTURED_BY_DEFENSE"  = Just CapturedByDefense
+toMState "OUT_OF_BOUNDS"        = Just OutOfBounds
+toMState "OUT_OF_TIME"          = Just OutOfTime
+toMState "SERVER_DOWN"          = Just ServerDown
+toMState _                      = Nothing
+
 logpath :: FilePath
 logpath = "/home/rewrite/Documents/Project-Repos/hfo-genetic-server/hfo-agent-py/goalie-log.txt"
 
@@ -61,11 +71,3 @@ cleanLog = T.writeFile logpath ""
 getResults :: IO [Maybe HFOState]
 getResults = map toMState . T.lines <$> T.readFile logpath
 
-toMState :: Text -> Maybe HFOState
-toMState "IN_GAME"              = Just Ingame
-toMState "GOAL"                 = Just Goal
-toMState "CAP TURED_BY_DEFENSE" = Just CapturedByDefense
-toMState "OUT_OF_BOUNDS"        = Just OutOfBounds
-toMState "OUT_OF_TIME"          = Just OutOfTime
-toMState "SERVER_DOWN"          = Just ServerDown
-toMState _                      = Nothing
