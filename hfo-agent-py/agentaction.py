@@ -7,8 +7,8 @@ from common import actionToString
 
 # getAction returns the action based on their probabilities and in what current state we are
 #
-#   getAction :: State -> CmdOptions -> IO Action
-def getAction(state, options):
+#   getAction :: State -> Bool -> Dict String Int -> IO Action
+def getAction(state, isOffense, actions):
 
   # pick from actions based on their probability
   #
@@ -26,24 +26,24 @@ def getAction(state, options):
     ballPossession = state[5] # does the agent have the ball
 
   # if we are a defense player, we only have 4 possible actions to choose from
-    if not options.offense_actions:
-        actions = [ (MOVE,      options.defense_actions[0])
-                  , (INTERCEPT, options.defense_actions[1])
-                  , (CATCH,     options.defense_actions[2])
-                  , (NOOP,      options.defense_actions[3])
+    if not isOffense:
+        actions = [ (MOVE,      actions[0][1])
+                  , (INTERCEPT, actions[1][1])
+                  , (CATCH,     actions[2][1])
+                  , (NOOP,      actions[3][1])
                   ]
         return chooseFrom(actions)
 
   # if we are an offense player, we have 4 possible actions + 2 ball actions to choose from
     else:
-        actions = [ (MOVE,      options.offense_actions[0])
-                  , (INTERCEPT, options.offense_actions[1])
-                  , (CATCH,     options.offense_actions[2])
-                  , (NOOP,      options.offense_actions[3])
+        actions = [ (MOVE,      actions[0][1])
+                  , (INTERCEPT, actions[1][1])
+                  , (CATCH,     actions[2][1])
+                  , (NOOP,      actions[3][1])
                   ]
 
-        ballActions = [ (SHOOT,   options.offense_actions[4])
-                      , (DRIBBLE, options.offense_actions[5])
+        ballActions = [ (SHOOT,   actions[4][1])
+                      , (DRIBBLE, actions[5][1])
                       ]
 
       # if we have the ball, choose from the ball actions

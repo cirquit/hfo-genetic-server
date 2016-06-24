@@ -15,14 +15,23 @@ import Data.Aeson
 import Genetic
 import HFO
 import HFO.ToFlags
-import HFO.StateParser
 
 
 -- | Arbitrary Instances for (every) possible data type
 --
---   These don't have a MonadRandom instance so one should use the QuickCheck functions for that
+--   These don't have a MonadRandom instance so one has to use the QuickCheck functions for that
 --
 --
+instance Arbitrary Action where
+
+--  arbitrary :: Gen Action
+    arbitrary = elements [minBound .. maxBound]
+
+instance Arbitrary BallAction where
+
+--  arbitrary :: Gen BallAction
+    arbitrary = elements [minBound .. maxBound]
+
 instance Arbitrary HFOState where
 
 --  arbitrary :: Gen HFOState
@@ -84,31 +93,27 @@ genTestDistribution n = do
 -- | All the Properties
 --
 --
-flagPropOffenseAgent :: Offense -> Bool
-flagPropOffenseAgent off =
-    let agent = AgentConf { teamName = "base_left"
-                          , isGoalie = False
-                          , aseed    = 123
-                          , episodes = 1
-                          , actions  = Left off
+flagOffenseAgent :: Bool
+flagOffenseAgent =
+    let agent = AgentConf { teamName  = "base_left"
+                          , episodes  = 1
+                          , aseed     = 123
+                          , playerNumber = 0
+                          , isOffense = True
                           }
-        dist     = map (show . snd) . fst . offActionDist     $ off 
-        ballDist = map (show . snd) . fst . offBallActionDist $ off
 
-    in toFlags_ agent == (["--team","base_left","--episodes","1","--seed","123","--offactions"] ++ dist ++ ballDist)
+    in toFlags_ agent == (["--team","base_left","--episodes","1","--seed","123","--playerNumber","0", "--isOffense"])
 
-
-flagPropDefenseAgent :: Defense -> Bool
-flagPropDefenseAgent def = 
-    let agent = AgentConf { teamName = "base_right"
-                          , isGoalie = True
-                          , aseed    = 456
-                          , episodes = 4
-                          , actions  = Right def
+flagDefenseAgent :: Bool
+flagDefenseAgent = 
+    let agent = AgentConf { teamName  = "base_right"
+                          , episodes  = 4
+                          , aseed     = 456
+                          , playerNumber = 3
+                          , isOffense = False
                           }
-        dist = map (show . snd) . fst . defActionDist     $ def
 
-    in toFlags_ agent == (["--team","base_right","--goalie","--episodes","4","--seed","456","--defactions"] ++ dist)
+    in toFlags_ agent == (["--team","base_right","--episodes","4","--seed","456","--playerNumber", "3"])
 
 
 -- | test if the distribution always amounts summed to 100
@@ -138,6 +143,12 @@ mutationDefenseDist defense = monadicIO $ do
 
 -- | json serialization tests
 --
+jsonPropAction :: Action -> Bool
+jsonPropAction       action = eitherDecode (encode action)  == (Right action)
+
+jsonPropBallAction :: BallAction -> Bool
+jsonPropBallAction  baction = eitherDecode (encode baction) == (Right baction)
+
 jsonPropHFOState :: HFOState -> Bool
 jsonPropHFOState      state = eitherDecode (encode state)   == (Right state)
 

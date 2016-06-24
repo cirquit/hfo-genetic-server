@@ -5,27 +5,27 @@ from hfo import *
 
 # custom GameStatus to String function because the hfo.py returns scrambled strings
 #
-def statusToString(status):
+def stateToString(state):
 
-  if status == IN_GAME:
+  if state == IN_GAME:
     return "IN_GAME"
 
-  if status == GOAL:
+  if state == GOAL:
     return "GOAL"
 
-  if status == CAPTURED_BY_DEFENSE:
+  if state == CAPTURED_BY_DEFENSE:
     return "CAPTURED_BY_DEFENSE"
 
-  if status == OUT_OF_BOUNDS:
+  if state == OUT_OF_BOUNDS:
     return "OUT_OF_BOUNDS"
 
-  if status == OUT_OF_TIME:
+  if state == OUT_OF_TIME:
     return "OUT_OF_TIME"
 
-  if status == SERVER_DOWN:
+  if state == SERVER_DOWN:
     return "SERVER_DOWN"
 
-  return ("genetic-agent.py.statusToString: error, no parse for status - " + str(status))
+  return ("genetic-agent.py.statusToString: error, no parse for status - " + str(state))
 
 # custom Action to String function because the hfo.py returns scrambled strings
 #

@@ -14,8 +14,8 @@ main = hspec $ do
         describe "HFO" $ do
             describe "HFO.Agent" $ do
 
-                prop "offense agent toFlags instance" flagPropOffenseAgent
-                prop "defense agent toFlags instance" flagPropDefenseAgent
+                it "offense agent toFlags instance" $ flagOffenseAgent `shouldBe` True
+                it "defense agent toFlags instance" $ flagDefenseAgent `shouldBe` True
                 prop "offense agent actionDistribution amounts to 100"     actionDistOffenseGeneration
                 prop "offense agent ballActionDistribution amounts to 100" ballActionDistOffenseGeneration
                 prop "defense agent actionDistribution amounts to 100"     actionDistDefenseGeneration
@@ -65,6 +65,8 @@ main = hspec $ do
                                                ]
             describe "HFO.Agent.Data" $ do
                 describe "JSON Encoding / Decoding" $ do
+                    prop "Action"      jsonPropAction
+                    prop "BallAction"  jsonPropBallAction
                     prop "Offense"     jsonPropOffense
                     prop "Defense"     jsonPropDefense
                     prop "DefenseTeam" jsonPropDefenseTeam

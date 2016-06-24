@@ -10,7 +10,6 @@ import Data.Ord             (comparing)
 
 
 import HFO.Agent
-import HFO.StateParser      (HFOState(..))
 
 -- | Selection class for the genetic algorithm
 --

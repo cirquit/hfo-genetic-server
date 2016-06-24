@@ -1,15 +1,59 @@
-{-# LANGUAGE RecordWildCards, BangPatterns, DeriveGeneric, DeriveAnyClass, OverloadedStrings, FlexibleInstances #-}
+{-# LANGUAGE RecordWildCards, BangPatterns, OverloadedStrings, FlexibleInstances #-}
 
 module HFO.Agent.Data where
 
-import HFO.StateParser (HFOState(..))
-import GHC.Generics
 import Data.Aeson
 import Data.Aeson.Types
-import Data.Text
+import Data.Text as T
+
+-- | All the possible states that our server can have
+--
+--   The states are parsed To/FromJSON based on the show instances defined and copied by the python library
+--
+data HFOState = Ingame
+              | Goal
+              | CapturedByDefense
+              | OutOfBounds
+              | OutOfTime
+              | ServerDown
+    deriving (Eq, Bounded, Enum)
+
+instance ToJSON HFOState where
+
+    toJSON s = String . T.pack . show $ s
+
+instance FromJSON HFOState where
+
+    parseJSON (String s) = do
+        case toMState s of
+            (Just x) -> return x
+            Nothing  -> fail $ "Could not parse " ++ T.unpack s
+
+    parseJSON o          = fail $ "Could not parse this object type - expected String (HFOState)" ++ show o
+
+instance Show HFOState where
+
+    show Ingame            = "IN_GAME"
+    show Goal              = "GOAL"
+    show CapturedByDefense = "CAPTURED_BY_DEFENSE"
+    show OutOfBounds       = "OUT_OF_BOUNDS"
+    show OutOfTime         = "OUT_OF_TIME"
+    show ServerDown        = "SERVER_DOWN"
+
+toMState :: Text -> Maybe HFOState
+toMState "IN_GAME"              = Just Ingame
+toMState "GOAL"                 = Just Goal
+toMState "CAPTURED_BY_DEFENSE"  = Just CapturedByDefense
+toMState "OUT_OF_BOUNDS"        = Just OutOfBounds
+toMState "OUT_OF_TIME"          = Just OutOfTime
+toMState "SERVER_DOWN"          = Just ServerDown
+toMState _                      = Nothing
+
 
 -- | All possible actions for an agent WITHOUT the possession of the ball
 --
+--   To/FromJSON instances also based on the Show instances which are copied from the python library
+-- 
 data Action  = Move           -- high level move based on strategy (whatever this might be - TODO)
              | Intercept      -- intercept the ball
              | Catch          -- goalie only  (this may be a little bit ugly)
@@ -18,7 +62,35 @@ data Action  = Move           -- high level move based on strategy (whatever thi
 --             | Dash Int Int   -- power in [0,100], direction in [-180,180]
 --             | Turn Int       -- direction in [-180,180]
 --             | Attract
-    deriving (Show, Enum, Bounded, Generic, FromJSON, ToJSON, Eq)
+    deriving (Enum, Bounded, Eq)
+
+
+instance ToJSON Action where
+
+    toJSON s = String . T.pack . show $ s
+
+instance FromJSON Action where
+
+    parseJSON (String s) = do
+        case toMAction s of
+            (Just x) -> return x
+            Nothing  -> fail $ "Could not parse " ++ T.unpack s
+
+    parseJSON o          = fail $ "Could not parse this object type - expected String (Action)" ++ show o
+
+instance Show Action where
+
+    show Move      = "MOVE"
+    show Intercept = "INTERCEPT"
+    show Catch     = "CATCH"
+    show NoOp      = "NOOP"
+
+toMAction :: Text -> Maybe Action
+toMAction "MOVE"      = Just Move
+toMAction "INTERCEPT" = Just Intercept
+toMAction "CATCH"     = Just Catch
+toMAction "NOOP"      = Just NoOp
+toMAction _           = Nothing
 
 -- | All possible actions for an agent WITH the possesion of the ball
 --
@@ -28,7 +100,31 @@ data BallAction  = Shoot                  -- shoot in (possibly in looking direc
 --                 | Kick   Int Int       -- power in [0,100], direction in [-180, 180]
 --                 | KickTo Int Int Int   -- x in [-1,1], y in [-1,1], power in [0,3]
 --                 | DribbleTo Int Int    -- x in [-1,1], y in [-1,1]
-    deriving (Show, Enum, Bounded, Generic, FromJSON, ToJSON, Eq)
+    deriving (Enum, Bounded, Eq)
+
+instance ToJSON BallAction where
+
+    toJSON s = String . T.pack . show $ s
+
+instance FromJSON BallAction where
+
+    parseJSON (String s) = do
+        case toMBallAction s of
+            (Just x) -> return x
+            Nothing  -> fail $ "Could not parse " ++ T.unpack s
+
+    parseJSON o          = fail $ "Could not parse this object type - expected String (BallAction)" ++ show o
+
+instance Show BallAction where
+
+    show Shoot   = "SHOOT"
+    show Dribble = "DRIBBLE"
+
+toMBallAction :: Text -> Maybe BallAction
+toMBallAction "SHOOT"   = Just Shoot
+toMBallAction "DRIBBLE" = Just Dribble
+toMBallAction _         = Nothing
+
 
 -- | Wrapper for defense action distribution
 --
@@ -162,7 +258,7 @@ instance FromJSON DefenseTeam where
 
 -- | This data type is only used to create a better JSON representation to parse with Python
 --
-data SerializedTeams = SerializedTeams { defenseTeams :: [Defense], offenseTeams :: [Offense] }
+data SerializedTeams = SerializedTeams { defenseTeams :: [DefenseTeam], offenseTeams :: [OffenseTeam] }
     deriving (Show, Eq)
 
 instance ToJSON SerializedTeams where
@@ -211,6 +307,6 @@ defaultOffenseTeam = OffenseTeam { op1        = defaultOffense
 
 -- (testing purposes only)
 defaultTeams :: SerializedTeams
-defaultTeams = SerializedTeams { defenseTeams = [defaultDefense]
-                               , offenseTeams = [defaultOffense]
+defaultTeams = SerializedTeams { defenseTeams = [defaultDefenseTeam]
+                               , offenseTeams = [defaultOffenseTeam]
                                }

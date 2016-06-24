@@ -17,7 +17,7 @@ import           Data.Text    as T (pack)
 import HFO.Server               (ServerConf(..), defaultServer, runServer_, runServer)
 import HFO.Agent                (AgentConf(..), defaultAgent, DefenseTeam(..), OffenseTeam(..)
                                 ,runDefenseTeam, runOffenseTeam, waitForProcesses, SerializedTeams(..))
-import HFO.StateParser          (getResults, cleanLog)
+import HFO.StateParser          (clearLog, writePopulation, readPopulation)
 
 
 import Genetic.Allele
@@ -42,7 +42,7 @@ agentConf = defaultAgent { episodes = trials serverConf }
 -- | Genetic algorithms parameters
 --
 generations :: Int
-generations    = 5 -- how many times does the GA loop (Simulation -> Selection -> Crossover -> Mutation)
+generations    = 1 -- how many times does the GA loop (Simulation -> Selection -> Crossover -> Mutation)
 
 popsizeDefense :: Int
 popsizeDefense = 20
@@ -91,7 +91,8 @@ runGA defense offense 0   = return ()
 runGA defense offense gen = do
 
 --  Start the simulation for every pair of (defense <-> offense)
-    (defenseTeams, offenseTeams) <- unzipWithM' startSimulation (zip defense offense)
+--    (defenseTeams, offenseTeams) <- unzipWithM' startSimulation (zip defense offense)
+    (defenseTeams, offenseTeams) <- startSimulation (defense,offense)
 
  -- Selection of alpha % best individuals
     let defSelected = select alpha defenseTeams
@@ -115,19 +116,22 @@ runGA defense offense gen = do
 
 -- | Main entry point for simulation
 --   
-startSimulation :: (DefenseTeam, OffenseTeam) -> IO (DefenseTeam, OffenseTeam)
-startSimulation (defenseTeam, offenseTeam) = do
+startSimulation :: ([DefenseTeam], [OffenseTeam]) -> IO ([DefenseTeam],[OffenseTeam])
+startSimulation (defenseTeams, offenseTeams) = do
 
-    cleanLog
+    clearLog
+
+--  Write to log so the python agents can access it
+    writePopulation defenseTeams offenseTeams
 
 --  Start the server
     runServer_ serverConf
 
 --  Start the offensive agents
-    offphs <- runOffenseTeam agentConf offenseTeam
+    offphs <- runOffenseTeam agentConf
 
 --  Start the defensive agents and return the handle from goalie
-    defphs <- runDefenseTeam agentConf defenseTeam
+    defphs <- runDefenseTeam agentConf
 
 --  If any player terminated, the simualtion is over
     waitForProcesses (offphs ++ defphs)
@@ -136,16 +140,19 @@ startSimulation (defenseTeam, offenseTeam) = do
     dirtyExit
 
 --  Get simulation results
-    results <- getResults
+    readPopulation
+
+--    results <- getResults
+--    let results = []
 
 --  Update the team fitness (with Bangs so we avoid lazy IO for sure)
-    let (defScore, defList) = defFitness defenseTeam
-        (offScore, offList) = offFitness offenseTeam
+--     let (defScore, defList) = defFitness defenseTeam
+--         (offScore, offList) = offFitness offenseTeam
+-- 
+--         defense = defenseTeam { defFitness = (defScore, defList ++ results) }
+--         offense = offenseTeam { offFitness = (offScore, offList ++ results) }
 
-        defense = defenseTeam { defFitness = (defScore, defList ++ results) }
-        offense = offenseTeam { offFitness = (offScore, offList ++ results) }
-
-    return (defense, offense)
+--    return (defenseTeams, offenseTeams)
 
 
 -- | stops the execution of HFO & friends
