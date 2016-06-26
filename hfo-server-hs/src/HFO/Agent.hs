@@ -33,7 +33,7 @@ runOffenseTeam conf = do
     (_, ph2) <- runAgent $ conf { teamName = "base_left", isOffense = True, playerNumber = 1 }
     (_, ph3) <- runAgent $ conf { teamName = "base_left", isOffense = True, playerNumber = 2 }
     (_, ph4) <- runAgent $ conf { teamName = "base_left", isOffense = True, playerNumber = 3 }
-    return [ph1, ph2, ph3, ph4]
+    return [] -- [ph1, ph2, ph3, ph4]
 
 -- | shortcut to start a whole defense team
 -- 
@@ -48,7 +48,7 @@ runDefenseTeam conf = do
    (_, ph2) <- runAgent $ conf { teamName = "base_right", isOffense = False, playerNumber = 1 }
    (_, ph3) <- runAgent $ conf { teamName = "base_right", isOffense = False, playerNumber = 2 }
    (_, ph4) <- runAgent $ conf { teamName = "base_right", isOffense = False, playerNumber = 3 }
-   return [ph1, ph2, ph3, ph4]
+   return [ph1] -- , ph2, ph3, ph4]
 
 
 -- | Checks every 100ms if any of the Processes have exited - if yes, then we terminate the simulation
@@ -69,7 +69,7 @@ waitForProcesses phs = do
 --   the HFO binary needs at least 550-600ms between every agent...at least on my machine
 --
 runAgent :: AgentConf -> IO (Handle, ProcessHandle)
-runAgent conf = sleep 2000 >> getInfo <$> createProcess cproc { cwd = cwd, std_err = CreatePipe }
+runAgent conf = sleep 1000 >> getInfo <$> createProcess cproc { cwd = cwd, std_err = CreatePipe }
     where
 
         cproc :: CreateProcess

@@ -43,13 +43,13 @@ agentConf = defaultAgent { episodes = teamEpisodes }
 -- | Genetic algorithms parameters
 --
 generations :: Int
-generations    = 2 -- how many times does the GA loop (Simulation -> Selection -> Crossover -> Mutation)
+generations    = 3 -- how many times does the GA loop (Simulation -> Selection -> Crossover -> Mutation)
 
 popSize :: Int
-popSize        = 10 -- population size (for offense as well as defense teams)
+popSize        = 3 -- population size (for offense as well as defense teams)
 
 teamEpisodes :: Int
-teamEpisodes   = 10 -- amount of trials for every team
+teamEpisodes   = 3 -- amount of trials for every team
 
 alpha :: Double
 alpha = 0.30   -- % of best individuals will be selected - [0.0, 0.5] (if its >= 0.5 then we won't have any inherently new individuals)
