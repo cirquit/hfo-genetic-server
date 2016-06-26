@@ -68,8 +68,11 @@ instance Selection OffenseTeam where
             fitness _                         = 0
 
 
+-- if we want to update the fitness gradually then it has to be a relative fitness, not an absolute
+-- count of simulation results
+
 --  updateFitness :: OffenseTeam -> OffenseTeam
-    updateFitness offense = offense { offFitness = (classify offense, []) }
+--    updateFitness offense = offense { offFitness = (classify offense, []) }
 
 
 instance Selection DefenseTeam where
@@ -89,4 +92,4 @@ instance Selection DefenseTeam where
             fitness _                         = 0
 
 --  updateFitness :: DefenseTeam -> DefenseTeam
-    updateFitness defense = defense { defFitness = (classify defense, []) }
+--    updateFitness defense = defense { defFitness = (classify defense, []) }
