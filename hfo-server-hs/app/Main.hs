@@ -43,13 +43,13 @@ agentConf = defaultAgent { episodes = teamEpisodes }
 -- | Genetic algorithms parameters
 --
 generations :: Int
-generations    = 3 -- how many times does the GA loop (Simulation -> Selection -> Crossover -> Mutation)
+generations    = 20 -- how many times does the GA loop (Simulation -> Selection -> Crossover -> Mutation)
 
 popSize :: Int
-popSize        = 3 -- population size (for offense as well as defense teams)
+popSize        = 50 -- population size (for offense as well as defense teams)
 
 teamEpisodes :: Int
-teamEpisodes   = 3 -- amount of trials for every team
+teamEpisodes   = 5 -- amount of trials for every team
 
 alpha :: Double
 alpha = 0.30   -- % of best individuals will be selected - [0.0, 0.5] (if its >= 0.5 then we won't have any inherently new individuals)
@@ -94,30 +94,28 @@ runGA defense offense gen = do
 --  Start the simulation for every pair of (defense <-> offense)
     (defenseTeams, offenseTeams) <- startSimulation (defense,offense)
 
--- -- Selection of alpha % best individuals
---    let defSelected = select alpha defense -- Teams
---        offSelected = select alpha offense -- Teams
-
-----  Crossover of every selected defense and offense among each other (size is equivalent to the parentlist)
---    defChildren <- crossover defSelected
---    offChildren <- crossover offSelected
-
-----  Mutation of beta % children by delta units
---    defMutated  <- mutate beta delta defChildren
---    offMutated  <- mutate beta delta offChildren
-
-----  Repopulation with new individuals - these should amount to popSize - (popSize * alpha * 2)
-----  because of parents (popSize * alpha) and children (popSize * alpha)
---    newDefense <- repopulate popSize (defSelected ++ defMutated)
---    newOffense <- repopulate popSize (offSelected ++ offMutated)
-
---    runGA newDefense newOffense (gen - 1)
     let path = "/home/rewrite/Documents/Project-Repos/hfo-genetic-server/hfo-agent-py/results" ++ show gen ++ ".json"
-
     writePrettyPopulationTo path defenseTeams offenseTeams
 
---    runGA (select 1.0 defenseTeams) (select 1.0 offenseTeams) (gen - 1)
-    runGA defenseTeams offenseTeams (gen - 1)
+ -- Selection of alpha % best individuals
+    let defSelected = select alpha defenseTeams
+        offSelected = select alpha offenseTeams
+
+--  Crossover of every selected defense and offense among each other (size is equivalent to the parentlist)
+    defChildren <- crossover defSelected
+    offChildren <- crossover offSelected
+
+--  Mutation of beta % children by delta units
+    defMutated  <- mutate beta delta defChildren
+    offMutated  <- mutate beta delta offChildren
+
+--  Repopulation with new individuals - these should amount to popSize - (popSize * alpha * 2)
+--  because of parents (popSize * alpha) and children (popSize * alpha)
+    newDefense <- repopulate popSize (defSelected ++ defMutated)
+    newOffense <- repopulate popSize (offSelected ++ offMutated)
+
+    runGA newDefense newOffense (gen - 1)
+
 
 -- | Main entry point for simulation
 --   
