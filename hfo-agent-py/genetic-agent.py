@@ -72,28 +72,35 @@ def main():
     offTeamCount = len(jsonData["offenseTeams"])
     assert offTeamCount == len(jsonData["defenseTeams"])
 
-    # for every team
-    for teamIndex in xrange(offTeamCount):
+
+    currentTeam = -1
+
+    for currentEpisode in xrange(offTeamCount * episodes):
+
+        # switch to next team if the current team played all episodes
+        if (currentEpisode % episodes) == 0:
+            currentTeam = currentTeam + 1
 
         # action distribution of the player I represent
         # playerDist :: Dict String Int
-        playerDist = getActionDistribution(jsonData, teamIndex, isOffense, playerNumber)
+        playerDist = getActionDistribution(jsonData, currentTeam, isOffense, playerNumber)
 
         # Main game loop
-        for episode in xrange(episodes):
-            status = IN_GAME
-            while status == IN_GAME:
-                state = hfo.getState()
-                action = getAction(state, isOffense, playerDist)
-                hfo.act(action)
-                status = hfo.step()
+        state = IN_GAME
+        while state == IN_GAME:
+            state  = hfo.getState()
+            action = getAction(state, isOffense, playerDist)
+            hfo.act(action)
+            state  = hfo.step()
 
-            # Goalie logs every result in the json object
-            if isGoalie:
-                 jsonData = updateJSON(jsonData, status, teamIndex)
+        # Goalie logs every result in the json object
+        if isGoalie:
+            jsonData = updateJSON(jsonData, state, currentTeam)
 
     # when we are done with every team, write the updated json object to the log
-    writeJSON(jsonData, logpath)
+    if isGoalie:
+        writeJSON(jsonData, logPath)
+#        pprint(jsonData)
 
 
 if __name__ == "__main__":

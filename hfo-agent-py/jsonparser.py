@@ -4,7 +4,6 @@ import json
 
 from common import stateToString
 
-
 #   loads the json object with all the individuals that shall be evaluated
 #
 #   parseJSON :: FilePath -> JSON

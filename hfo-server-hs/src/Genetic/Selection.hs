@@ -59,7 +59,7 @@ instance Selection OffenseTeam where
             in  previousFitness + foldl' (flip ((+) . fitness)) 0 states
         where
             fitness :: Maybe HFOState -> Int
-            fitness (Just Goal)               = 5
+            fitness (Just Goal)               = 2
             fitness (Just OutOfTime)          = 1
             fitness (Just CapturedByDefense)  = 0
             fitness (Just OutOfBounds)        = 0
@@ -80,7 +80,7 @@ instance Selection DefenseTeam where
             in  previousFitness + foldl' (flip ((+) . fitness)) 0 states
         where
             fitness :: Maybe HFOState -> Int
-            fitness (Just CapturedByDefense)  = 5
+            fitness (Just CapturedByDefense)  = 2
             fitness (Just OutOfTime)          = 1
             fitness (Just Goal)               = 0
             fitness (Just OutOfBounds)        = 0
