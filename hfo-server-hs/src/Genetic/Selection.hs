@@ -56,11 +56,12 @@ instance Selection OffenseTeam where
 --  classify :: OffenseTeam -> Int
     classify OffenseTeam{..} =
             let (previousFitness, states) = offFitness
-            in  previousFitness + foldl' (flip ((+) . fitness)) 0 states
+                summedFitness = foldl' (flip ((+) . fitness)) 0 states
+            in  round $ (summedFitness / genericLength states) * 10000
         where
-            fitness :: Maybe HFOState -> Int
-            fitness (Just Goal)               = 2
-            fitness (Just OutOfTime)          = 1
+            fitness :: Maybe HFOState -> Double
+            fitness (Just Goal)               = 1
+            fitness (Just OutOfTime)          = 0
             fitness (Just CapturedByDefense)  = 0
             fitness (Just OutOfBounds)        = 0
             fitness (Just ServerDown)         = 0
@@ -80,11 +81,12 @@ instance Selection DefenseTeam where
 --  classify :: DefenseTeam -> Int
     classify DefenseTeam{..} =
             let (previousFitness, states) = defFitness
-            in  previousFitness + foldl' (flip ((+) . fitness)) 0 states
+                summedFitness = foldl' (flip ((+) . fitness)) 0 states
+            in  round $ (summedFitness / genericLength states) * 10000
         where
-            fitness :: Maybe HFOState -> Int
-            fitness (Just CapturedByDefense)  = 2
-            fitness (Just OutOfTime)          = 1
+            fitness :: Maybe HFOState -> Double
+            fitness (Just CapturedByDefense)  = 1
+            fitness (Just OutOfTime)          = 0
             fitness (Just Goal)               = 0
             fitness (Just OutOfBounds)        = 0
             fitness (Just ServerDown)         = 0

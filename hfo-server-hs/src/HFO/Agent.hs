@@ -69,7 +69,7 @@ waitForProcesses phs = do
 --   the HFO binary needs at least 550-600ms between every agent...at least on my machine
 --
 runAgent :: AgentConf -> IO (Handle, ProcessHandle)
-runAgent conf = sleep 1000 >> getInfo <$> createProcess cproc { cwd = cwd, std_err = CreatePipe }
+runAgent conf = sleep 2000 >> getInfo <$> createProcess cproc { cwd = cwd, std_err = CreatePipe }
     where
 
         cproc :: CreateProcess

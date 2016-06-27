@@ -18,7 +18,7 @@ import HFO.Server               (ServerConf(..), defaultServer, runServer_, runS
 import HFO.Agent                (AgentConf(..), defaultAgent, DefenseTeam(..), OffenseTeam(..)
                                 ,runDefenseTeam, runOffenseTeam, waitForProcesses, SerializedTeams(..))
 import HFO.StateParser          (clearLog, writePopulation, readPopulation, writePrettyPopulation
-                                , printPrettyPopulation, writePrettyPopulationTo)
+                                , printPrettyPopulation, writePrettyPopulationTo, readPopulationFrom)
 
 
 import Genetic.Allele
@@ -43,7 +43,7 @@ agentConf = defaultAgent { episodes = teamEpisodes }
 -- | Genetic algorithms parameters
 --
 generations :: Int
-generations    = 20 -- how many times does the GA loop (Simulation -> Selection -> Crossover -> Mutation)
+generations    = 40 -- how many times does the GA loop (Simulation -> Selection -> Crossover -> Mutation)
 
 popSize :: Int
 popSize        = 50 -- population size (for offense as well as defense teams)
@@ -52,17 +52,13 @@ teamEpisodes :: Int
 teamEpisodes   = 5 -- amount of trials for every team
 
 alpha :: Double
-alpha = 0.30   -- % of best individuals will be selected - [0.0, 0.5] (if its >= 0.5 then we won't have any inherently new individuals)
+alpha = 0.35   -- % of best individuals will be selected - [0.0, 0.5] (if its >= 0.5 then we won't have any inherently new individuals)
 
 beta  :: Double
 beta  = 0.50   -- % of individuals that will be mutated  - [0.0, 1.0]
 
 delta :: Int
-delta = 15     -- by how many units will the distribution of actions be changed - [0,100]
-
--- resultsFile :: FilePath
--- resultsFile = "/home/rewrite/Documents/Project-Repos/hfo-genetic-server/results.txt"
-
+delta = 25     -- by how many units will the distribution of actions be changed - [0,100]
 
 -- | Main entry point
 --
@@ -94,7 +90,7 @@ runGA defense offense gen = do
 --  Start the simulation for every pair of (defense <-> offense)
     (defenseTeams, offenseTeams) <- startSimulation (defense,offense)
 
-    let path = "/home/rewrite/Documents/Project-Repos/hfo-genetic-server/hfo-agent-py/results" ++ show gen ++ ".json"
+    let path = "/home/rewrite/Documents/Project-Repos/hfo-genetic-server/results/results" ++ show gen ++ ".json"
     writePrettyPopulationTo path defenseTeams offenseTeams
 
  -- Selection of alpha % best individuals

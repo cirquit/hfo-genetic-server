@@ -4,6 +4,7 @@ module HFO.StateParser
   ( clearLog
   , writePopulation
   , readPopulation
+  , readPopulationFrom
   , writePrettyPopulation
   , writePrettyPopulationTo
   , printPrettyPopulation
@@ -38,6 +39,13 @@ writePopulation defs = B.writeFile logPath . encode . SerializedTeams defs
 readPopulation :: IO ([DefenseTeam], [OffenseTeam])
 readPopulation = do
     content <- B.readFile logPath
+    case eitherDecode content of
+        Right (SerializedTeams defense offense) -> return (defense, offense)
+        Left  err                               -> error $ "Could not parse the JSON with error: " ++ err
+
+readPopulationFrom :: FilePath -> IO ([DefenseTeam], [OffenseTeam])
+readPopulationFrom fp = do
+    content <- B.readFile fp
     case eitherDecode content of
         Right (SerializedTeams defense offense) -> return (defense, offense)
         Left  err                               -> error $ "Could not parse the JSON with error: " ++ err
