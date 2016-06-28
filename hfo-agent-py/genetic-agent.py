@@ -40,14 +40,24 @@ def runParser():
 # Absolute paths for the formations and log files
 #
 formationsPath = "/home/rewrite/Documents/Project-Repos/HFO/bin/teams/base/config/formations-dt"
-logPath        = "/home/rewrite/Documents/Project-Repos/hfo-genetic-server/hfo-agent-py/communication.json"
+logPath        = "/home/rewrite/Documents/Project-Repos/hfo-genetic-server/communication/communication.json"
+
+
+#   getMyLogPath :: Bool -> Int -> FilePath
+#
+def getMyLogPath(isOffense, index):
+
+    if isOffense:
+        return "/home/rewrite/Documents/Project-Repos/hfo-genetic-server/communication/communication" + str(index) + "off.json"
+    else:
+        return "/home/rewrite/Documents/Project-Repos/hfo-genetic-server/communication/communication" + str(index) + "def.json"
+
 
 # Main entry point
 #
 def main():
 
     jsonData = parseJSON(logPath)
-#    pprint(data)
 
     # parse the command line arguments
     options = runParser()
@@ -72,7 +82,6 @@ def main():
     offTeamCount = len(jsonData["offenseTeams"])
     assert offTeamCount == len(jsonData["defenseTeams"])
 
-
     currentTeam = -1
 
     for currentEpisode in xrange(offTeamCount * episodes):
@@ -94,13 +103,11 @@ def main():
             state  = hfo.step()
 
         # Goalie logs every result in the json object
-        if isGoalie:
-            jsonData = updateJSON(jsonData, state, currentTeam)
+        jsonData = updateJSON(jsonData, state, currentTeam)
 
     # when we are done with every team, write the updated json object to the log
-    if isGoalie:
-        writeJSON(jsonData, logPath)
-#        pprint(jsonData)
+    myLogPath = getMyLogPath(isOffense, playerNumber)
+    writeJSON(jsonData, myLogPath)
 
 
 if __name__ == "__main__":

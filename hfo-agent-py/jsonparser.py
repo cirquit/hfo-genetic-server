@@ -85,4 +85,5 @@ def writeJSON(jsonData, filepath):
 
     with open(filepath, 'w') as file:
         json.dump(jsonData, file)
+        file.flush()
 

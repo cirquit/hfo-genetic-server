@@ -5,7 +5,6 @@ module Main where
 import System.Process
 import System.Random
 import Control.Monad.Random
-import System.Console.ANSI
 import Data.Aeson
 
 import Data.Aeson.Encode.Pretty    (encodePretty)
@@ -16,8 +15,9 @@ import           Data.Text    as T (pack)
 
 import HFO.Server               (ServerConf(..), defaultServer, runServer_, runServer)
 import HFO.Agent                (AgentConf(..), defaultAgent, DefenseTeam(..), OffenseTeam(..)
-                                ,runDefenseTeam, runOffenseTeam, waitForProcesses, SerializedTeams(..))
-import HFO.StateParser          (clearLog, writePopulation, readPopulation, writePrettyPopulation
+                                ,runDefenseTeam, runOffenseTeam, waitForProcesses, SerializedTeams(..)
+                                ,sleep)
+import HFO.StateParser          (clearLog, writePopulation, readPopulation
                                 , printPrettyPopulation, writePrettyPopulationTo, readPopulationFrom)
 
 
@@ -43,7 +43,7 @@ agentConf = defaultAgent { episodes = teamEpisodes }
 -- | Genetic algorithms parameters
 --
 generations :: Int
-generations    = 40 -- how many times does the GA loop (Simulation -> Selection -> Crossover -> Mutation)
+generations    = 50 -- how many times does the GA loop (Simulation -> Selection -> Crossover -> Mutation)
 
 popSize :: Int
 popSize        = 50 -- population size (for offense as well as defense teams)
@@ -52,7 +52,7 @@ teamEpisodes :: Int
 teamEpisodes   = 5 -- amount of trials for every team
 
 alpha :: Double
-alpha = 0.35   -- % of best individuals will be selected - [0.0, 0.5] (if its >= 0.5 then we won't have any inherently new individuals)
+alpha = 0.25   -- % of best individuals will be selected - [0.0, 0.5] (if its >= 0.5 then we won't have any inherently new individuals)
 
 beta  :: Double
 beta  = 0.50   -- % of individuals that will be mutated  - [0.0, 1.0]
@@ -60,14 +60,13 @@ beta  = 0.50   -- % of individuals that will be mutated  - [0.0, 1.0]
 delta :: Int
 delta = 25     -- by how many units will the distribution of actions be changed - [0,100]
 
+resultsPath :: Int -> FilePath
+resultsPath n = "/home/rewrite/Documents/Project-Repos/hfo-genetic-server/results/results" ++ show n ++ ".json"
+
 -- | Main entry point
 --
 main :: IO ()
 main = do
-
---  color everything in red to differentiate between the output of the hfo-binary and python-agents
-    -- setSGR [SetColor Foreground Vivid Black]
-    -- setSGR [SetColor Background Vivid Magenta]
 
 --  start with a seed
     let g = mkStdGen 31415926
@@ -84,14 +83,13 @@ main = do
 -- | Main loop for the genetic algorithm
 --
 runGA :: [DefenseTeam] -> [OffenseTeam] -> Int -> IO ()
-runGA defense offense 0   = printPrettyPopulation defense offense >> writePrettyPopulation defense offense
+runGA defense offense 0   = writePrettyPopulationTo (resultsPath 0) defense offense
 runGA defense offense gen = do
 
 --  Start the simulation for every pair of (defense <-> offense)
     (defenseTeams, offenseTeams) <- startSimulation (defense,offense)
 
-    let path = "/home/rewrite/Documents/Project-Repos/hfo-genetic-server/results/results" ++ show gen ++ ".json"
-    writePrettyPopulationTo path defenseTeams offenseTeams
+    writePrettyPopulationTo (resultsPath gen) defenseTeams offenseTeams
 
  -- Selection of alpha % best individuals
     let defSelected = select alpha defenseTeams
@@ -143,6 +141,7 @@ startSimulation (defenseTeams, offenseTeams) = do
 --  Get simulation results
     readPopulation
 
+
 -- | stops the execution of HFO & friends
 --  
 --  System.Process.terminateProcess can not be used because HFO itself spawns processes that somehow
@@ -150,6 +149,7 @@ startSimulation (defenseTeams, offenseTeams) = do
 --
 dirtyExit :: IO ()
 dirtyExit = do
+    sleep 500
     _ <- rawSystem "killall" ["-9", "rcssserver"]
     _ <- rawSystem "killall" ["-9", "soccerwindow2"]
     _ <- rawSystem "killall" ["-9", "python"]
