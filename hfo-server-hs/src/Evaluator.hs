@@ -27,8 +27,8 @@ import Genetic.Selection
 
 
 resultsFile = concat [ "/home/rewrite/Documents/Project-Repos/hfo-genetic-server/results/"
-                     , "27_06_v" ++ show 2 ++ "/"
-                     , "results" ++ show 1 ++ ".json"
+--                     , "28_06_v" ++ show 2 ++ "_first_complete_run" ++ "/"
+                     , "results" ++ show 12 ++ ".json"
                      ]
 
 
@@ -37,7 +37,8 @@ testServerConf = defaultServer { untouchedTime = 50
                                , trials        = testGamesCount
 --                               , showMonitor   = False
                                , standartPace  = True
-                               , giveBallToPlayer = 9 }
+                               , giveBallToPlayer = 9
+                               }
 --
 testAgentConf :: AgentConf
 testAgentConf = defaultAgent { episodes = testGamesCount }
@@ -62,6 +63,7 @@ startSingleSimulation defense offense = do
 
 --  If any player terminated, the simualtion is over
     waitForProcesses (offphs ++ defphs)
+
 
     uncurry (\[x] [y] -> (x,y)) <$> readPopulation
 

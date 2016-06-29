@@ -11,15 +11,19 @@ A server written in Haskell for to communicate with Half-Field Offense for my un
   * look up every possivle action for defender / attacker and try to run them in the python script from a cmd given distribution 
   * Create a python script that takes information based on cmd-flags OR designated config-files (look up YAML)
   * Automatic property tests for mutation, generation of offense/defense individuals, (de)/serializing JSON of every data type (in Haskell)
+  * create json parser in python for my data type
+  * Rewrite the python + haskell code to start the server only ONCE for all genomes and create a serializable format for the genomes which Haskell and Python can parse and update with ease in JSON (in progress)
+  * create repl-like-functions
+    * Start/Stop the simulation
+    * get automatic calculations
+      * fitness
 
 ## TODO:
-  * Rewrite the python + haskell code to start the server only ONCE for all genomes and create a serializable format for the genomes which Haskell and Python can parse and update with ease in JSON (in progress)
-  * create repl
-    * Start/Stop the simulation
-    * Start with flag-options
+  * think about representation of associations between agents
+  * create repl-like-functions
+    * calculate everything needed for gnuplot
     * Rerun simulation with seed
     * Rerun simulation based on log-files (this won't work because every logs after the first run are broken (?))
-  * create json parser in python for my data type
 
 ## Info for the future:
 
@@ -27,3 +31,4 @@ A server written in Haskell for to communicate with Half-Field Offense for my un
   * One can not connect the players to the server without a delay (currently 1s after every player), so it would be better to start the server only once for all simulations
   * This delay is dependent of the workload on your machine...without -no-synch and without a monitor it needs to be >600ms. without -no-synch 500-600ms...in conclusion it's a very bad idea to connect more than once
   * txt-file based data exchange is not a very good idea because of lazy io in Haskell (text-package fixed it nonetheless)
+  * After ~24200 +/-250 steps without restart the server starts to behave strange und kicks sometimes the players before they played enough episodes. Happens for me if generation = 50 and episodes = 20 so we get 1000 games. I have to check in my 'startSimulation' and restart accordingly if the last individual was not evaluated

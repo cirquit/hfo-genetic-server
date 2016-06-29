@@ -7,16 +7,17 @@ import System.Random
 import Control.Monad.Random
 import Data.Aeson
 
-import Data.Aeson.Encode.Pretty    (encodePretty)
-import qualified Data.Text.IO as T (appendFile)
-import           Data.Text    as T (pack)
+import Data.Aeson.Encode.Pretty      (encodePretty)
+import qualified Data.Text.IO   as T (appendFile)
+import           Data.Text      as T (pack)
+import           Control.Monad       (when)
 
 
 
 import HFO.Server               (ServerConf(..), defaultServer, runServer_, runServer)
 import HFO.Agent                (AgentConf(..), defaultAgent, DefenseTeam(..), OffenseTeam(..)
                                 ,runDefenseTeam, runOffenseTeam, waitForProcesses, SerializedTeams(..)
-                                ,sleep)
+                                ,sleep, Defense(..))
 import HFO.StateParser          (clearLog, writePopulation, readPopulation
                                 , printPrettyPopulation, writePrettyPopulationTo, readPopulationFrom)
 
@@ -46,13 +47,13 @@ generations :: Int
 generations    = 50 -- how many times does the GA loop (Simulation -> Selection -> Crossover -> Mutation)
 
 popSize :: Int
-popSize        = 50 -- population size (for offense as well as defense teams)
+popSize        = 26 -- population size (for offense as well as defense teams)
 
 teamEpisodes :: Int
-teamEpisodes   = 5 -- amount of trials for every team
+teamEpisodes   = 10 -- amount of trials for every team
 
 alpha :: Double
-alpha = 0.25   -- % of best individuals will be selected - [0.0, 0.5] (if its >= 0.5 then we won't have any inherently new individuals)
+alpha = 0.40   -- % of best individuals will be selected - [0.0, 0.5] (if its >= 0.5 then we won't have any inherently new individuals)
 
 beta  :: Double
 beta  = 0.50   -- % of individuals that will be mutated  - [0.0, 1.0]
@@ -139,7 +140,16 @@ startSimulation (defenseTeams, offenseTeams) = do
     dirtyExit
 
 --  Get simulation results
-    readPopulation
+    (def, off) <- readPopulation
+
+--  if the simulation bugged out because of reasons, restart it with the new input
+--  that is determined if the last invidiual has no simulation results
+    if (null . snd . defFitness . last $ def)
+        then do
+            print "restarting simulation..."
+            startSimulation (defenseTeams, offenseTeams)
+        else do
+            return (def, off)
 
 
 -- | stops the execution of HFO & friends
