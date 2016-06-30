@@ -1,0 +1,5 @@
+#!/bin/bash
+
+for p in gnupscripts/*.p; do
+    gnuplot $p
+done

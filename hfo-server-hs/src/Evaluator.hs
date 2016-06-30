@@ -5,10 +5,11 @@ module Evaluator where
 
 import Data.Aeson
 
-import Data.Aeson.Encode.Pretty    (encodePretty)
-import qualified Data.Text.IO as T (appendFile)
-import           Data.Text    as T (pack)
-
+import Data.Aeson.Encode.Pretty      (encodePretty)
+import qualified Data.Text.IO   as T (appendFile)
+import           Data.Text      as T (pack)
+import           Data.List           (genericLength)
+import           System.Process      (proc, createProcess, CreateProcess(..))
 
 import Text.Printf
 
@@ -26,10 +27,26 @@ import Genetic.Crossover
 import Genetic.Selection
 
 
-resultsFile = concat [ "/home/rewrite/Documents/Project-Repos/hfo-genetic-server/results/"
---                     , "28_06_v" ++ show 2 ++ "_first_complete_run" ++ "/"
-                     , "results" ++ show 12 ++ ".json"
+resultsFile n = concat [ "/home/rewrite/Documents/Project-Repos/hfo-genetic-server/results/"
+                     , "29_06_v" ++ show 2 ++ "/"
+                     , "results" ++ show n ++ ".json"
                      ]
+
+graphsLogFile = "/home/rewrite/Documents/Project-Repos/hfo-genetic-server/graphs/info/"
+
+
+plotEverything :: IO ()
+plotEverything = createProcess cproc { cwd = cwd } >> return ()
+    where
+
+        cproc :: CreateProcess
+        cproc = proc "./ploteverything" args
+
+        args :: [String]
+        args = []
+
+        cwd :: Maybe FilePath
+        cwd = Just "/home/rewrite/Documents/Project-Repos/hfo-genetic-server/graphs"
 
 
 testServerConf :: ServerConf
@@ -68,17 +85,20 @@ startSingleSimulation defense offense = do
     uncurry (\[x] [y] -> (x,y)) <$> readPopulation
 
 
-countFitness :: Either OffenseTeam DefenseTeam -> IO ()
-countFitness team = do
-        printf "%-20s: %-6f, %6f%%\n"  "Goals"             goals (roundTo ((goals / len) * 100) 2)
-        printf "%-20s: %-6f, %6f%%\n"  "OutOfTime"         oot   (roundTo ((oot   / len) * 100) 2)
-        printf "%-20s: %-6f, %6f%%\n"  "CapturedByDefense" cbd   (roundTo ((cbd   / len) * 100) 2)
-        printf "%-20s: %-6f, %6f%%\n"  "OutOfBounds"       oob   (roundTo ((oob   / len) * 100) 2)
-        printf "%-20s: %-6f, %6f%%\n"  "ServerDown"        sd    (roundTo ((sd    / len) * 100) 2)
-        printf "%-20s: %-6f, %6f%%\n"  "Ingame"            ing   (roundTo ((ing   / len) * 100) 2)
-        printf "%-20s: %-6f, %6f%%\n"  "Failed Parse"      err   (roundTo ((err   / len) * 100) 2)
-        printf "%-20s: %-6f\n"         "Games"             len
+countFitness :: Either OffenseTeam DefenseTeam -> Double
+countFitness team =
+        -- printf "%-20s: %-6f, %6f%%\n"  "Goals"             goals (roundTo ((goals / len) * 100) 2)
+        -- printf "%-20s: %-6f, %6f%%\n"  "OutOfTime"         oot   (roundTo ((oot   / len) * 100) 2)
+        -- printf "%-20s: %-6f, %6f%%\n"  "CapturedByDefense" cbd   (roundTo ((cbd   / len) * 100) 2)
+        -- printf "%-20s: %-6f, %6f%%\n"  "OutOfBounds"       oob   (roundTo ((oob   / len) * 100) 2)
+        -- printf "%-20s: %-6f, %6f%%\n"  "ServerDown"        sd    (roundTo ((sd    / len) * 100) 2)
+        -- printf "%-20s: %-6f, %6f%%\n"  "Ingame"            ing   (roundTo ((ing   / len) * 100) 2)
+        -- printf "%-20s: %-6f, %6f%%\n"  "Failed Parse"      err   (roundTo ((err   / len) * 100) 2)
+        -- printf "%-20s: %-6f\n"         "Games"             len
 
+        case team of
+            Left  _ -> to2Percent goals
+            Right _ -> to2Percent cbd
     where
 
             (goals, oot, cbd, oob, sd, ing, err, len) = foldl go (0,0,0,0,0,0,0,0) maybeStates
@@ -101,3 +121,61 @@ countFitness team = do
 
             roundTo :: Double -> Int -> Double
             roundTo x n = (fromInteger $ round $ x * (10^n)) / (10.0^^n)
+
+            to2Percent :: Double -> Double
+            to2Percent n = (roundTo ((n / len) * 100) 2)
+
+readInformationFromTo :: Int -> Int -> IO ()
+readInformationFromTo n m = do
+        (defenseTeams, offenseTeams) <- ioContent
+        let defMax  = map (maxFitness  . Right) defenseTeams
+            defMean = map (meanFitness . Right) defenseTeams
+            offMax  = map (maxFitness  . Left)  offenseTeams
+            offMean = map (meanFitness . Left)  offenseTeams
+
+            genList = [1..(length defenseTeams)]
+
+            defGamesCount = map (maxFitGamesCount . Right) defenseTeams
+            offGamesCount = map (maxFitGamesCount . Left)  offenseTeams
+
+            defenseContent = unlines $ zipWith (\x y -> show x ++ " " ++ show y) defMax defMean
+            offenseContent = unlines $ zipWith (\x y -> show x ++ " " ++ show y) offMax offMean
+
+            defenseMaxCount = let l1 = zipWith (\x y -> show x ++ " " ++ show y) defMax defGamesCount
+                                  l2 = zipWith (\x y -> x ++ " " ++ show y) l1     genList
+                              in unlines l2
+
+            offenseMaxCount = let l1 = zipWith (\x y -> show x ++ " " ++ show y) offMax offGamesCount
+                                  l2 = zipWith (\x y -> x ++ " " ++ show y) l1     genList
+                              in unlines l2
+
+
+        writeFile (graphsLogFile ++ "defenseContent.txt") defenseContent
+        writeFile (graphsLogFile ++ "offenseContent.txt") offenseContent
+
+        writeFile (graphsLogFile ++ "defenseMaxCount.txt") defenseMaxCount
+        writeFile (graphsLogFile ++ "offenseMaxCount.txt") offenseMaxCount
+
+        plotEverything
+
+    where
+
+        ioContent :: IO ([[DefenseTeam]], [[OffenseTeam]])
+        ioContent = ((\(x,y) -> (reverse x, reverse y)) . unzip) <$> mapM (readPopulationFrom . resultsFile) [n .. m]
+
+        maxFitness :: Either [OffenseTeam] [DefenseTeam] -> Double
+        maxFitness (Left  offs) = (countFitness . Left)  . head . sortByDescFitness $ offs
+        maxFitness (Right defs) = (countFitness . Right) . head . sortByDescFitness $ defs
+
+        meanFitness :: Either [OffenseTeam] [DefenseTeam] -> Double
+        meanFitness (Left  offs) = (foldr ((+) . countFitness . Left)  0.0 offs) / genericLength offs
+        meanFitness (Right defs) = (foldr ((+) . countFitness . Right) 0.0 defs) / genericLength defs
+
+
+        maxFitGamesCount :: Either [OffenseTeam] [DefenseTeam] -> Int
+        maxFitGamesCount (Left  offs) = (games . Left)  . head . sortByDescFitness $ offs
+        maxFitGamesCount (Right defs) = (games . Right) . head . sortByDescFitness $ defs
+
+        games :: Either OffenseTeam DefenseTeam -> Int
+        games (Left  off) = length . snd . offFitness $ off
+        games (Right def) = length . snd . defFitness $ def
