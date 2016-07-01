@@ -16,3 +16,5 @@ cabal.sandbox.config
 *.json
 .stack-work/
 results
+graphs/info/
+graphs/current/
