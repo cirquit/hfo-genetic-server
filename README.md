@@ -32,3 +32,4 @@ A server written in Haskell for to communicate with Half-Field Offense for my un
   * This delay is dependent of the workload on your machine...without -no-synch and without a monitor it needs to be >600ms. without -no-synch 500-600ms...in conclusion it's a very bad idea to connect more than once
   * txt-file based data exchange is not a very good idea because of lazy io in Haskell (text-package fixed it nonetheless)
   * After ~24200 +/-250 steps without restart the server starts to behave strange und kicks sometimes the players before they played enough episodes. Happens for me if generation = 50 and episodes = 20 so we get 1000 games. I have to check in my 'startSimulation' and restart accordingly if the last individual was not evaluated
+  * giveBallToPlayer does not work. It gives the ball to a random player
