@@ -35,7 +35,8 @@ serverConf = defaultServer { untouchedTime = 50
                            , trials        = popSize * teamEpisodes
 --                           , showMonitor   = False
 --                           , standartPace  = True
-                           , giveBallToPlayer = 9 }
+--                           , giveBallToPlayer = 9    -- this does not work..at all
+                           }
 --
 --  Python agent script configuration (see HFO.Agent.Conf)
 agentConf :: AgentConf
@@ -47,19 +48,19 @@ generations :: Int
 generations    = 50 -- how many times does the GA loop (Simulation -> Selection -> Crossover -> Mutation)
 
 popSize :: Int
-popSize        = 26 -- population size (for offense as well as defense teams)
+popSize        = 50 -- population size (for offense as well as defense teams)
 
 teamEpisodes :: Int
-teamEpisodes   = 10 -- amount of trials for every team
+teamEpisodes   = 15 -- amount of trials for every team
 
 alpha :: Double
-alpha = 0.40   -- % of best individuals will be selected - [0.0, 0.5] (if its >= 0.5 then we won't have any inherently new individuals)
+alpha = 0.45   -- % of best individuals will be selected - [0.0, 0.5] (if its >= 0.5 then we won't have any inherently new individuals)
 
 beta  :: Double
-beta  = 0.50   -- % of individuals that will be mutated  - [0.0, 1.0]
+beta  = 0.75   -- % of individuals that will be mutated  - [0.0, 1.0]
 
 delta :: Int
-delta = 25     -- by how many units will the distribution of actions be changed - [0,100]
+delta = 30     -- by how many units will the distribution of actions be changed - [0,100]
 
 resultsPath :: Int -> FilePath
 resultsPath n = "/home/rewrite/Documents/Project-Repos/hfo-genetic-server/results/results" ++ show n ++ ".json"
@@ -72,13 +73,15 @@ main = do
 --  start with a seed
     let g = mkStdGen 31415926
 
-        defPopulation :: [DefenseTeam]
-        defPopulation = flip evalRand g $ genIndividuals popSize
+--        defPopulation :: [DefenseTeam]
+--        defPopulation = flip evalRand g $ genIndividuals popSize
+--
+--        offPopulation :: [OffenseTeam]
+--        offPopulation = flip evalRand g $ genIndividuals popSize
 
-        offPopulation :: [OffenseTeam]
-        offPopulation = flip evalRand g $ genIndividuals popSize
+    (defPopulation, offPopulation) <- readPopulationFrom (resultsPath 2)
 
-    runGA defPopulation offPopulation generations
+    runGA defPopulation offPopulation 1 -- generations
 
 
 -- | Main loop for the genetic algorithm

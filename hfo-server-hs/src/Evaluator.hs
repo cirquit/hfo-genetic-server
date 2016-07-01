@@ -11,12 +11,13 @@ import           Data.Text      as T (pack)
 import           Data.List           (genericLength)
 import           System.Process      (proc, createProcess, CreateProcess(..))
 
-import Text.Printf
-
+import           Text.Printf
+import           Control.Category    ((>>>))
 
 import HFO.Server               (ServerConf(..), defaultServer, runServer_, runServer)
 import HFO.Agent                (AgentConf(..), defaultAgent, DefenseTeam(..), OffenseTeam(..)
-                                ,runDefenseTeam, runOffenseTeam, waitForProcesses, SerializedTeams(..), HFOState(..))
+                                ,runDefenseTeam, runOffenseTeam, waitForProcesses, SerializedTeams(..), HFOState(..)
+                                ,Offense(..), Defense(..))
 import HFO.StateParser          (clearLog, writePopulation, readPopulation
                                 , printPrettyPopulation, writePrettyPopulationTo, readPopulationFrom)
 
@@ -28,7 +29,8 @@ import Genetic.Selection
 
 
 resultsFile n = concat [ "/home/rewrite/Documents/Project-Repos/hfo-genetic-server/results/"
-                     , "29_06_v" ++ show 2 ++ "/"
+                     , "30_06_v" ++ show 1 ++ "/"
+                     , "json-data/"
                      , "results" ++ show n ++ ".json"
                      ]
 
@@ -54,7 +56,7 @@ testServerConf = defaultServer { untouchedTime = 50
                                , trials        = testGamesCount
 --                               , showMonitor   = False
                                , standartPace  = True
-                               , giveBallToPlayer = 9
+--                               , giveBallToPlayer = 9   -- this does not work at all
                                }
 --
 testAgentConf :: AgentConf
@@ -138,23 +140,32 @@ readInformationFromTo n m = do
             defGamesCount = map (maxFitGamesCount . Right) defenseTeams
             offGamesCount = map (maxFitGamesCount . Left)  offenseTeams
 
+            bestDefActions = map (bestActions . Right) defenseTeams
+            bestOffActions = map (bestActions . Left)  offenseTeams 
+
+
             defenseContent = unlines $ zipWith (\x y -> show x ++ " " ++ show y) defMax defMean
             offenseContent = unlines $ zipWith (\x y -> show x ++ " " ++ show y) offMax offMean
 
             defenseMaxCount = let l1 = zipWith (\x y -> show x ++ " " ++ show y) defMax defGamesCount
-                                  l2 = zipWith (\x y -> x ++ " " ++ show y) l1     genList
+                                  l2 = zipWith (\x y ->      x ++ " " ++ show y) l1     genList
                               in unlines l2
 
             offenseMaxCount = let l1 = zipWith (\x y -> show x ++ " " ++ show y) offMax offGamesCount
                                   l2 = zipWith (\x y -> x ++ " " ++ show y) l1     genList
                               in unlines l2
 
+            defenseActionsDist = unlines $ map (unwords . map show) bestDefActions
+            offenseActionsDist = unlines $ map (unwords . map show) bestOffActions
 
         writeFile (graphsLogFile ++ "defenseContent.txt") defenseContent
         writeFile (graphsLogFile ++ "offenseContent.txt") offenseContent
 
         writeFile (graphsLogFile ++ "defenseMaxCount.txt") defenseMaxCount
         writeFile (graphsLogFile ++ "offenseMaxCount.txt") offenseMaxCount
+
+        writeFile (graphsLogFile ++ "defenseActionsDist.txt") defenseActionsDist
+        writeFile (graphsLogFile ++ "offenseActionsDist.txt") offenseActionsDist
 
         plotEverything
 
@@ -171,7 +182,6 @@ readInformationFromTo n m = do
         meanFitness (Left  offs) = (foldr ((+) . countFitness . Left)  0.0 offs) / genericLength offs
         meanFitness (Right defs) = (foldr ((+) . countFitness . Right) 0.0 defs) / genericLength defs
 
-
         maxFitGamesCount :: Either [OffenseTeam] [DefenseTeam] -> Int
         maxFitGamesCount (Left  offs) = (games . Left)  . head . sortByDescFitness $ offs
         maxFitGamesCount (Right defs) = (games . Right) . head . sortByDescFitness $ defs
@@ -179,3 +189,48 @@ readInformationFromTo n m = do
         games :: Either OffenseTeam DefenseTeam -> Int
         games (Left  off) = length . snd . offFitness $ off
         games (Right def) = length . snd . defFitness $ def
+
+
+        bestActions :: Either [OffenseTeam] [DefenseTeam] -> [Double]
+        bestActions (Left  off) = map (/ genericLength off)
+                                . foldl (\[a,b,c,d,e,f] [a1,b1,c1,d1,e1,f1] -> [a+a1,b+b1,c+c1,d+d1,e+e1,f+f1]) [0,0,0,0,0,0]
+                                $ map bestOffenseActionDist off
+        bestActions (Right def) = map (/ genericLength def)
+                                . foldl (\[a,b,c,d] [a1,b1,c1,d1] -> [a+a1,b+b1,c+c1,d+d1]) [0,0,0,0]
+                                $ map bestDefenseActionDist def
+
+
+
+        bestOffenseActionDist :: OffenseTeam -> [Double]
+        bestOffenseActionDist (OffenseTeam op1 op2 op3 op4 _)  = [ fromIntegral $ maximum (map getMoveProb      opList)
+                                                                 , fromIntegral $ maximum (map getInterceptProb opList)
+                                                                 , fromIntegral $ maximum (map getCatchProb     opList)
+                                                                 , fromIntegral $ maximum (map getNoOpProb      opList)
+                                                                 , fromIntegral $ maximum (map getShootProb     opList)
+                                                                 , fromIntegral $ maximum (map getDribProb      opList)
+                                                                 ]
+            where
+                opList = [op1, op2, op3, op4]
+        --        non-ballActions
+                getMoveProb       = snd . (\(x:_)       -> x) . fst . offActionDist
+                getInterceptProb  = snd . (\(_:x:_)     -> x) . fst . offActionDist
+                getCatchProb      = snd . (\(_:_:x:_)   -> x) . fst . offActionDist
+                getNoOpProb       = snd . (\(_:_:_:x:_) -> x) . fst . offActionDist
+        --        ballActions
+                getShootProb = snd . head            . fst . offBallActionDist
+                getDribProb  = snd . (\(_:x:_) -> x) . fst . offBallActionDist
+
+
+        bestDefenseActionDist :: DefenseTeam -> [Double]
+        bestDefenseActionDist (DefenseTeam dp1 dp2 dp3 dp4 _)  = [ fromIntegral $ maximum (map getMoveProb      opList)
+                                                                 , fromIntegral $ maximum (map getInterceptProb opList)
+                                                                 , fromIntegral $ maximum (map getCatchProb     opList)
+                                                                 , fromIntegral $ maximum (map getNoOpProb      opList)
+                                                                 ]
+            where
+                opList = [dp1, dp2, dp3, dp4]
+        --        non-ballActions
+                getMoveProb       = snd . (\(x:_)       -> x) . fst . defActionDist
+                getInterceptProb  = snd . (\(_:x:_)     -> x) . fst . defActionDist
+                getCatchProb      = snd . (\(_:_:x:_)   -> x) . fst . defActionDist
+                getNoOpProb       = snd . (\(_:_:_:x:_) -> x) . fst . defActionDist
