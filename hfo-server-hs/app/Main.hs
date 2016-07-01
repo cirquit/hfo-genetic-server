@@ -73,13 +73,13 @@ main = do
 --  start with a seed
     let g = mkStdGen 31415926
 
---        defPopulation :: [DefenseTeam]
---        defPopulation = flip evalRand g $ genIndividuals popSize
---
---        offPopulation :: [OffenseTeam]
---        offPopulation = flip evalRand g $ genIndividuals popSize
+        defPopulation :: [DefenseTeam]
+        defPopulation = flip evalRand g $ genIndividuals popSize
 
-    (defPopulation, offPopulation) <- readPopulationFrom (resultsPath 2)
+        offPopulation :: [OffenseTeam]
+        offPopulation = flip evalRand g $ genIndividuals popSize
+
+--    (defPopulation, offPopulation) <- readPopulationFrom (resultsPath 2)
 
     runGA defPopulation offPopulation 1 -- generations
 
