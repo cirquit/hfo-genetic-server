@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 # encoding: utf-8
 
+# Custom test: ./genetic-agent.py --team base_left --episodes 1 --seed 123 --playerNumber 0 --isOffense
+# and          ./bin/HFO --offense-agents 1 
+
 import random
 import thread
 import argparse
@@ -29,13 +32,6 @@ def runParser():
     result = parser.parse_args()
     return result;
 
-#    parser.add_argument("--isGoalie", dest = 'isGoalie',        action = "store_true",   default = False)
-#    parser.add_argument("--offactions", dest = "offense_actions", type = int, nargs = "+", default = [])
-#    parser.add_argument("--defactions", dest = "defense_actions", type = int, nargs = "+", default = [])
-
-# TODO test with: ./genetic-agent.py --team base_left --episodes 1 --seed 123 --playerNumber 0 --isOffense
-
-# and with: ./bin/HFO --offense-agents 1 
 
 # Absolute paths for the formations and log files
 #
