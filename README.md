@@ -19,6 +19,12 @@ A server written in Haskell for to communicate with Half-Field Offense for my un
       * fitness
 
 ## TODO:
+  * Start with simple goals
+    * 2 offensive players vs base
+    * 2 defensive players vs base
+    * 2 off vs 2 def and test vs base
+      * plays vs random teams
+  * Think about a segmentation with positions and a MOVE action which is slightly biased
   * think about representation of associations between agents
   * create repl-like-functions
     * calculate everything needed for gnuplot
