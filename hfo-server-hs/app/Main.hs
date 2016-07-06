@@ -33,9 +33,13 @@ import Genetic.Selection
 serverConf :: ServerConf
 serverConf = defaultServer { untouchedTime = 50
                            , trials        = popSize * teamEpisodes
+                           , offenseAgents = 2
+                           , defenseAgents = 0
+                           , offenseNpcs   = 0
+                           , defenseNpcs   = 2
 --                           , showMonitor   = False
 --                           , standartPace  = True
---                           , giveBallToPlayer = 9    -- this does not work..at all
+                           , giveBallToPlayer = 1   -- 1 should give it to the first player...with the number 11
                            }
 --
 --  Python agent script configuration (see HFO.Agent.Conf)
@@ -45,22 +49,22 @@ agentConf = defaultAgent { episodes = teamEpisodes }
 -- | Genetic algorithms parameters
 --
 generations :: Int
-generations    = 50 -- how many times does the GA loop (Simulation -> Selection -> Crossover -> Mutation)
+generations    = 20 -- how many times does the GA loop (Simulation -> Selection -> Crossover -> Mutation)
 
 popSize :: Int
-popSize        = 50 -- population size (for offense as well as defense teams)
+popSize        = 20 -- population size (for offense as well as defense teams)
 
 teamEpisodes :: Int
-teamEpisodes   = 15 -- amount of trials for every team
+teamEpisodes   = 10 -- amount of trials for every team
 
 alpha :: Double
-alpha = 0.45   -- % of best individuals will be selected - [0.0, 0.5] (if its >= 0.5 then we won't have any inherently new individuals)
+alpha = 0.35   -- % of best individuals will be selected - [0.0, 0.5] (if its >= 0.5 then we won't have any inherently new individuals)
 
 beta  :: Double
-beta  = 0.75   -- % of individuals that will be mutated  - [0.0, 1.0]
+beta  = 0.50   -- % of individuals that will be mutated  - [0.0, 1.0]
 
 delta :: Int
-delta = 30     -- by how many units will the distribution of actions be changed - [0,100]
+delta = 20     -- by how many units will the distribution of actions be changed - [0,100]
 
 resultsPath :: Int -> FilePath
 resultsPath n = "/home/rewrite/Documents/Project-Repos/hfo-genetic-server/results/results" ++ show n ++ ".json"
@@ -74,14 +78,14 @@ main = do
     let g = mkStdGen 31415926
 
         defPopulation :: [DefenseTeam]
-        defPopulation = flip evalRand g $ genIndividuals popSize
+        defPopulation = flip evalRand g $ genIndividuals 0 -- popSize
 
         offPopulation :: [OffenseTeam]
         offPopulation = flip evalRand g $ genIndividuals popSize
 
 --    (defPopulation, offPopulation) <- readPopulationFrom (resultsPath 2)
 
-    runGA defPopulation offPopulation 1 -- generations
+    runGA defPopulation offPopulation generations
 
 
 -- | Main loop for the genetic algorithm
@@ -132,10 +136,10 @@ startSimulation (defenseTeams, offenseTeams) = do
     offphs <- runOffenseTeam agentConf
 
 --  Start the defensive agents and return the handle from goalie
-    defphs <- runDefenseTeam agentConf
+--    defphs <- runDefenseTeam agentConf
 
 --  If any player terminated, the simualtion is over
-    waitForProcesses (offphs ++ defphs)
+    waitForProcesses (offphs) -- ++ defphs)
 
     putStrLn "Done Waiting..."
 
@@ -147,7 +151,7 @@ startSimulation (defenseTeams, offenseTeams) = do
 
 --  if the simulation bugged out because of reasons, restart it with the new input
 --  that is determined if the last invidiual has no simulation results
-    if (null . snd . defFitness . last $ def)
+    if (null . snd . offFitness . last $ off)
         then do
             print "restarting simulation..."
             startSimulation (defenseTeams, offenseTeams)

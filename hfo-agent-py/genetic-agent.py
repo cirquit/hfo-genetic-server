@@ -76,7 +76,7 @@ def main():
 
     # check if we have the same amount of offense as defense teams
     offTeamCount = len(jsonData["offenseTeams"])
-    assert offTeamCount == len(jsonData["defenseTeams"])
+#    assert offTeamCount == len(jsonData["defenseTeams"])
 
     currentTeam = -1
 
@@ -95,7 +95,7 @@ def main():
         while state == IN_GAME:
             state  = hfo.getState()
             action = getAction(state, isOffense, playerDist)
-            hfo.act(action)
+            action.execute(env = hfo)
             state  = hfo.step()
 
         # Goalie logs every result in the json object

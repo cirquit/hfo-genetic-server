@@ -73,7 +73,7 @@ def updateJSON(jsonData, state, teamIndex):
 
     strstate = stateToString(state)
     jsonData["offenseTeams"][teamIndex]["offFutureFitness"].append(strstate)
-    jsonData["defenseTeams"][teamIndex]["defFutureFitness"].append(strstate)
+#    jsonData["defenseTeams"][teamIndex]["defFutureFitness"].append(strstate)
     return jsonData
 
 

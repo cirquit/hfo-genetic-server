@@ -29,7 +29,7 @@ import Genetic.Selection
 
 
 resultsFile n = concat [ "/home/rewrite/Documents/Project-Repos/hfo-genetic-server/results/"
-                     , "30_06_v" ++ show 1 ++ "/"
+                     , "06_07_v" ++ show 1 ++ "/"
                      , "json-data/"
                      , "results" ++ show n ++ ".json"
                      ]
@@ -158,13 +158,13 @@ readInformationFromTo n m = do
             defenseActionsDist = unlines $ map (unwords . map show) bestDefActions
             offenseActionsDist = unlines $ map (unwords . map show) bestOffActions
 
-        writeFile (graphsLogFile ++ "defenseContent.txt") defenseContent
+--        writeFile (graphsLogFile ++ "defenseContent.txt") defenseContent
         writeFile (graphsLogFile ++ "offenseContent.txt") offenseContent
 
-        writeFile (graphsLogFile ++ "defenseMaxCount.txt") defenseMaxCount
+--        writeFile (graphsLogFile ++ "defenseMaxCount.txt") defenseMaxCount
         writeFile (graphsLogFile ++ "offenseMaxCount.txt") offenseMaxCount
 
-        writeFile (graphsLogFile ++ "defenseActionsDist.txt") defenseActionsDist
+--        writeFile (graphsLogFile ++ "defenseActionsDist.txt") defenseActionsDist
         writeFile (graphsLogFile ++ "offenseActionsDist.txt") offenseActionsDist
 
         plotEverything
@@ -210,7 +210,7 @@ readInformationFromTo n m = do
                                                                  , fromIntegral $ maximum (map getDribProb      opList)
                                                                  ]
             where
-                opList = [op1, op2, op3, op4]
+                opList = [op1, op2]
         --        non-ballActions
                 getMoveProb       = snd . (\(x:_)       -> x) . fst . offActionDist
                 getInterceptProb  = snd . (\(_:x:_)     -> x) . fst . offActionDist

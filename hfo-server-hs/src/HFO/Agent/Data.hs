@@ -96,7 +96,10 @@ toMAction _           = Nothing
 --
 data BallAction  = Shoot                  -- shoot in (possibly in looking direction)
                  | Dribble                -- dribble in whatever direction?...
---                 | Pass Int             -- pass to teammate in [0,11]
+                 | Pass7                  -- pass to teammate in [0,11]
+                 | Pass8                  -- pass to teammate in [0,11]
+                 | Pass9                  -- pass to teammate in [0,11]
+                 | Pass11                 -- pass to teammate in [0,11]
 --                 | Kick   Int Int       -- power in [0,100], direction in [-180, 180]
 --                 | KickTo Int Int Int   -- x in [-1,1], y in [-1,1], power in [0,3]
 --                 | DribbleTo Int Int    -- x in [-1,1], y in [-1,1]
@@ -119,10 +122,18 @@ instance Show BallAction where
 
     show Shoot   = "SHOOT"
     show Dribble = "DRIBBLE"
+    show Pass7   = "PASS7"
+    show Pass8   = "PASS8"
+    show Pass9   = "PASS9"
+    show Pass11  = "PASS11"
 
 toMBallAction :: Text -> Maybe BallAction
 toMBallAction "SHOOT"   = Just Shoot
 toMBallAction "DRIBBLE" = Just Dribble
+toMBallAction "PASS7"   = Just Pass7
+toMBallAction "PASS8"   = Just Pass8
+toMBallAction "PASS9"   = Just Pass9
+toMBallAction "PASS11"  = Just Pass11
 toMBallAction _         = Nothing
 
 
@@ -162,7 +173,8 @@ instance FromJSON Defense where
 --   The second part of the tuple is the generator list for the distribution (created via Genetic.Allele.uniformDistributionGen)
 --   This is needed for a semi-random mutation
 --
-data Offense = Offense { offActionDist :: ([(Action, Int)], [Int]), offBallActionDist :: ([(BallAction, Int)], [Int]) }
+data Offense = Offense { offActionDist     :: ([(Action, Int)],     [Int])
+                       , offBallActionDist :: ([(BallAction, Int)], [Int]) }
     deriving (Show, Eq)
 
 instance ToJSON Offense where
@@ -284,7 +296,10 @@ defaultDefense = Defense { defActionDist = ([(Move, 50), (Intercept, 20), (Catch
 -- (testing purposes only)
 defaultOffense :: Offense
 defaultOffense = Offense { offActionDist     = ([(Move,  50), (Intercept, 20), (Catch, 15), (NoOp, 15)], [0, 50, 70, 85, 100])
-                         , offBallActionDist = ([(Shoot, 50), (Dribble,   50)],                          [0, 50, 100])
+                         , offBallActionDist = ([(Shoot, 50), (Dribble,   10), (Pass7, 10)
+                                                                             , (Pass8, 10)
+                                                                             , (Pass9, 10)
+                                                                             , (Pass11,10)], [0,50,60,70,80,90,100])
                          }
 
 -- (testing purposes only)
