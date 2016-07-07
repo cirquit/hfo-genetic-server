@@ -5,6 +5,7 @@ import Test.Hspec.QuickCheck (prop)
 
 import Test
 import HFO
+import HFO.Agent.Actions
 import HFO.ToFlags
 
 

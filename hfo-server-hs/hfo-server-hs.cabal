@@ -20,6 +20,7 @@ library
                      , HFO.Server.Conf
                      , HFO.Agent
                      , HFO.Agent.Data
+                     , HFO.Agent.Actions
                      , HFO.Agent.Conf
                      , HFO.ToFlags
                      , HFO.StateParser
@@ -38,7 +39,9 @@ library
                      , random-shuffle ==0.0.4
                      , text           >= 1.0.0.0
                      , aeson
+                     , aeson-utils    ==0.3.0.2
                      , aeson-pretty   ==0.7.2
+                     , vector         ==0.11.0.0
                      , MonadRandom    >= 0.4.0.0 && < 0.5.0.0
                      , random         >= 1.0.0.0 && < 2.0.0.0
                      , QuickCheck       == 2.8.1
@@ -74,6 +77,8 @@ test-suite hfo-server-test
                      , hfo-server-hs
                      , hspec            == 2.2.*
                      , aeson
+                     , aeson-utils    ==0.3.0.2
+                     , vector         ==0.11.0.0
                      , directory        >= 1.2.0.0
                      , MonadRandom    >= 0.4.0.0 && < 0.5.0.0
                      , random         >= 1.0.0.0 && < 2.0.0.0

@@ -3,9 +3,12 @@
 module HFO.Agent.Data where
 
 import Data.Aeson
+import Data.Aeson.Utils
 import Data.Aeson.Types
 import Data.Text as T
+import GHC.Exts         -- (fromList)
 
+import HFO.Agent.Actions
 -- | All the possible states that our server can have
 --
 --   The states are parsed To/FromJSON based on the show instances defined and copied by the python library
@@ -48,93 +51,6 @@ toMState "OUT_OF_BOUNDS"        = Just OutOfBounds
 toMState "OUT_OF_TIME"          = Just OutOfTime
 toMState "SERVER_DOWN"          = Just ServerDown
 toMState _                      = Nothing
-
-
--- | All possible actions for an agent WITHOUT the possession of the ball
---
---   To/FromJSON instances also based on the Show instances which are copied from the python library
--- 
-data Action  = Move           -- high level move based on strategy (whatever this might be - TODO)
-             | Intercept      -- intercept the ball
-             | Catch          -- goalie only  (this may be a little bit ugly)
-             | NoOp           -- no operation
---             | MoveTo Int Int -- x in [-1,1], y in [-1,1]
---             | Dash Int Int   -- power in [0,100], direction in [-180,180]
---             | Turn Int       -- direction in [-180,180]
---             | Attract
-    deriving (Enum, Bounded, Eq)
-
-
-instance ToJSON Action where
-
-    toJSON s = String . T.pack . show $ s
-
-instance FromJSON Action where
-
-    parseJSON (String s) = do
-        case toMAction s of
-            (Just x) -> return x
-            Nothing  -> fail $ "Could not parse " ++ T.unpack s
-
-    parseJSON o          = fail $ "Could not parse this object type - expected String (Action)" ++ show o
-
-instance Show Action where
-
-    show Move      = "MOVE"
-    show Intercept = "INTERCEPT"
-    show Catch     = "CATCH"
-    show NoOp      = "NOOP"
-
-toMAction :: Text -> Maybe Action
-toMAction "MOVE"      = Just Move
-toMAction "INTERCEPT" = Just Intercept
-toMAction "CATCH"     = Just Catch
-toMAction "NOOP"      = Just NoOp
-toMAction _           = Nothing
-
--- | All possible actions for an agent WITH the possesion of the ball
---
-data BallAction  = Shoot                  -- shoot in (possibly in looking direction)
-                 | Dribble                -- dribble in whatever direction?...
-                 | Pass7                  -- pass to teammate in [0,11]
-                 | Pass8                  -- pass to teammate in [0,11]
-                 | Pass9                  -- pass to teammate in [0,11]
-                 | Pass11                 -- pass to teammate in [0,11]
---                 | Kick   Int Int       -- power in [0,100], direction in [-180, 180]
---                 | KickTo Int Int Int   -- x in [-1,1], y in [-1,1], power in [0,3]
---                 | DribbleTo Int Int    -- x in [-1,1], y in [-1,1]
-    deriving (Enum, Bounded, Eq)
-
-instance ToJSON BallAction where
-
-    toJSON s = String . T.pack . show $ s
-
-instance FromJSON BallAction where
-
-    parseJSON (String s) = do
-        case toMBallAction s of
-            (Just x) -> return x
-            Nothing  -> fail $ "Could not parse " ++ T.unpack s
-
-    parseJSON o          = fail $ "Could not parse this object type - expected String (BallAction)" ++ show o
-
-instance Show BallAction where
-
-    show Shoot   = "SHOOT"
-    show Dribble = "DRIBBLE"
-    show Pass7   = "PASS7"
-    show Pass8   = "PASS8"
-    show Pass9   = "PASS9"
-    show Pass11  = "PASS11"
-
-toMBallAction :: Text -> Maybe BallAction
-toMBallAction "SHOOT"   = Just Shoot
-toMBallAction "DRIBBLE" = Just Dribble
-toMBallAction "PASS7"   = Just Pass7
-toMBallAction "PASS8"   = Just Pass8
-toMBallAction "PASS9"   = Just Pass9
-toMBallAction "PASS11"  = Just Pass11
-toMBallAction _         = Nothing
 
 
 -- | Wrapper for defense action distribution
@@ -296,10 +212,10 @@ defaultDefense = Defense { defActionDist = ([(Move, 50), (Intercept, 20), (Catch
 -- (testing purposes only)
 defaultOffense :: Offense
 defaultOffense = Offense { offActionDist     = ([(Move,  50), (Intercept, 20), (Catch, 15), (NoOp, 15)], [0, 50, 70, 85, 100])
-                         , offBallActionDist = ([(Shoot, 50), (Dribble,   10), (Pass7, 10)
-                                                                             , (Pass8, 10)
-                                                                             , (Pass9, 10)
-                                                                             , (Pass11,10)], [0,50,60,70,80,90,100])
+                         , offBallActionDist = ([(Shoot, 50), (Dribble,   10), (Pass 7, 10)
+                                                                             , (Pass 8, 10)
+                                                                             , (Pass 9, 10)
+                                                                             , (Pass 11,10)], [0,50,60,70,80,90,100])
                          }
 
 -- (testing purposes only)

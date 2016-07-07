@@ -7,5 +7,6 @@ module HFO
 import HFO.Server
 import HFO.Server.Conf
 import HFO.Agent
+import HFO.Agent.Actions
 import HFO.Agent.Data
 import HFO.Agent.Conf

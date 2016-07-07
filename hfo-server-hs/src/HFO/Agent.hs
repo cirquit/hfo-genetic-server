@@ -4,6 +4,7 @@ module HFO.Agent
   (
     module HFO.Agent.Data
   , module HFO.Agent.Conf
+  , module HFO.Agent.Actions
   , runAgent
   , runAgent_
   , runOffenseTeam
@@ -20,6 +21,7 @@ import Data.Maybe               (isJust)
 import HFO.ToFlags              (toFlags_)
 import HFO.Agent.Data
 import HFO.Agent.Conf
+import HFO.Agent.Actions
 
 
 -- | shortcut to start a whole offense team

@@ -71,9 +71,9 @@ instance Mutation Offense where
 
         where 
                 mutateActions :: MonadRandom r => ([(Action, Int)], [Int]) -> r ([(Action, Int)], [Int])
-                mutateActions (_, generator) = do
-                    let actions    = [minBound .. maxBound] :: [Action]
-                        actionsLen = 1 + fromEnum (maxBound :: Action)
+                mutateActions (dist, generator) = do
+                    let actions    = map fst dist :: [Action]
+                        actionsLen = length dist
 
                     summands <- splitDelta delta (actionsLen - 1)
 
@@ -83,9 +83,9 @@ instance Mutation Offense where
                     return (newActionDist, newGenerator)
 
                 mutateBallActions :: MonadRandom r => ([(BallAction, Int)], [Int]) -> r ([(BallAction, Int)], [Int])
-                mutateBallActions (_, generator)  = do
-                    let ballActions    = [minBound .. maxBound] :: [BallAction]
-                        ballActionsLen = 1 + fromEnum (maxBound :: BallAction)
+                mutateBallActions (dist, generator)  = do
+                    let ballActions    = map fst dist :: [BallAction]
+                        ballActionsLen = length dist
 
                     summands <- splitDelta delta (ballActionsLen - 1)
 
@@ -101,9 +101,9 @@ instance Mutation Defense where
 
         where 
                 mutateActions :: MonadRandom r => ([(Action, Int)], [Int]) -> r ([(Action, Int)], [Int])
-                mutateActions (_, generator) = do
-                    let actions    = [minBound .. maxBound] :: [Action]
-                        actionsLen = 1 + fromEnum (maxBound :: Action)
+                mutateActions (dist, generator) = do
+                    let actions    = map fst dist :: [Action]
+                        actionsLen = length dist
                     
                     summands <- splitDelta delta (actionsLen - 1)
 

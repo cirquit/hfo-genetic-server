@@ -45,13 +45,10 @@ instance Allele Offense where
 
 --  genIndividual :: MonadRandom r => r a
     genIndividual = do
-        let actions         = [minBound .. maxBound] :: [Action]
-            ballActions     = [minBound .. maxBound] :: [BallAction]
+        (actions, actionsLen)         <- genActions
+        (ballActions, ballActionsLen) <- genBallActions
 
-            actionsLen      = 1 + fromEnum (maxBound :: Action)
-            ballActionsLen  = 1 + fromEnum (maxBound :: BallAction)
-
-            actionsDist     = uncurry ((,) . zip actions)     <$> genUniformDistributionGen actionsLen
+        let actionsDist     = uncurry ((,) . zip actions)     <$> genUniformDistributionGen actionsLen
             ballActionsDist = uncurry ((,) . zip ballActions) <$> genUniformDistributionGen ballActionsLen
 
         Offense <$> actionsDist <*> ballActionsDist
@@ -67,9 +64,8 @@ instance Allele Defense where
 
 --  genIndividual :: MonadRandom r => r a
     genIndividual = do
-        let actions         = [minBound .. maxBound] :: [Action]
-            actionsLen      = 1 + fromEnum (maxBound :: Action)
-            actionsDist     = uncurry ((,) . zip actions)      <$> genUniformDistributionGen actionsLen
+        (actions, actionsLen) <- genActions
+        let actionsDist = uncurry ((,) . zip actions) <$> genUniformDistributionGen actionsLen
 
         Defense <$> actionsDist
 
@@ -91,6 +87,23 @@ instance Allele DefenseTeam where
 --  genIndividual :: MonadRandom r => DefenseTeam
     genIndividual = DefenseTeam <$> genIndividual <*> genIndividual <*> genIndividual <*> genIndividual <*> pure (0, [])
 
+
+-- | generates random Actions
+--
+genActions :: MonadRandom r => r ([Action], Int)
+genActions = do
+    let res = [Move, Intercept, Catch, NoOp]
+    return (res, length res)
+
+-- | generates random BallActions
+--
+--  *) the server always deploys player 7,8,9 and 11, so we have to filter out the pass to 10
+--
+genBallActions :: MonadRandom r => r ([BallAction], Int)
+genBallActions = do
+    p <- head . filter (/= 10) <$> getRandomRs (7,11)
+    let res = [Shoot, Dribble, Pass p]
+    return (res, length res) 
 
 -- | creates a uniform distribution for 'n' Elements 
 --

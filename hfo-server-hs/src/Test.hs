@@ -25,12 +25,12 @@ import HFO.ToFlags
 instance Arbitrary Action where
 
 --  arbitrary :: Gen Action
-    arbitrary = elements [minBound .. maxBound]
+    arbitrary = elements =<< fst <$> genTestActions
 
 instance Arbitrary BallAction where
 
 --  arbitrary :: Gen BallAction
-    arbitrary = elements [minBound .. maxBound]
+    arbitrary = elements =<< fst <$> genTestBallActions
 
 instance Arbitrary HFOState where
 
@@ -41,10 +41,8 @@ instance Arbitrary Defense where
 
 --  arbitrary :: Gen Defense
     arbitrary = do
-
-        let actions     = [minBound .. maxBound] :: [Action]
-            actionsLen  = 1 + fromEnum (maxBound :: Action)
-            actionsDist = uncurry ((,) . zip actions) <$> genTestDistribution actionsLen
+        (actions, actionsLen) <- genTestActions
+        let actionsDist = uncurry ((,) . zip actions) <$> genTestDistribution actionsLen
 
         Defense <$> actionsDist
 
@@ -52,14 +50,10 @@ instance Arbitrary Offense where
 
 --  arbitrary :: Gen Offense
     arbitrary = do
+        (actions, actionsLen)         <- genTestActions
+        (ballActions, ballActionsLen) <- genTestBallActions
 
-        let actions         = [minBound .. maxBound] :: [Action]
-            ballActions     = [minBound .. maxBound] :: [BallAction]
-
-            actionsLen      = 1 + fromEnum (maxBound :: Action)
-            ballActionsLen  = 1 + fromEnum (maxBound :: BallAction)
-
-            actionsDist     = uncurry ((,) . zip actions)     <$> genTestDistribution actionsLen
+        let actionsDist     = uncurry ((,) . zip actions)     <$> genTestDistribution actionsLen
             ballActionsDist = uncurry ((,) . zip ballActions) <$> genTestDistribution ballActionsLen
 
         Offense <$> actionsDist <*> ballActionsDist
@@ -83,6 +77,19 @@ instance Arbitrary DefenseTeam where
                             <*> arbitrary
                             <*> ((,) <$> (arbitrary `suchThat` (>= 0))
                                      <*> (listOf $ oneof [Just <$> arbitrary, (return Nothing)]))
+
+
+genTestActions :: Gen ([Action], Int)
+genTestActions = do
+    let res = [Move, Intercept, Catch, NoOp]
+    return (res, length res)
+
+genTestBallActions :: Gen ([BallAction], Int)
+genTestBallActions = do
+    p <- head . filter (/= 10) <$> infiniteListOf (choose (7,11))
+    let res = [Shoot, Dribble, Pass p]
+    return (res, length res) 
+
 
 
 genTestDistribution :: Int -> Gen ([Int], [Int])
