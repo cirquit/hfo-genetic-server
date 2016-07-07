@@ -7,7 +7,7 @@ from common import actionToString
 
 # getAction returns the action based on their probabilities and in what current state we are
 #
-#   getAction :: State -> Bool -> Dict String Int -> IO Action
+#   getAction :: State -> Bool -> [(String, [(Dict ActionInfo (Either String Int), Int)]] -> IO Action
 def getAction(state, isOffense, actionsDict):
 
   # pick from actions based on their probability
@@ -42,12 +42,13 @@ def getAction(state, isOffense, actionsDict):
                   , (Action(actionenum = NOOP),      actionsDict[3][1])
                   ]
 
-        ballActions = [ (Action(actionenum = SHOOT),   actionsDict[4][1])
-                      , (Action(actionenum = DRIBBLE), actionsDict[5][1])
-                      , (Action(actionenum = PASS, passTo = 7),  actionsDict[6][1])
-                      , (Action(actionenum = PASS, passTo = 8),  actionsDict[7][1])
-                      , (Action(actionenum = PASS, passTo = 9),  actionsDict[8][1])
-                      , (Action(actionenum = PASS, passTo = 11), actionsDict[9][1])
+        ballActions = [ (Action(actionenum = SHOOT),                                                 actionsDict[4][1])
+                      , (Action(actionenum = DRIBBLE),                                               actionsDict[5][1])
+#                      , (Action(actionenum = PASS, passTo = actionsDict[6][0]["ballArguments"][0]),  actionsDict[6][1])
+                      , (Action(actionenum = PASS, passTo = actionsDict[6][0]["ballArguments"][0]),  actionsDict[6][1])
+                      , (Action(actionenum = PASS, passTo = actionsDict[7][0]["ballArguments"][0]),  actionsDict[7][1])
+                      , (Action(actionenum = PASS, passTo = actionsDict[8][0]["ballArguments"][0]),  actionsDict[8][1])
+                      , (Action(actionenum = PASS, passTo = actionsDict[9][0]["ballArguments"][0]),  actionsDict[9][1])
                       ]
 
       # if we have the ball, choose from the ball actions
@@ -78,7 +79,7 @@ class Action(object):
         if self.actionenum == NOOP:      env.act(NOOP);
         if self.actionenum == SHOOT:     env.act(SHOOT);
         if self.actionenum == DRIBBLE:   env.act(DRIBBLE);
-        if self.actionenum == PASS:      env.act(PASS, self.passTo);
+        if self.actionenum == PASS:      print("{0}").format(self.passTo); env.act(PASS, self.passTo);
 
 
 # gamestates for the future (TODO)

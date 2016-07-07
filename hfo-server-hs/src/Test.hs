@@ -86,8 +86,8 @@ genTestActions = do
 
 genTestBallActions :: Gen ([BallAction], Int)
 genTestBallActions = do
-    p <- head . filter (/= 10) <$> infiniteListOf (choose (7,11))
-    let res = [Shoot, Dribble, Pass p]
+--    p <- head . filter (/= 10) <$> infiniteListOf (choose (7,11))
+    let res = [Shoot, Dribble, Pass 7, Pass 8, Pass 9, Pass 11]
     return (res, length res) 
 
 

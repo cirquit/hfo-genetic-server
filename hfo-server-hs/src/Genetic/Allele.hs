@@ -97,12 +97,13 @@ genActions = do
 
 -- | generates random BallActions
 --
---  *) the server always deploys player 7,8,9 and 11, so we have to filter out the pass to 10
+--   WARNING!! - We can currently only pass to player 7 and 11 because we have enough NoOp Actions
+--             - For 4 vs 4 we have to change this!
 --
 genBallActions :: MonadRandom r => r ([BallAction], Int)
 genBallActions = do
-    p <- head . filter (/= 10) <$> getRandomRs (7,11)
-    let res = [Shoot, Dribble, Pass p]
+    -- p <- head . filter (/= 10) <$> getRandomRs (7,11)
+    let res = [Shoot, Dribble, Pass 7, Pass 11] --Pass 8, Pass 9, Pass 11]
     return (res, length res) 
 
 -- | creates a uniform distribution for 'n' Elements 
