@@ -94,11 +94,11 @@ genActions :: MonadRandom r => r ([Action], Int)
 genActions = do
     let boundsLength = 0.4
 
-    xBs <- getRandomR (-boundsLength, boundsLength)
-    yBs <- getRandomR (-boundsLength, boundsLength)
+    xBs <- roundTo 4 <$> getRandomR (-boundsLength, boundsLength)
+    yBs <- roundTo 4 <$> getRandomR (-boundsLength, boundsLength)
 
-    x <- getRandomR (-1.0, 1.0)
-    y <- getRandomR (-1.0, 1.0)
+    x   <- roundTo 4 <$> getRandomR (-1.0, 1.0)
+    y   <- roundTo 4 <$> getRandomR (-1.0, 1.0)
 
     let res = [Move, Intercept, Catch, NoOp, MoveTo (x,y) (xBs, yBs)]
     return (res, length res)
@@ -156,3 +156,10 @@ genUniformDistributionGen n = do
 --
 generateDistributionFrom :: [Int] -> [Int]
 generateDistributionFrom rs = zipWith (-) (tail rs) rs
+
+
+
+-- rounding Doubles to specified number of digits
+--
+roundTo :: Int -> Double -> Double
+roundTo n d = (fromInteger $ round $ d * (10^n)) / (10.0^^n)
