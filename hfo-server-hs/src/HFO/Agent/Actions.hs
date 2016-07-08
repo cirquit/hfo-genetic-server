@@ -22,18 +22,18 @@ data Action  = Move                                    -- high level move based 
 --             | Dash Int Int                          -- power in [0,100], direction in [-180,180]
 --             | Turn Int                              -- direction in [-180,180]
 --             | Attract
-    deriving Eq
+    deriving (Eq, Show)
 
 
 instance ToJSON Action where
 
     toJSON (MoveTo (x,y) (xBs, yBs)) = object [
-          "action"    .= (String . T.pack. show $ (MoveTo (x,y) (xBs,yBs)))
+          "action"    .= (String . toActionText $ (MoveTo (x,y) (xBs,yBs)))
         , "arguments" .= Array (fromList [Number $ fromFloatDigits x,   Number $ fromFloatDigits y,
                                           Number $ fromFloatDigits xBs, Number $ fromFloatDigits yBs])
         ]
     toJSON a = object [
-          "action"    .= (String $ T.pack $ show a)
+          "action"    .= (String $ toActionText a)
         , "arguments" .= Array (fromList [])
         ]
 
@@ -46,13 +46,12 @@ instance FromJSON Action where
             (Just x) -> return x
             Nothing  -> fail $ "Could not parse this object type - expected valid Action" ++ show o
 
-instance Show Action where
-
-    show Move         = "MOVE"
-    show Intercept    = "INTERCEPT"
-    show Catch        = "CATCH"
-    show NoOp         = "NOOP"
-    show (MoveTo _ _) = "MOVETO"
+toActionText :: Action -> Text
+toActionText Move         = "MOVE"
+toActionText Intercept    = "INTERCEPT"
+toActionText Catch        = "CATCH"
+toActionText NoOp         = "NOOP"
+toActionText (MoveTo _ _) = "MOVETO"
 
 toMAction :: Text -> V.Vector Value -> Maybe Action
 toMAction "MOVE"      _ = Just Move
@@ -74,16 +73,16 @@ data BallAction  = Shoot                  -- shoot in (possibly in looking direc
 --                 | Kick   Int Int       -- power in [0,100], direction in [-180, 180]
 --                 | KickTo Int Int Int   -- x in [-1,1], y in [-1,1], power in [0,3]
 --                 | DribbleTo Int Int    -- x in [-1,1], y in [-1,1]
-    deriving Eq
+    deriving (Eq, Show)
 
 instance ToJSON BallAction where
 
     toJSON (Pass i) = object [
-        "ballAction"    .= (String . T.pack. show $ (Pass i))
+        "ballAction"    .= (String . toBallActionText $ (Pass i))
       , "ballArguments" .= Array (fromList [Number $ fromInteger i])
         ]
     toJSON a = object [
-        "ballAction"    .= (String . T.pack . show $ a)
+        "ballAction"    .= (String . toBallActionText $ a)
       , "ballArguments" .= Array (fromList [])
         ]
 
@@ -96,11 +95,10 @@ instance FromJSON BallAction where
             (Just x) -> return x
             Nothing  -> fail $ "Could not parse this object type - expected valid BallAction" ++ show o
 
-instance Show BallAction where
-
-    show Shoot    = "SHOOT"
-    show Dribble  = "DRIBBLE"
-    show (Pass _) = "PASS"
+toBallActionText :: BallAction -> Text
+toBallActionText Shoot    = "SHOOT"
+toBallActionText Dribble  = "DRIBBLE"
+toBallActionText (Pass _) = "PASS"
 
 toMBallAction :: Text -> V.Vector Value -> Maybe BallAction
 toMBallAction "SHOOT"   _        = Just Shoot
