@@ -92,7 +92,15 @@ instance Allele DefenseTeam where
 --
 genActions :: MonadRandom r => r ([Action], Int)
 genActions = do
-    let res = [Move, Intercept, Catch, NoOp]
+    let boundsLength = 0.4
+
+    xBs <- getRandomR (-boundsLength, boundsLength)
+    yBs <- getRandomR (-boundsLength, boundsLength)
+
+    x <- getRandomR (-1.0, 1.0)
+    y <- getRandomR (-1.0, 1.0)
+
+    let res = [Move, Intercept, Catch, NoOp, MoveTo (x,y) (xBs, yBs)]
     return (res, length res)
 
 -- | generates random BallActions

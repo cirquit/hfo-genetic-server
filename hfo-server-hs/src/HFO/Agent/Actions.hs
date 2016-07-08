@@ -5,7 +5,7 @@ module HFO.Agent.Actions where
 import Data.Aeson
 import Data.Aeson.Utils
 import Data.Aeson.Types
-import Data.Text as T
+import Data.Text as T hiding (map)
 import GHC.Exts         -- (fromList)
 
 import qualified Data.Vector as V
@@ -14,19 +14,24 @@ import qualified Data.Vector as V
 --
 --   To/FromJSON instances also based on the Show instances which are copied from the python library
 -- 
-data Action  = Move           -- high level move based on strategy (whatever this might be - TODO)
-             | Intercept      -- intercept the ball
-             | Catch          -- goalie only  (this may be a little bit ugly)
-             | NoOp           -- no operation
---             | MoveTo Int Int -- x in [-1,1], y in [-1,1]
---             | Dash Int Int   -- power in [0,100], direction in [-180,180]
---             | Turn Int       -- direction in [-180,180]
+data Action  = Move                                    -- high level move based on strategy (whatever this might be - TODO)
+             | Intercept                               -- intercept the ball
+             | Catch                                   -- goalie only  (this may be a little bit ugly)
+             | NoOp                                    -- no operation
+             | MoveTo (Double,Double) (Double, Double) -- (x,y) (xBounds, yBounds) x € [-1,1], y € [-1,1]
+--             | Dash Int Int                          -- power in [0,100], direction in [-180,180]
+--             | Turn Int                              -- direction in [-180,180]
 --             | Attract
     deriving Eq
 
 
 instance ToJSON Action where
 
+    toJSON (MoveTo (x,y) (xBs, yBs)) = object [
+          "action"    .= (String . T.pack. show $ (MoveTo (x,y) (xBs,yBs)))
+        , "arguments" .= Array (fromList [Number $ fromFloatDigits x,   Number $ fromFloatDigits y,
+                                          Number $ fromFloatDigits xBs, Number $ fromFloatDigits yBs])
+        ]
     toJSON a = object [
           "action"    .= (String $ T.pack $ show a)
         , "arguments" .= Array (fromList [])
@@ -43,16 +48,22 @@ instance FromJSON Action where
 
 instance Show Action where
 
-    show Move      = "MOVE"
-    show Intercept = "INTERCEPT"
-    show Catch     = "CATCH"
-    show NoOp      = "NOOP"
+    show Move         = "MOVE"
+    show Intercept    = "INTERCEPT"
+    show Catch        = "CATCH"
+    show NoOp         = "NOOP"
+    show (MoveTo _ _) = "MOVETO"
 
 toMAction :: Text -> V.Vector Value -> Maybe Action
 toMAction "MOVE"      _ = Just Move
 toMAction "INTERCEPT" _ = Just Intercept
 toMAction "CATCH"     _ = Just Catch
 toMAction "NOOP"      _ = Just NoOp
+toMAction "MOVETO"    l = let (Number mx : Number my : Number mxBy : Number myBs : _) = V.toList l in
+     case map floatingOrInteger [mx,my,mxBy,myBs] of
+          [Left x, Left y, Left xBs, Left yBs] -> Just $ MoveTo (x,y) (xBs, yBs)
+          _                                    -> error $ "HFO.Agent.Actions.toMAction: Could not deserialize MoveTo Coordinates: " ++ show l
+
 toMAction _           _ = Nothing
 
 -- | All possible actions for an agent WITH the possesion of the ball

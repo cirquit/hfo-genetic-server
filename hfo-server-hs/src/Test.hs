@@ -81,7 +81,12 @@ instance Arbitrary DefenseTeam where
 
 genTestActions :: Gen ([Action], Int)
 genTestActions = do
-    let res = [Move, Intercept, Catch, NoOp]
+    let boundsLength = 0.4
+    xBs <- choose (-boundsLength, boundsLength)
+    yBs <- choose (-boundsLength, boundsLength)
+    x <- choose (-1.0, 1.0)
+    y <- choose (-1.0, 1.0)
+    let res = [Move, Intercept, Catch, NoOp, MoveTo (x,y) (xBs,yBs)]
     return (res, length res)
 
 genTestBallActions :: Gen ([BallAction], Int)
