@@ -27,10 +27,11 @@ def getAction(state, isOffense, actionsDict):
 
   # if we are a defense player, we only have 4 possible actions to choose from
     if (not isOffense):
-        actions = [ (Action(actionenum = MOVE),      actionsDict[0][1])
-                  , (Action(actionenum = INTERCEPT), actionsDict[1][1])
-                  , (Action(actionenum = CATCH),     actionsDict[2][1])
-                  , (Action(actionenum = NOOP),      actionsDict[3][1])
+        actions = [ (Action(actionenum = MOVE),                                                actionsDict[0][1])
+                  , (Action(actionenum = INTERCEPT),                                           actionsDict[1][1])
+                  , (Action(actionenum = CATCH),                                               actionsDict[2][1])
+                  , (Action(actionenum = NOOP),                                                actionsDict[3][1])
+                  , (Action(actionenum = MOVE_TO, arguments = actionsDict[4][0]["arguments"]), actionsDict[4][1])
                   ]
         return chooseFrom(actions)
 
@@ -40,15 +41,15 @@ def getAction(state, isOffense, actionsDict):
                   , (Action(actionenum = INTERCEPT), actionsDict[1][1])
                   , (Action(actionenum = CATCH),     actionsDict[2][1])
                   , (Action(actionenum = NOOP),      actionsDict[3][1])
+                  , (Action(actionenum = MOVE_TO, arguments = actionsDict[4][0]["arguments"]), actionsDict[4][1])
                   ]
 
-        ballActions = [ (Action(actionenum = SHOOT),                                                 actionsDict[4][1])
-                      , (Action(actionenum = DRIBBLE),                                               actionsDict[5][1])
-#                      , (Action(actionenum = PASS, passTo = actionsDict[6][0]["ballArguments"][0]),  actionsDict[6][1])
-                      , (Action(actionenum = PASS, passTo = actionsDict[6][0]["ballArguments"][0]),  actionsDict[6][1])
-                      , (Action(actionenum = PASS, passTo = actionsDict[7][0]["ballArguments"][0]),  actionsDict[7][1])
-                      , (Action(actionenum = PASS, passTo = actionsDict[8][0]["ballArguments"][0]),  actionsDict[8][1])
-                      , (Action(actionenum = PASS, passTo = actionsDict[9][0]["ballArguments"][0]),  actionsDict[9][1])
+        ballActions = [ (Action(actionenum = SHOOT),                                                 actionsDict[5][1])
+                      , (Action(actionenum = DRIBBLE),                                               actionsDict[6][1])
+                      , (Action(actionenum = PASS, arguments = actionsDict[7][0]["ballArguments"]),  actionsDict[7][1])
+                      , (Action(actionenum = PASS, arguments = actionsDict[8][0]["ballArguments"]),  actionsDict[8][1])
+#                      , (Action(actionenum = PASS, arguments = actionsDict[8][0]["ballArguments"]),  actionsDict[8][1])
+#                      , (Action(actionenum = PASS, arguments = actionsDict[9][0]["ballArguments"]),  actionsDict[9][1])
                       ]
 
       # if we have the ball, choose from the ball actions
@@ -62,14 +63,10 @@ def getAction(state, isOffense, actionsDict):
 #
 class Action(object):
 
-    def __init__(self, actionenum = MOVE, passTo = 11, xCoord = 0, yCoord = 0, power = 1, direction = 100 ):
+    def __init__(self, actionenum = MOVE, arguments = []):
         
         self.actionenum = actionenum   # this can be any possible action 
-        self.passTo     = passTo       # only used in PASS, possible numbers [7,8,9,11]
-        self.xCoord     = xCoord       # not used yet
-        self.yCoord     = yCoord       # not used yet
-        self.power      = power        # not used yet
-        self.direction  = direction    # not used yet
+        self.arguments  = arguments
 
     def execute(self, env):
 
@@ -79,7 +76,21 @@ class Action(object):
         if self.actionenum == NOOP:      env.act(NOOP);
         if self.actionenum == SHOOT:     env.act(SHOOT);
         if self.actionenum == DRIBBLE:   env.act(DRIBBLE);
-        if self.actionenum == PASS:      print("{0}").format(self.passTo); env.act(PASS, self.passTo);
+        if self.actionenum == PASS:      print env.act(PASS, self.arguments[0]);
+        if self.actionenum == MOVE_TO:
+             x   = self.arguments[0]
+             y   = self.arguments[1]
+             xBs = self.arguments[2]
+             yBs = self.arguments[3]
+
+             if x <= xBs: xTo = random.uniform(x,xBs)
+             else:        xTo = random.uniform(xBs,x)
+
+             if y <= yBs: yTo = random.uniform(y,yBs)
+             else:        yTo = random.uniform(yBs,y)
+
+             print("moving to x:{0} y:{1}").format(xTo, yTo)
+             env.act(MOVE_TO, xTo, yTo);
 
 
 # gamestates for the future (TODO)

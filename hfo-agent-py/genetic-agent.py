@@ -2,7 +2,7 @@
 # encoding: utf-8
 
 # Custom test: ./genetic-agent.py --team base_left --episodes 1 --seed 123 --playerNumber 0 --isOffense
-# and          ./bin/HFO --offense-agents 1 
+#              ./bin/HFO --offense-agents 2 --defense-npcs 2 --defense-team base --no-sync --offense-on-ball 1 
 
 import random
 import thread

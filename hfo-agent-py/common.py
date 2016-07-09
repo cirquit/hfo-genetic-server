@@ -49,4 +49,7 @@ def actionToString(action):
   if action == DRIBBLE:
     return "DRIBBLE"
 
+  if action == MOVE_TO:
+    return "MOVE_TO"
+
   return ("genetic-agent.py.actionToString: error, no parse for action - " + str(action))

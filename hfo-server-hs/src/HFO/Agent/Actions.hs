@@ -51,14 +51,14 @@ toActionText Move         = "MOVE"
 toActionText Intercept    = "INTERCEPT"
 toActionText Catch        = "CATCH"
 toActionText NoOp         = "NOOP"
-toActionText (MoveTo _ _) = "MOVETO"
+toActionText (MoveTo _ _) = "MOVE_TO"
 
 toMAction :: Text -> V.Vector Value -> Maybe Action
 toMAction "MOVE"      _ = Just Move
 toMAction "INTERCEPT" _ = Just Intercept
 toMAction "CATCH"     _ = Just Catch
 toMAction "NOOP"      _ = Just NoOp
-toMAction "MOVETO"    l = let (Number mx : Number my : Number mxBy : Number myBs : _) = V.toList l in
+toMAction "MOVE_TO"    l = let (Number mx : Number my : Number mxBy : Number myBs : _) = V.toList l in
      case map floatingOrInteger [mx,my,mxBy,myBs] of
           [Left x, Left y, Left xBs, Left yBs] -> Just $ MoveTo (x,y) (xBs, yBs)
           _                                    -> error $ "HFO.Agent.Actions.toMAction: Could not deserialize MoveTo Coordinates: " ++ show l
