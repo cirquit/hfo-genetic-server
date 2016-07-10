@@ -164,7 +164,14 @@ splitDelta delta parts = zipWith (*) partList . filter (/= 0) <$> getRandomRs (-
 --   *) last result = 100
 --   *) all (<=100 && >= 0) result = True
 --
--- TODO: tests
---
 mutateGenerator :: [Int] -> [Int] -> [Int]
 mutateGenerator generator deltas = sort $ zipWith (((max 0 . min 100) .) . (+)) generator (0:deltas ++ [100])
+
+
+-- TODO think of a way to mutate this properly
+--
+mutatePositions :: [Actions] -> IO [Actions]
+mutatePositions = foldM go []
+    where
+        go (MoveTo (x,y) (xBs,yBs)) as = as ++ [MoveTo (x,y) (xBs,yBs)]
+        go a as                        = as ++ [a]
