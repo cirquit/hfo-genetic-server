@@ -62,6 +62,40 @@ toMState _                      = Nothing
 --   The second part of the tuple is the generator list for the distribution (created via Genetic.Allele.uniformDistributionGen)
 --   This is needed for a semi-random mutation
 --
+-- TODO: Segment the field in ~ 20 Fields and the corresponding actiondistribution
+--
+-- Coordinates: (x,y)
+--
+--  (Y) 
+--
+-- -1     --------   -------   -------   --------
+--       |         |         |         |          |
+--       |         |         |         |          |
+--       |         |         |         |          |
+--       |         |         |         |          |
+-- -0.5  |_______-x,-y_______|_______+x,-y________|
+--       |         |         |         |          |
+--       |         |         |         |          |
+--       |         |         |         |          |__
+--       |         |         |         |          |  |
+--       |         |         |         |          |  |
+--  0     --------   -------   --------   -------    |
+--       |         |         |         |          |  |
+--       |         |         |         |          |__|
+--       |         |         |         |          |
+--       |         |         |         |          |
+--  0.5  |_______-x,+y_______|_______+x,+y________|
+--       |         |         |         |          |
+--       |         |         |         |          |
+--       |         |         |         |          |
+--       |         |         |         |          |
+--       |         |         |         |          |
+--  1      -------   -------   -------   -------
+--      -1       -0.5        0        0.5         1  (X) 
+
+--  x: (-1, -0.5) (-0.5, 0) (0, 0.5) (0.5, 1.0)
+--  y: (-1, -0.5) (-0.5, 0) (0, 0.5) (0.5, 1.0)
+--
 data Defense = Defense { defActionDist :: ([(Action, Int)], [Int]) }
     deriving (Show, Eq)
 
