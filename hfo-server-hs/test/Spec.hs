@@ -1,7 +1,7 @@
 {-# LANGUAGE ViewPatterns #-}
 
 import Test.Hspec
-import Test.Hspec.QuickCheck (prop)
+import Test.Hspec.QuickCheck (prop, modifyMaxSuccess)
 
 import Test
 import HFO
@@ -10,7 +10,7 @@ import HFO.ToFlags
 
 
 main :: IO ()
-main = hspec $ do
+main = hspec . modifyMaxSuccess (const 5000) $ do
     describe "HSpec tests for hfo-server-hs" $ do
         describe "HFO" $ do
             describe "HFO.Agent" $ do
