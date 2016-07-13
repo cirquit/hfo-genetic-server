@@ -58,12 +58,17 @@ toMAction "MOVE"      _ = Just Move
 toMAction "INTERCEPT" _ = Just Intercept
 toMAction "CATCH"     _ = Just Catch
 toMAction "NOOP"      _ = Just NoOp
-toMAction "MOVE_TO"    l = let (Number mx : Number my : Number mxBy : Number myBs : _) = V.toList l in
-     case map floatingOrInteger [mx,my,mxBy,myBs] of
-          [Left x, Left y, Left xBs, Left yBs] -> Just $ MoveTo (x,y) (xBs, yBs)
-          _                                    -> error $ "HFO.Agent.Actions.toMAction: Could not deserialize MoveTo Coordinates: " ++ show l
-
+toMAction "MOVE_TO"    l = let (Number mx : Number my : Number mxBy : Number myBs : _) = V.toList l
+                               [x, y, xBs, yBs] = map (toDouble . floatingOrInteger) [mx,my,mxBy,myBs]
+                           in Just $ MoveTo (x,y) (xBs, yBs)
 toMAction _           _ = Nothing
+
+toDouble :: Either Double Integer -> Double
+toDouble (Left  d) = d
+toDouble (Right i) = fromInteger i
+
+
+
 
 -- | All possible actions for an agent WITH the possesion of the ball
 --

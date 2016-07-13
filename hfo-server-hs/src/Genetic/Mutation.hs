@@ -170,8 +170,8 @@ mutateGenerator generator deltas = sort $ zipWith (((max 0 . min 100) .) . (+)) 
 
 -- TODO think of a way to mutate this properly
 --
-mutatePositions :: [Actions] -> IO [Actions]
-mutatePositions = foldM go []
-    where
-        go (MoveTo (x,y) (xBs,yBs)) as = as ++ [MoveTo (x,y) (xBs,yBs)]
-        go a as                        = as ++ [a]
+-- mutatePositions :: [Action] -> IO [Action]
+-- mutatePositions = foldM go []
+--     where
+--         go (MoveTo (x,y) (xBs,yBs)) as = as ++ [MoveTo (x,y) (xBs,yBs)]
+--         go a as                        = as ++ [a]
