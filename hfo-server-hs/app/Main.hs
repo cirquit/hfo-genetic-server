@@ -12,15 +12,12 @@ import qualified Data.Text.IO   as T (appendFile)
 import           Data.Text      as T (pack)
 import           Control.Monad       (when)
 
-
-
 import HFO.Server               (ServerConf(..), defaultServer, runServer_, runServer)
 import HFO.Agent                (AgentConf(..), defaultAgent, DefenseTeam(..), OffenseTeam(..)
                                 ,runDefenseTeam, runOffenseTeam, waitForProcesses, SerializedTeams(..)
                                 ,sleep, Defense(..))
 import HFO.StateParser          (clearLog, writePopulation, readPopulation
                                 , printPrettyPopulation, writePrettyPopulationTo, readPopulationFrom)
-
 
 import Genetic.Allele
 import Genetic.Mutation
@@ -49,7 +46,7 @@ agentConf = defaultAgent { episodes = teamEpisodes }
 -- | Genetic algorithms parameters
 --
 generations :: Int
-generations    = 50 -- how many times does the GA loop (Simulation -> Selection -> Crossover -> Mutation)
+generations    = 2 -- how many times does the GA loop (Simulation -> Selection -> Crossover -> Mutation)
 
 popSize :: Int
 popSize        = 50 -- population size (for offense as well as defense teams)

@@ -29,8 +29,8 @@ import Genetic.Selection
 
 
 resultsFile n = concat [ "/home/rewrite/Documents/Project-Repos/hfo-genetic-server/results/"
-                     , "07_07_v" ++ show 2 ++ "/"
-                     , "json-data/"
+                     , "13_07_v" ++ show 1 ++ "/"
+--                     , "json-data/"
                      , "results" ++ show n ++ ".json"
                      ]
 
@@ -193,10 +193,10 @@ readInformationFromTo n m = do
 
         bestActions :: Either [OffenseTeam] [DefenseTeam] -> [Double]
         bestActions (Right def) = map (/ genericLength def)
-                                . foldl (\[a,b,c,d,e,f] [a1,b1,c1,d1,e1,f1] -> [a+a1,b+b1,c+c1,d+d1,e+e1,f+f1]) [0,0,0,0,0,0]
+                                . foldl (zipWith (+)) [0,0,0,0,0,0]
                                 $ map bestDefenseActionDist def
         bestActions (Left off) = map (/ genericLength off)
-                                . foldl (\[a,b,c,d,e,f,g,h,i,j] [a1,b1,c1,d1,e1,f1,g1,h1,i1,j1] -> [a+a1,b+b1,c+c1,d+d1,e+e1,f+f1,g+g1,h+h1,i+i1,j+j1]) [0,0,0,0,0,0,0,0,0,0]
+                                . foldl (zipWith (+)) [0,0,0,0,0,0,0,0,0]
                                 $ map bestOffenseActionDist off
 
 
@@ -204,30 +204,33 @@ readInformationFromTo n m = do
         bestOffenseActionDist :: OffenseTeam -> [Double]
         bestOffenseActionDist (OffenseTeam op1 op2 op3 op4 _)  = [ fromIntegral $ maximum (map getMoveProb      opList)
                                                                  , fromIntegral $ maximum (map getInterceptProb opList)
-                                                                 , fromIntegral $ maximum (map getPass7Prob     opList)
-                                                                 , fromIntegral $ maximum (map getPass8Prob     opList)
-                                                                 , fromIntegral $ maximum (map getPass9Prob     opList)
-                                                                 , fromIntegral $ maximum (map getPass11Prob    opList)
                                                                  , fromIntegral $ maximum (map getCatchProb     opList)
                                                                  , fromIntegral $ maximum (map getNoOpProb      opList)
                                                                  , fromIntegral $ maximum (map getShootProb     opList)
                                                                  , fromIntegral $ maximum (map getDribProb      opList)
+                                                                 , fromIntegral $ maximum (map getPass7Prob     opList)
+--                                                                 , fromIntegral $ maximum (map getPass8Prob     opList)
+--                                                                 , fromIntegral $ maximum (map getPass9Prob     opList)
+                                                                 , fromIntegral $ maximum (map getPass11Prob    opList)
+                                                                 , fromIntegral $ maximum (map getMoveToProb     opList)
                                                                  ]
             where
                 opList = [op1, op2]
         --        non-ballActions
-                getMoveProb       = snd . (\(x:_)       -> x) . fst . offActionDist
-                getInterceptProb  = snd . (\(_:x:_)     -> x) . fst . offActionDist
-                getCatchProb      = snd . (\(_:_:x:_)   -> x) . fst . offActionDist
-                getNoOpProb       = snd . (\(_:_:_:x:_) -> x) . fst . offActionDist
+                getMoveProb       = snd . (\(x:_)         -> x) . fst . offActionDist
+                getInterceptProb  = snd . (\(_:x:_)       -> x) . fst . offActionDist
+                getCatchProb      = snd . (\(_:_:x:_)     -> x) . fst . offActionDist
+                getNoOpProb       = snd . (\(_:_:_:x:_)   -> x) . fst . offActionDist
+                getMoveToProb     = snd . (\(_:_:_:_:x:_) -> x) . fst . offActionDist
+
         --        ballActions
                 getShootProb = snd . head            . fst . offBallActionDist
                 getDribProb  = snd . (\(_:x:_) -> x) . fst . offBallActionDist
 
                 getPass7Prob   = snd . (\(_:_:x:_) -> x) . fst . offBallActionDist
-                getPass8Prob   = snd . (\(_:_:_:x:_) -> x) . fst . offBallActionDist
-                getPass9Prob   = snd . (\(_:_:_:_:x:_) -> x) . fst . offBallActionDist
-                getPass11Prob  = snd . (\(_:_:_:_:_:x:_) -> x) . fst . offBallActionDist
+--                getPass8Prob   = snd . (\(_:_:_:x:_) -> x) . fst . offBallActionDist
+--                getPass9Prob   = snd . (\(_:_:_:_:x:_) -> x) . fst . offBallActionDist
+                getPass11Prob  = snd . (\(_:_:_:x:_) -> x) . fst . offBallActionDist
 
 
         bestDefenseActionDist :: DefenseTeam -> [Double]
