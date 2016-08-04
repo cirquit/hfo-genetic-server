@@ -48,8 +48,8 @@ instance Allele Offense where
         (actions, actionsLen)         <- genActions
         (ballActions, ballActionsLen) <- genBallActions
 
-        let actionsDist     = uncurry ((,) . zip actions)     <$> genUniformDistributionGen actionsLen
-            ballActionsDist = uncurry ((,) . zip ballActions) <$> genUniformDistributionGen ballActionsLen
+        let actionsDist     = replicateM 16 $ uncurry (ActionDist     . zip actions)     <$> genUniformDistributionGen actionsLen
+            ballActionsDist = replicateM 16 $ uncurry (BallActionDist . zip ballActions) <$> genUniformDistributionGen ballActionsLen
 
         Offense <$> actionsDist <*> ballActionsDist
 
@@ -65,7 +65,7 @@ instance Allele Defense where
 --  genIndividual :: MonadRandom r => r a
     genIndividual = do
         (actions, actionsLen) <- genActions
-        let actionsDist = uncurry ((,) . zip actions) <$> genUniformDistributionGen actionsLen
+        let actionsDist = replicateM 16 $ uncurry (ActionDist . zip actions) <$> genUniformDistributionGen actionsLen
 
         Defense <$> actionsDist
 
@@ -92,15 +92,15 @@ instance Allele DefenseTeam where
 --
 genActions :: MonadRandom r => r ([Action], Int)
 genActions = do
-    let boundsLength = 0.4
+--    let boundsLength = 0.4
 
-    xBs <- roundTo 4 <$> getRandomR (-boundsLength, boundsLength)
-    yBs <- roundTo 4 <$> getRandomR (-boundsLength, boundsLength)
+--    xBs <- roundTo 4 <$> getRandomR (-boundsLength, boundsLength)
+--    yBs <- roundTo 4 <$> getRandomR (-boundsLength, boundsLength)
 
-    x   <- roundTo 4 <$> getRandomR (-1.0, 1.0)
-    y   <- roundTo 4 <$> getRandomR (-1.0, 1.0)
+--    x   <- roundTo 4 <$> getRandomR (-1.0, 1.0)
+--    y   <- roundTo 4 <$> getRandomR (-1.0, 1.0)
 
-    let res = [Move, Intercept, Catch, NoOp, MoveTo (x,y) (xBs, yBs)]
+    let res = [Move, Intercept, Catch, NoOp] -- MoveTo (x,y) (xBs, yBs)]
     return (res, length res)
 
 -- | generates random BallActions

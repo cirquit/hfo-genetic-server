@@ -5,7 +5,7 @@ module HFO.Agent.Data where
 import Data.Aeson
 import Data.Aeson.Utils
 import Data.Aeson.Types
-import Data.Text as T
+import qualified Data.Text as T
 import GHC.Exts         -- (fromList)
 
 import HFO.Agent.Actions
@@ -43,7 +43,7 @@ instance Show HFOState where
     show OutOfTime         = "OUT_OF_TIME"
     show ServerDown        = "SERVER_DOWN"
 
-toMState :: Text -> Maybe HFOState
+toMState :: T.Text -> Maybe HFOState
 toMState "IN_GAME"              = Just Ingame
 toMState "GOAL"                 = Just Goal
 toMState "CAPTURED_BY_DEFENSE"  = Just CapturedByDefense
@@ -53,97 +53,82 @@ toMState "SERVER_DOWN"          = Just ServerDown
 toMState _                      = Nothing
 
 
--- | Wrapper for defense action distribution
+-- | Wrapper for defense action distributions
+
+--   Segment the field in ~ 16 Fields and the corresponding distribution for every action
 --
---   The following should always be True:
---
---      1) foldr ((+) . snd) 0 (fst . defActionsDist) == 100
---
---   The second part of the tuple is the generator list for the distribution (created via Genetic.Allele.uniformDistributionGen)
---   This is needed for a semi-random mutation
---
--- TODO: Segment the field in ~ 20 Fields and the corresponding actiondistribution
---
--- Coordinates: (x,y)
+--   Coordinates: (x,y)
 --
 --  (Y)
 --
 -- -1     --------   -------   -------   --------
---       |         |         |         |          |
---       |         |         |         |          |
---       |         |         |         |          |
---       |         |         |         |          |
--- -0.5  |_______-x,-y_______|_______+x,-y________|
---       |         |         |         |          |
---       |         |         |         |          |
---       |         |         |         |          |__
---       |         |         |         |          |  |
---       |         |         |         |          |  |
---  0     --------   -------   --------   -------    |
---       |         |         |         |          |  |
---       |         |         |         |          |__|
---       |         |         |         |          |
---       |         |         |         |          |
---  0.5  |_______-x,+y_______|_______+x,+y________|
---       |         |         |         |          |
---       |         |         |         |          |
---       |         |         |         |          |
---       |         |         |         |          |
---       |         |         |         |          |
+--       |         |         |         |         |
+--       |         |         |         |         |
+--       |   a01   |   a02   |   a03   |   a04   |
+--       |         |         |         |         |
+-- -0.5  |_______-x,-y_______|_______+x,-y_______|
+--       |         |         |         |         |
+--       |         |         |         |         |
+--       |   a05   |         |         |         |__
+--       |         |         |         |         |  |
+--       |         |         |         |         |  |
+--  0     --------   -------   --------   -------   |
+--       |         |         |         |         |  |
+--       |         |         |         |         |__|
+--       |         |         |         |         |
+--       |         |         |         |         |
+--  0.5  |_______-x,+y_______|_______+x,+y_______|
+--       |         |         |         |         |
+--       |         |         |         |         |
+--       |   a13   |   a14   |   a15   |   a16   |
+--       |         |         |         |         |
+--       |         |         |         |         |
 --  1      -------   -------   -------   -------
 --      -1       -0.5        0        0.5         1  (X)
 
---  x: (-1, -0.5) (-0.5, 0) (0, 0.5) (0.5, 1.0)
---  y: (-1, -0.5) (-0.5, 0) (0, 0.5) (0.5, 1.0)
+-- For now we will pass the distributions for every field from top-left to bottom right
+-- [a01,a02...a18]
 --
-data Defense = Defense { defActionDist :: ([(Action, Int)], [Int]) }
+-- !! If this order changes we have to update the python code too !!
+
+data Defense = Defense { defActionDist :: [ActionDist] }
     deriving (Show, Eq)
 
 instance ToJSON Defense where
 
-    toJSON (Defense (actions, generator)) = object [
-        "defActions"          .= actions
-      , "defActionsGenerator" .= generator
+    toJSON (Defense defActionDist) = object [
+        "defActionDist" .= defActionDist
       ]
 
 instance FromJSON Defense where
 
-    parseJSON (Object o) = do 
-        actions   <- o .: "defActions"
-        generator <- o .: "defActionsGenerator"
-        return $ Defense (actions, generator)
+    parseJSON (Object o) = do
+        defActionDist   <- o .: "defActionDist"
+        return $ Defense defActionDist
 
 -- | Wrapper for offense action distribution
---
---   The following should always be True:
---
---       1) foldr ((+) . snd) 0 (fst . offActionsDist)     == 100
---       2) foldr ((+) . snd) 0 (fst . offBallActionsDist) == 100
---
---   The second part of the tuple is the generator list for the distribution (created via Genetic.Allele.uniformDistributionGen)
---   This is needed for a semi-random mutation
---
-data Offense = Offense { offActionDist     :: ([(Action, Int)],     [Int])
-                       , offBallActionDist :: ([(BallAction, Int)], [Int]) }
+-- 
+--   *) Same order of actionDists to segments of the field as in Defense
+--   *) We have two distributions, because we either have the ball, or not
+--   
+data Offense = Offense { offActionDist     :: [ActionDist]
+                       , offBallActionDist :: [BallActionDist]
+                       }
     deriving (Show, Eq)
 
 instance ToJSON Offense where
 
-    toJSON (Offense (actions, generator) (ballActions, ballGenerator)) = object [
-        "offActions"              .= actions
-      , "offActionsGenerator"     .= generator
-      , "offBallActions"          .= ballActions
-      , "offBallActionsGenerator" .= ballGenerator
+    toJSON (Offense offActionDist offBallActionDist) = object [
+        "offActionDist"      .= offActionDist
+      , "offBallActionsDist" .= offBallActionDist
       ]
 
 instance FromJSON Offense where
 
     parseJSON (Object o) =  do 
-        actions       <- o .: "offActions"
-        generator     <- o .: "offActionsGenerator"
-        ballActions   <- o .: "offBallActions"
-        ballGenerator <- o .: "offBallActionsGenerator"
-        return $ Offense (actions, generator) (ballActions, ballGenerator)
+        offActionDist      <- o .: "offActionDist"
+        offBallActionsDist <- o .: "offBallActionsDist"
+        return $ Offense offActionDist offBallActionsDist
 
 
 -- | Wrapper for Teams
@@ -241,16 +226,27 @@ instance FromJSON SerializedTeams where
 --
 -- (testing purposes only)
 defaultDefense :: Defense
-defaultDefense = Defense { defActionDist = ([(Move, 50), (Intercept, 20), (Catch, 15), (NoOp, 15)], [0, 50, 70, 85, 100]) }
+defaultDefense = Defense { defActionDist = take 16 (repeat seg01) }
+    where
+        seg01 :: ActionDist
+        seg01 = ActionDist { actionDist       = [(Move, 50), (Intercept, 20), (Catch, 15), (NoOp, 15)]
+                           , actionGenerator  = [0, 50, 70, 85, 100]
+                           }
 
 -- (testing purposes only)
 defaultOffense :: Offense
-defaultOffense = Offense { offActionDist     = ([(Move,  50), (Intercept, 20), (Catch, 15), (NoOp, 15)], [0, 50, 70, 85, 100])
-                         , offBallActionDist = ([(Shoot, 50), (Dribble,   10), (Pass 7, 10)
-                                                                             , (Pass 8, 10)
-                                                                             , (Pass 9, 10)
-                                                                             , (Pass 11,10)], [0,50,60,70,80,90,100])
+defaultOffense = Offense { offActionDist     = take 16 (repeat seg01)
+                         , offBallActionDist = take 16 (repeat seg01Ball)
                          }
+    where
+        seg01 :: ActionDist
+        seg01 = ActionDist { actionDist       = [(Move, 50), (Intercept, 20), (Catch, 15), (NoOp, 15)]
+                           , actionGenerator  = [0, 50, 70, 85, 100]
+                           }
+        seg01Ball :: BallActionDist
+        seg01Ball = BallActionDist { ballActionDist      = [(Shoot,50), (Dribble,10), (Pass 7,10), (Pass 8,10), (Pass 9,10), (Pass 11,10)]
+                                   , ballActionGenerator = [0,50,60,70,80,90,100]
+                                   }
 
 -- (testing purposes only)
 defaultDefenseTeam :: DefenseTeam

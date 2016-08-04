@@ -10,7 +10,7 @@ import Test.QuickCheck
 import System.Directory
 import Data.List  (sort)
 import Data.Aeson
-
+import Control.Monad (replicateM)
 
 import Genetic
 import HFO
@@ -37,26 +37,29 @@ instance Arbitrary HFOState where
 --  arbitrary :: Gen HFOState
     arbitrary = elements [minBound .. maxBound]
 
+instance Arbitrary ActionDist where
+
+-- arbitrary :: Gen ActionDist
+   arbitrary = do
+        (actions, actionsLen) <- genTestActions
+        uncurry (ActionDist . zip actions) <$> genTestDistribution actionsLen
+
+instance Arbitrary BallActionDist where
+
+-- arbitrary :: Gen BallActionDist
+    arbitrary = do
+        (ballActions, ballActionsLen) <- genTestBallActions
+        uncurry (BallActionDist . zip ballActions) <$> genTestDistribution ballActionsLen
+
 instance Arbitrary Defense where
 
 --  arbitrary :: Gen Defense
-    arbitrary = do
-        (actions, actionsLen) <- genTestActions
-        let actionsDist = uncurry ((,) . zip actions) <$> genTestDistribution actionsLen
-
-        Defense <$> actionsDist
+    arbitrary = Defense <$> replicateM 16 arbitrary
 
 instance Arbitrary Offense where
 
 --  arbitrary :: Gen Offense
-    arbitrary = do
-        (actions, actionsLen)         <- genTestActions
-        (ballActions, ballActionsLen) <- genTestBallActions
-
-        let actionsDist     = uncurry ((,) . zip actions)     <$> genTestDistribution actionsLen
-            ballActionsDist = uncurry ((,) . zip ballActions) <$> genTestDistribution ballActionsLen
-
-        Offense <$> actionsDist <*> ballActionsDist
+    arbitrary = Offense <$> replicateM 16 arbitrary <*> replicateM 16 arbitrary
 
 instance Arbitrary OffenseTeam where
 
@@ -78,17 +81,16 @@ instance Arbitrary DefenseTeam where
                             <*> ((,) <$> (arbitrary `suchThat` (>= 0))
                                      <*> (listOf $ oneof [Just <$> arbitrary, (return Nothing)]))
 
-
 genTestActions :: Gen ([Action], Int)
 genTestActions = do
-    let boundsLength = 0.4
+--    let boundsLength = 0.4
+--
+--    xBs <- roundTo 4 <$> choose (-boundsLength, boundsLength)
+--    yBs <- roundTo 4 <$> choose (-boundsLength, boundsLength)
+--    x   <- roundTo 4 <$> choose (-1.0, 1.0)
+--    y   <- roundTo 4 <$> choose (-1.0, 1.0)
 
-    xBs <- roundTo 4 <$> choose (-boundsLength, boundsLength)
-    yBs <- roundTo 4 <$> choose (-boundsLength, boundsLength)
-    x   <- roundTo 4 <$> choose (-1.0, 1.0)
-    y   <- roundTo 4 <$> choose (-1.0, 1.0)
-
-    let res = [Move, Intercept, Catch, NoOp, MoveTo (x,y) (xBs,yBs)]
+    let res = [Move, Intercept, Catch, NoOp] -- , MoveTo (x,y) (xBs,yBs)]
     return (res, length res)
 
 genTestBallActions :: Gen ([BallAction], Int)
@@ -96,8 +98,6 @@ genTestBallActions = do
 --    p <- head . filter (/= 10) <$> infiniteListOf (choose (7,11))
     let res = [Shoot, Dribble, Pass 7, Pass 8, Pass 9, Pass 11]
     return (res, length res) 
-
-
 
 genTestDistribution :: Int -> Gen ([Int], [Int])
 genTestDistribution n = do
@@ -132,27 +132,37 @@ flagDefenseAgent =
 
 -- | test if the distribution always amounts summed to 100
 --
-actionDistOffenseGeneration :: Offense -> Bool
-actionDistOffenseGeneration  Offense{..} = foldr ((+) . snd) 0 (fst offActionDist) == 100
+actionDistOffenseGeneration     :: Offense -> Bool
+actionDistOffenseGeneration     Offense{..} = all actionDistSumRule     offActionDist
 
 ballActionDistOffenseGeneration :: Offense -> Bool
-ballActionDistOffenseGeneration Offense{..} = foldr ((+) . snd) 0 (fst offBallActionDist) == 100
+ballActionDistOffenseGeneration Offense{..} = all ballActionDistSumRule offBallActionDist
 
-actionDistDefenseGeneration :: Defense -> Bool
-actionDistDefenseGeneration Defense{..} = foldr ((+) . snd) 0 (fst defActionDist) == 100
+actionDistDefenseGeneration     :: Defense -> Bool
+actionDistDefenseGeneration     Defense{..} = all actionDistSumRule     defActionDist
+
+actionDistSumRule     :: ActionDist -> Bool
+actionDistSumRule         ActionDist{..} = foldr ((+) . snd) 0 actionDist == 100
+
+ballActionDistSumRule :: BallActionDist -> Bool
+ballActionDistSumRule BallActionDist{..} = foldr ((+) . snd) 0 ballActionDist == 100
 
 
 -- | check if the mutation violates the distribution sum rule
 --
 mutationOffenseDist :: Offense -> Property
 mutationOffenseDist offense = monadicIO $ do
-    mutated <- run $ mutateI 15 offense 
+    let delta  = 15
+        lambda = 0.5
+    mutated <- run $ mutateI delta lambda offense 
     assert (actionDistOffenseGeneration mutated
         &&  ballActionDistOffenseGeneration mutated)
 
 mutationDefenseDist :: Defense -> Property
 mutationDefenseDist defense = monadicIO $ do
-    mutated <- run $ mutateI 15 defense
+    let delta  = 15
+        lambda = 0.5
+    mutated <- run $ mutateI delta lambda defense
     assert (actionDistDefenseGeneration mutated)
 
 -- | json serialization tests
@@ -162,6 +172,12 @@ jsonPropAction       action = eitherDecode (encode action)  == (Right action)
 
 jsonPropBallAction :: BallAction -> Bool
 jsonPropBallAction  baction = eitherDecode (encode baction) == (Right baction)
+
+jsonPropActionDist :: ActionDist -> Bool
+jsonPropActionDist   actionD = eitherDecode (encode actionD)  == (Right actionD)
+
+jsonPropBallActionDist :: BallActionDist -> Bool
+jsonPropBallActionDist bactionD = eitherDecode (encode bactionD) == (Right bactionD)
 
 jsonPropHFOState :: HFOState -> Bool
 jsonPropHFOState      state = eitherDecode (encode state)   == (Right state)

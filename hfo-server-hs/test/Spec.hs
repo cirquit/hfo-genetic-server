@@ -17,9 +17,8 @@ main = hspec . modifyMaxSuccess (const 5000) $ do
 
                 it "offense agent toFlags instance" $ flagOffenseAgent `shouldBe` True
                 it "defense agent toFlags instance" $ flagDefenseAgent `shouldBe` True
-                prop "offense agent actionDistribution amounts to 100"     actionDistOffenseGeneration
-                prop "offense agent ballActionDistribution amounts to 100" ballActionDistOffenseGeneration
-                prop "defense agent actionDistribution amounts to 100"     actionDistDefenseGeneration
+                prop "actionDistribution amounts to 100"     actionDistSumRule
+                prop "ballActionDistribution amounts to 100" ballActionDistSumRule
 
             describe "HFO.Server" $ do
                 it "server toFlags instance" $ do
@@ -67,6 +66,8 @@ main = hspec . modifyMaxSuccess (const 5000) $ do
             describe "HFO.Agent.Data" $ do
                 describe "JSON Encoding / Decoding" $ do
                     prop "Action"      jsonPropAction
+                    prop "BallAction"  jsonPropBallAction
+                    prop "BallAction"  jsonPropBallAction
                     prop "BallAction"  jsonPropBallAction
                     prop "Offense"     jsonPropOffense
                     prop "Defense"     jsonPropDefense

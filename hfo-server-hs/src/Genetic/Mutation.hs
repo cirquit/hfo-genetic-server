@@ -29,6 +29,7 @@ class Mutation a where
 --   
 --   *) Mutate β percent of invidiuals
 --   *) Mutate δ "value-changes" of an individual 
+--   *) Mutate λ percent of seperations (of fields), currently 16
 
 --   δ ~ this is sort of an absolute pearson correlation coefficient
 --   δ = 0    ~ Nothing changes
@@ -52,83 +53,91 @@ class Mutation a where
 --  TODO: *) many many tests
 --        *) try to make splitDelta follow the sum-rule
 --
---                               δ
-    mutateI :: MonadRandom r => Int ->  a -> r a
+--                               δ       λ
+    mutateI :: MonadRandom r => Int -> Double -> a -> r a
 
 -- | Mutate β percent of invidiuals
 --
---                               β        δ
-    mutate :: MonadRandom r => Double -> Int -> [a] -> r [a]
-    mutate beta delta ps = mapM go ps
+--                               β        δ       λ
+    mutate :: MonadRandom r => Double -> Int -> Double -> [a] -> r [a]
+    mutate beta delta lambda ps = mapM go ps
         where
-            go individual = (beta >=) <$> getRandomR (0.0, 1.0) >>= \x -> if x then mutateI delta individual
+            go individual = (beta >=) <$> getRandomR (0.0, 1.0) >>= \x -> if x then mutateI delta lambda individual
                                                                                else return individual
 
 instance Mutation Offense where
 
---  mutateI :: MonadRandom r => Int -> Offense -> r Offense
-    mutateI delta Offense{..} = Offense <$> mutateActions offActionDist <*> mutateBallActions offBallActionDist
+--  mutateI :: MonadRandom r => Int -> Double -> Offense -> r Offense
+    mutateI delta lambda Offense{..} = Offense <$> mapM (go mutateActionD)     offActionDist
+                                               <*> mapM (go mutateBallActionD) offBallActionDist
 
         where 
-                mutateActions :: MonadRandom r => ([(Action, Int)], [Int]) -> r ([(Action, Int)], [Int])
-                mutateActions (dist, generator) = do
+                go :: MonadRandom r => (a -> r a) -> a -> r a
+                go f segment = (lambda >=) <$> getRandomR (0.0, 1.0) >>= \x -> if x then f segment
+                                                                                    else return segment
+
+                mutateActionD :: MonadRandom r => ActionDist -> r ActionDist
+                mutateActionD (ActionDist dist generator) = do
                     let actions    = map fst dist :: [Action]
-                        actionsLen = length dist
+                        actionsLen = length  dist :: Int
 
                     summands <- splitDelta delta (actionsLen - 1)
 
                     let newGenerator  = mutateGenerator generator summands
                         newActionDist = zip actions $ generateDistributionFrom newGenerator
 
-                    return (newActionDist, newGenerator)
+                    return $ ActionDist newActionDist newGenerator
 
-                mutateBallActions :: MonadRandom r => ([(BallAction, Int)], [Int]) -> r ([(BallAction, Int)], [Int])
-                mutateBallActions (dist, generator)  = do
+                mutateBallActionD :: MonadRandom r => BallActionDist -> r BallActionDist
+                mutateBallActionD (BallActionDist dist generator)  = do
                     let ballActions    = map fst dist :: [BallAction]
-                        ballActionsLen = length dist
+                        ballActionsLen = length  dist :: Int
 
                     summands <- splitDelta delta (ballActionsLen - 1)
 
                     let newGenerator      = mutateGenerator generator summands
                         newBallActionDist = zip ballActions $ generateDistributionFrom newGenerator
 
-                    return (newBallActionDist, newGenerator)
+                    return $ BallActionDist newBallActionDist newGenerator
 
 instance Mutation Defense where
 
---  mutateI :: MonadRandom r => Int -> Defense -> r Defense
-    mutateI delta Defense{..} = Defense <$> mutateActions defActionDist
-
+--  mutateI :: MonadRandom r => Int -> Double -> Defense -> r Defense
+    mutateI delta lambda Defense{..} = Defense <$> mapM (go mutateActionD) defActionDist
         where 
-                mutateActions :: MonadRandom r => ([(Action, Int)], [Int]) -> r ([(Action, Int)], [Int])
-                mutateActions (dist, generator) = do
+                go :: MonadRandom r => (a -> r a) -> a -> r a
+                go f segment = (lambda >=) <$> getRandomR (0.0, 1.0) >>= \x -> if x then f segment
+                                                                                    else return segment
+
+                mutateActionD :: MonadRandom r => ActionDist -> r ActionDist
+                mutateActionD (ActionDist dist generator) = do
                     let actions    = map fst dist :: [Action]
-                        actionsLen = length dist
-                    
+                        actionsLen = length  dist :: Int
+
                     summands <- splitDelta delta (actionsLen - 1)
 
                     let newGenerator  = mutateGenerator generator summands
                         newActionDist = zip actions $ generateDistributionFrom newGenerator
 
-                    return (newActionDist, newGenerator)
+                    return $ ActionDist newActionDist newGenerator
 
 instance Mutation DefenseTeam where
 
---  mutateI :: MonadRandom r => Int -> DefenseTeam -> r DefenseTeam
-    mutateI delta DefenseTeam{..} = DefenseTeam <$> mutateI delta goalie
-                                                <*> mutateI delta dp2
-                                                <*> mutateI delta dp3
-                                                <*> mutateI delta dp4
-                                                <*> pure (0, [])
+--  mutateI :: MonadRandom r => Int -> Double -> DefenseTeam -> r DefenseTeam
+    mutateI delta lambda DefenseTeam{..} = DefenseTeam <$> mutateI delta lambda goalie
+                                                       <*> mutateI delta lambda dp2
+                                                       <*> mutateI delta lambda dp3
+                                                       <*> mutateI delta lambda dp4
+                                                       <*> pure (0, [])
 
 instance Mutation OffenseTeam where
 
---  mutateI :: MonadRandom r => Int -> OffenseTeam -> r OffenseTeam
-    mutateI delta OffenseTeam{..} = OffenseTeam <$> mutateI delta op1
-                                                <*> mutateI delta op2
-                                                <*> mutateI delta op3
-                                                <*> mutateI delta op4
-                                                <*> pure (0, [])
+--  mutateI :: MonadRandom r => Int -> Double -> OffenseTeam -> r OffenseTeam
+    mutateI delta lambda OffenseTeam{..} = OffenseTeam <$> mutateI delta lambda op1
+                                                       <*> mutateI delta lambda op2
+                                                       <*> mutateI delta lambda op3
+                                                       <*> mutateI delta lambda op4
+                                                       <*> pure (0, [])
 
 -- | splits delta (0-100) in n parts  (negative partition - number theory)
 --

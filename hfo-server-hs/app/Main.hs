@@ -58,10 +58,13 @@ alpha :: Double
 alpha = 0.35   -- % of best individuals will be selected - [0.0, 0.5] (if its >= 0.5 then we won't have any inherently new individuals)
 
 beta  :: Double
-beta  = 0.50   -- % of individuals that will be mutated  - [0.0, 1.0]
+beta  = 0.5    -- % of individuals that will be mutated  - [0.0, 1.0]
 
 delta :: Int
 delta = 20     -- by how many units will the distribution of actions be changed - [0,100]
+
+lambda :: Double
+lambda = 0.5   -- % of fieldseparations will be mutated  - [0.0, 1.0]
 
 resultsPath :: Int -> FilePath
 resultsPath n = "/home/rewrite/Documents/Project-Repos/hfo-genetic-server/results/results" ++ show n ++ ".json"
@@ -105,8 +108,8 @@ runGA defense offense gen = do
     offChildren <- crossover offSelected
 
 --  Mutation of beta % children by delta units
-    defMutated  <- mutate beta delta defChildren
-    offMutated  <- mutate beta delta offChildren
+    defMutated  <- mutate beta delta lambda defChildren
+    offMutated  <- mutate beta delta lambda offChildren
 
 --  Repopulation with new individuals - these should amount to popSize - (popSize * alpha * 2)
 --  because of parents (popSize * alpha) and children (popSize * alpha)

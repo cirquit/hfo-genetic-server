@@ -127,122 +127,122 @@ countFitness team =
             to2Percent :: Double -> Double
             to2Percent n = (roundTo ((n / len) * 100) 2)
 
-readInformationFromTo :: Int -> Int -> IO ()
-readInformationFromTo n m = do
-        (defenseTeams, offenseTeams) <- ioContent
-        let defMax  = map (maxFitness  . Right) defenseTeams
-            defMean = map (meanFitness . Right) defenseTeams
-            offMax  = map (maxFitness  . Left)  offenseTeams
-            offMean = map (meanFitness . Left)  offenseTeams
+--readInformationFromTo :: Int -> Int -> IO ()
+--readInformationFromTo n m = do
+--        (defenseTeams, offenseTeams) <- ioContent
+--        let defMax  = map (maxFitness  . Right) defenseTeams
+--            defMean = map (meanFitness . Right) defenseTeams
+--            offMax  = map (maxFitness  . Left)  offenseTeams
+--            offMean = map (meanFitness . Left)  offenseTeams
 
-            genList = [1..(length defenseTeams)]
+--            genList = [1..(length defenseTeams)]
 
-            defGamesCount = map (maxFitGamesCount . Right) defenseTeams
-            offGamesCount = map (maxFitGamesCount . Left)  offenseTeams
+--            defGamesCount = map (maxFitGamesCount . Right) defenseTeams
+--            offGamesCount = map (maxFitGamesCount . Left)  offenseTeams
 
-            bestDefActions = map (bestActions . Right) defenseTeams
-            bestOffActions = map (bestActions . Left)  offenseTeams 
-
-
-            defenseContent = unlines $ zipWith (\x y -> show x ++ " " ++ show y) defMax defMean
-            offenseContent = unlines $ zipWith (\x y -> show x ++ " " ++ show y) offMax offMean
-
-            defenseMaxCount = let l1 = zipWith (\x y -> show x ++ " " ++ show y) defMax defGamesCount
-                                  l2 = zipWith (\x y ->      x ++ " " ++ show y) l1     genList
-                              in unlines l2
-
-            offenseMaxCount = let l1 = zipWith (\x y -> show x ++ " " ++ show y) offMax offGamesCount
-                                  l2 = zipWith (\x y -> x ++ " " ++ show y) l1     genList
-                              in unlines l2
-
-            defenseActionsDist = unlines $ map (unwords . map show) bestDefActions
-            offenseActionsDist = unlines $ map (unwords . map show) bestOffActions
-
---        writeFile (graphsLogFile ++ "defenseContent.txt") defenseContent
-        writeFile (graphsLogFile ++ "offenseContent.txt") offenseContent
-
---        writeFile (graphsLogFile ++ "defenseMaxCount.txt") defenseMaxCount
-        writeFile (graphsLogFile ++ "offenseMaxCount.txt") offenseMaxCount
-
---        writeFile (graphsLogFile ++ "defenseActionsDist.txt") defenseActionsDist
-        writeFile (graphsLogFile ++ "offenseActionsDist.txt") offenseActionsDist
-
-        plotEverything
-
-    where
-
-        ioContent :: IO ([[DefenseTeam]], [[OffenseTeam]])
-        ioContent = ((\(x,y) -> (reverse x, reverse y)) . unzip) <$> mapM (readPopulationFrom . resultsFile) [n .. m]
-
-        maxFitness :: Either [OffenseTeam] [DefenseTeam] -> Double
-        maxFitness (Left  offs) = (countFitness . Left)  . head . sortByDescFitness $ offs
-        maxFitness (Right defs) = (countFitness . Right) . head . sortByDescFitness $ defs
-
-        meanFitness :: Either [OffenseTeam] [DefenseTeam] -> Double
-        meanFitness (Left  offs) = (foldr ((+) . countFitness . Left)  0.0 offs) / genericLength offs
-        meanFitness (Right defs) = (foldr ((+) . countFitness . Right) 0.0 defs) / genericLength defs
-
-        maxFitGamesCount :: Either [OffenseTeam] [DefenseTeam] -> Int
-        maxFitGamesCount (Left  offs) = (games . Left)  . head . sortByDescFitness $ offs
-        maxFitGamesCount (Right defs) = (games . Right) . head . sortByDescFitness $ defs
-
-        games :: Either OffenseTeam DefenseTeam -> Int
-        games (Left  off) = length . snd . offFitness $ off
-        games (Right def) = length . snd . defFitness $ def
+--            bestDefActions = map (bestActions . Right) defenseTeams
+--            bestOffActions = map (bestActions . Left)  offenseTeams 
 
 
-        bestActions :: Either [OffenseTeam] [DefenseTeam] -> [Double]
-        bestActions (Right def) = map (/ genericLength def)
-                                . foldl (zipWith (+)) [0,0,0,0,0,0]
-                                $ map bestDefenseActionDist def
-        bestActions (Left off) = map (/ genericLength off)
-                                . foldl (zipWith (+)) [0,0,0,0,0,0,0,0,0]
-                                $ map bestOffenseActionDist off
+--            defenseContent = unlines $ zipWith (\x y -> show x ++ " " ++ show y) defMax defMean
+--            offenseContent = unlines $ zipWith (\x y -> show x ++ " " ++ show y) offMax offMean
+
+--            defenseMaxCount = let l1 = zipWith (\x y -> show x ++ " " ++ show y) defMax defGamesCount
+--                                  l2 = zipWith (\x y ->      x ++ " " ++ show y) l1     genList
+--                              in unlines l2
+
+--            offenseMaxCount = let l1 = zipWith (\x y -> show x ++ " " ++ show y) offMax offGamesCount
+--                                  l2 = zipWith (\x y -> x ++ " " ++ show y) l1     genList
+--                              in unlines l2
+
+--            defenseActionsDist = unlines $ map (unwords . map show) bestDefActions
+--            offenseActionsDist = unlines $ map (unwords . map show) bestOffActions
+
+----        writeFile (graphsLogFile ++ "defenseContent.txt") defenseContent
+--        writeFile (graphsLogFile ++ "offenseContent.txt") offenseContent
+
+----        writeFile (graphsLogFile ++ "defenseMaxCount.txt") defenseMaxCount
+--        writeFile (graphsLogFile ++ "offenseMaxCount.txt") offenseMaxCount
+
+----        writeFile (graphsLogFile ++ "defenseActionsDist.txt") defenseActionsDist
+--        writeFile (graphsLogFile ++ "offenseActionsDist.txt") offenseActionsDist
+
+--        plotEverything
+
+--    where
+
+--        ioContent :: IO ([[DefenseTeam]], [[OffenseTeam]])
+--        ioContent = ((\(x,y) -> (reverse x, reverse y)) . unzip) <$> mapM (readPopulationFrom . resultsFile) [n .. m]
+
+--        maxFitness :: Either [OffenseTeam] [DefenseTeam] -> Double
+--        maxFitness (Left  offs) = (countFitness . Left)  . head . sortByDescFitness $ offs
+--        maxFitness (Right defs) = (countFitness . Right) . head . sortByDescFitness $ defs
+
+--        meanFitness :: Either [OffenseTeam] [DefenseTeam] -> Double
+--        meanFitness (Left  offs) = (foldr ((+) . countFitness . Left)  0.0 offs) / genericLength offs
+--        meanFitness (Right defs) = (foldr ((+) . countFitness . Right) 0.0 defs) / genericLength defs
+
+--        maxFitGamesCount :: Either [OffenseTeam] [DefenseTeam] -> Int
+--        maxFitGamesCount (Left  offs) = (games . Left)  . head . sortByDescFitness $ offs
+--        maxFitGamesCount (Right defs) = (games . Right) . head . sortByDescFitness $ defs
+
+--        games :: Either OffenseTeam DefenseTeam -> Int
+--        games (Left  off) = length . snd . offFitness $ off
+--        games (Right def) = length . snd . defFitness $ def
+
+
+--        bestActions :: Either [OffenseTeam] [DefenseTeam] -> [Double]
+--        bestActions (Right def) = map (/ genericLength def)
+--                                . foldl (zipWith (+)) [0,0,0,0,0,0]
+--                                $ map bestDefenseActionDist def
+--        bestActions (Left off) = map (/ genericLength off)
+--                                . foldl (zipWith (+)) [0,0,0,0,0,0,0,0,0]
+--                                $ map bestOffenseActionDist off
 
 
 
-        bestOffenseActionDist :: OffenseTeam -> [Double]
-        bestOffenseActionDist (OffenseTeam op1 op2 op3 op4 _)  = [ fromIntegral $ maximum (map getMoveProb      opList)
-                                                                 , fromIntegral $ maximum (map getInterceptProb opList)
-                                                                 , fromIntegral $ maximum (map getCatchProb     opList)
-                                                                 , fromIntegral $ maximum (map getNoOpProb      opList)
-                                                                 , fromIntegral $ maximum (map getShootProb     opList)
-                                                                 , fromIntegral $ maximum (map getDribProb      opList)
-                                                                 , fromIntegral $ maximum (map getPass7Prob     opList)
---                                                                 , fromIntegral $ maximum (map getPass8Prob     opList)
---                                                                 , fromIntegral $ maximum (map getPass9Prob     opList)
-                                                                 , fromIntegral $ maximum (map getPass11Prob    opList)
-                                                                 , fromIntegral $ maximum (map getMoveToProb     opList)
-                                                                 ]
-            where
-                opList = [op1, op2]
-        --        non-ballActions
-                getMoveProb       = snd . (\(x:_)         -> x) . fst . offActionDist
-                getInterceptProb  = snd . (\(_:x:_)       -> x) . fst . offActionDist
-                getCatchProb      = snd . (\(_:_:x:_)     -> x) . fst . offActionDist
-                getNoOpProb       = snd . (\(_:_:_:x:_)   -> x) . fst . offActionDist
-                getMoveToProb     = snd . (\(_:_:_:_:x:_) -> x) . fst . offActionDist
+--        bestOffenseActionDist :: OffenseTeam -> [Double]
+--        bestOffenseActionDist (OffenseTeam op1 op2 op3 op4 _)  = [ fromIntegral $ maximum (map getMoveProb      opList)
+--                                                                 , fromIntegral $ maximum (map getInterceptProb opList)
+--                                                                 , fromIntegral $ maximum (map getCatchProb     opList)
+--                                                                 , fromIntegral $ maximum (map getNoOpProb      opList)
+--                                                                 , fromIntegral $ maximum (map getShootProb     opList)
+--                                                                 , fromIntegral $ maximum (map getDribProb      opList)
+--                                                                 , fromIntegral $ maximum (map getPass7Prob     opList)
+----                                                                 , fromIntegral $ maximum (map getPass8Prob     opList)
+----                                                                 , fromIntegral $ maximum (map getPass9Prob     opList)
+--                                                                 , fromIntegral $ maximum (map getPass11Prob    opList)
+--                                                                 , fromIntegral $ maximum (map getMoveToProb     opList)
+--                                                                 ]
+--            where
+--                opList = [op1, op2]
+--        --        non-ballActions
+--                getMoveProb       = snd . (\(x:_)         -> x) . fst . offActionDist
+--                getInterceptProb  = snd . (\(_:x:_)       -> x) . fst . offActionDist
+--                getCatchProb      = snd . (\(_:_:x:_)     -> x) . fst . offActionDist
+--                getNoOpProb       = snd . (\(_:_:_:x:_)   -> x) . fst . offActionDist
+--                getMoveToProb     = snd . (\(_:_:_:_:x:_) -> x) . fst . offActionDist
 
-        --        ballActions
-                getShootProb = snd . head            . fst . offBallActionDist
-                getDribProb  = snd . (\(_:x:_) -> x) . fst . offBallActionDist
+--        --        ballActions
+--                getShootProb = snd . head            . fst . offBallActionDist
+--                getDribProb  = snd . (\(_:x:_) -> x) . fst . offBallActionDist
 
-                getPass7Prob   = snd . (\(_:_:x:_) -> x) . fst . offBallActionDist
---                getPass8Prob   = snd . (\(_:_:_:x:_) -> x) . fst . offBallActionDist
---                getPass9Prob   = snd . (\(_:_:_:_:x:_) -> x) . fst . offBallActionDist
-                getPass11Prob  = snd . (\(_:_:_:x:_) -> x) . fst . offBallActionDist
+--                getPass7Prob   = snd . (\(_:_:x:_) -> x) . fst . offBallActionDist
+----                getPass8Prob   = snd . (\(_:_:_:x:_) -> x) . fst . offBallActionDist
+----                getPass9Prob   = snd . (\(_:_:_:_:x:_) -> x) . fst . offBallActionDist
+--                getPass11Prob  = snd . (\(_:_:_:x:_) -> x) . fst . offBallActionDist
 
 
-        bestDefenseActionDist :: DefenseTeam -> [Double]
-        bestDefenseActionDist (DefenseTeam dp1 dp2 dp3 dp4 _)  = [ fromIntegral $ maximum (map getMoveProb      opList)
-                                                                 , fromIntegral $ maximum (map getInterceptProb opList)
-                                                                 , fromIntegral $ maximum (map getCatchProb     opList)
-                                                                 , fromIntegral $ maximum (map getNoOpProb      opList)
-                                                                 ]
-            where
-                opList = [dp1, dp2, dp3, dp4]
-        --        non-ballActions
-                getMoveProb       = snd . (\(x:_)       -> x) . fst . defActionDist
-                getInterceptProb  = snd . (\(_:x:_)     -> x) . fst . defActionDist
-                getCatchProb      = snd . (\(_:_:x:_)   -> x) . fst . defActionDist
-                getNoOpProb       = snd . (\(_:_:_:x:_) -> x) . fst . defActionDist
+--        bestDefenseActionDist :: DefenseTeam -> [Double]
+--        bestDefenseActionDist (DefenseTeam dp1 dp2 dp3 dp4 _)  = [ fromIntegral $ maximum (map getMoveProb      opList)
+--                                                                 , fromIntegral $ maximum (map getInterceptProb opList)
+--                                                                 , fromIntegral $ maximum (map getCatchProb     opList)
+--                                                                 , fromIntegral $ maximum (map getNoOpProb      opList)
+--                                                                 ]
+--            where
+--                opList = [dp1, dp2, dp3, dp4]
+--        --        non-ballActions
+--                getMoveProb       = snd . (\(x:_)       -> x) . fst . defActionDist
+--                getInterceptProb  = snd . (\(_:x:_)     -> x) . fst . defActionDist
+--                getCatchProb      = snd . (\(_:_:x:_)   -> x) . fst . defActionDist
+--                getNoOpProb       = snd . (\(_:_:_:x:_) -> x) . fst . defActionDist

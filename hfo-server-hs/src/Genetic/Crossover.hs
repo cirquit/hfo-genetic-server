@@ -47,6 +47,9 @@ class Selection a => Crossover a where
           shuffled <- shuffleM l
           zipWithM (\x y -> fst <$> crossoverI x y) shuffled (reverse shuffled)
 
+-- TODO:
+--   *) Create custom Crossover between Players or else there will be no information sharing!
+--
 instance Crossover DefenseTeam where
 
 --  uniformCO :: MonadRandom r => DefenseTeam -> DefenseTeam -> r (DefenseTeam, DefenseTeam)
