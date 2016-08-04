@@ -17,6 +17,7 @@ A server written in Haskell for to communicate with Half-Field Offense for my un
     * Start/Stop the simulation
     * get automatic calculations
       * fitness
+  * created segmentation of the field in 16 subfields so every player can learn a tactic corresponding to their current position
 
 ## TODO:
   * Start with simple goals
@@ -24,7 +25,7 @@ A server written in Haskell for to communicate with Half-Field Offense for my un
     * 2 defensive players vs base
     * 2 off vs 2 def and test vs base
       * plays vs random teams
-  * Think about a segmentation with positions and a MOVE action which is slightly biased
+  * think about a "shout" functionality where a player can call out a pass to them
   * think about representation of associations between agents
   * create repl-like-functions
     * calculate everything needed for gnuplot
