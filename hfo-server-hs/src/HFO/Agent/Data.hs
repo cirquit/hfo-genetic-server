@@ -61,33 +61,33 @@ toMState _                      = Nothing
 --
 --  (Y)
 --
--- -1     --------   -------   -------   --------
---       |         |         |         |         |
---       |         |         |         |         |
---       |   a01   |   a02   |   a03   |   a04   |
---       |         |         |         |         |
--- -0.5  |_______-x,-y_______|_______+x,-y_______|
---       |         |         |         |         |
---       |         |         |         |         |
---       |   a05   |         |         |         |__
---       |         |         |         |         |  |
---       |         |         |         |         |  |
---  0     --------   -------   --------   -------   |
---       |         |         |         |         |  |
---       |         |         |         |         |__|
---       |         |         |         |         |
---       |         |         |         |         |
---  0.5  |_______-x,+y_______|_______+x,+y_______|
---       |         |         |         |         |
---       |         |         |         |         |
---       |   a13   |   a14   |   a15   |   a16   |
---       |         |         |         |         |
---       |         |         |         |         |
---  1      -------   -------   -------   -------
---      -1       -0.5        0        0.5         1  (X)
+--  -1     --------   -------   -------   --------
+--        |         |         |         |         |
+--        |         |         |         |         |
+--        |   a00   |   a01   |   a02   |   a03   |
+--        |         |         |         |         |
+--  -0.5  |_______-x,-y_______|_______+x,-y_______|
+--        |         |         |         |         |
+--        |         |         |         |         |
+--        |   a04   |   a05   |   a06   |   a07   |__
+--        |         |         |         |         |  |
+--        |         |         |         |         |  |
+--   0     --------   -------   --------   -------   |
+--        |         |         |         |         |  |
+--        |         |         |         |         |__|
+--        |   a08   |   a09   |   a10   |   a11   |
+--        |         |         |         |         |
+--   0.5  |_______-x,+y_______|_______+x,+y_______|
+--        |         |         |         |         |
+--        |         |         |         |         |
+--        |   a12   |   a13   |   a14   |   a15   |
+--        |         |         |         |         |
+--        |         |         |         |         |
+--   1      -------   -------   -------   -------
+--       -1       -0.5        0        0.5         1  (X)
 
 -- For now we will pass the distributions for every field from top-left to bottom right
--- [a01,a02...a18]
+-- [a00,a01...a15]
 --
 -- !! If this order changes we have to update the python code too !!
 
@@ -119,15 +119,15 @@ data Offense = Offense { offActionDist     :: [ActionDist]
 instance ToJSON Offense where
 
     toJSON (Offense offActionDist offBallActionDist) = object [
-        "offActionDist"      .= offActionDist
-      , "offBallActionsDist" .= offBallActionDist
+        "offActionDist"     .= offActionDist
+      , "offBallActionDist" .= offBallActionDist
       ]
 
 instance FromJSON Offense where
 
     parseJSON (Object o) =  do 
         offActionDist      <- o .: "offActionDist"
-        offBallActionsDist <- o .: "offBallActionsDist"
+        offBallActionsDist <- o .: "offBallActionDist"
         return $ Offense offActionDist offBallActionsDist
 
 

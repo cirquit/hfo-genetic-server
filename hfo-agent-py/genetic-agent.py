@@ -88,7 +88,7 @@ def main():
             currentTeam = currentTeam + 1
 
         # action distribution of the player I represent
-        # playerDist :: Dict String Int
+        # playerDist :: ActionJSON (defined in jsonparser.py)
         playerDist = getActionDistribution(jsonData, currentTeam, isOffense, playerNumber)
 
         # Main game loop

@@ -21,14 +21,19 @@ def parseJSON(filepath):
 #
 #   the returning dict can be accessed as follows
 #
-#   actionsindex for offense [0-5]
-#   actionsindex for defense [0-3]
+#   actionindex for defense:
+#       result[0-15]                       returns the actiondistribution for the 16 separations of the field
+#       result[0]["actionDist"][0-3]       for every action possible (currently MOVE, INTERCEPT, CATCH, NOOP)
+#
+#   actionindex for offense:
 # 
-#   data[actionindex][0] = actionname
-#   data[actionindex][1] = distribution
+#       result[0-15]                       returns the actiondistribution for the 16 separations of the field
+#       result[0]["actionDist"][0-3]       for every action possible (currently MOVE, INTERCEPT, CATCH, NOOP)
 #
+#       result[16-31]                      returns the ballActionDistribution for the 16 separations of the field
+#       result[16]["ballActionDist"][0-3]  for every ballAction possible (currently SHOOT, DRIBBLE, PASS, PASS)
 #
-#   getActionDistribution ::  JSON     -> Int    -> Bool       -> [0-3] -> Dict String Int
+#   getActionDistribution ::  JSON -> Int      -> Bool   -> [0-3]         -> ActionJSON
 def getActionDistribution(jsonData, teamIndex, isOffense, playerNumber):
 
     if isOffense:
@@ -43,7 +48,7 @@ def getActionDistribution(jsonData, teamIndex, isOffense, playerNumber):
         else:
             player = "op4"
 
-        return jsonData["offenseTeams"][teamIndex][player]["offActions"] + jsonData["offenseTeams"][teamIndex][player]["offBallActions"]
+        return jsonData["offenseTeams"][teamIndex][player]["offActionDist"] + jsonData["offenseTeams"][teamIndex][player]["offBallActionDist"]
 
     else:
 
@@ -57,7 +62,7 @@ def getActionDistribution(jsonData, teamIndex, isOffense, playerNumber):
         else:
             player = "dp4"
 
-        return jsonData["defenseTeams"][teamIndex][player]["defActions"]
+        return jsonData["defenseTeams"][teamIndex][player]["defActionDist"]
 
 
 
