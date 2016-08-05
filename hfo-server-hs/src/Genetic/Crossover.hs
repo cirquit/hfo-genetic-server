@@ -8,15 +8,19 @@ import Control.Monad
 import Genetic.Selection
 
 import HFO.Agent
+import Genetic.Allele (generateDistributionFrom)
 
 import System.Random.Shuffle (shuffleM)
 
 
 -- | This defines the crossover method on individuals
 --
---   Dependent on Selection to know on which basis to classify the individuals
+--  minimal definition: uniformCO
+--  maximal definition: uniformCO, nPointCO
 --
-class Selection a => Crossover a where
+--  we get a shuffled crossover for list for free
+
+class Crossover a where
 
 -- | Basic combination for two individuals (default: uniformly distributed)
 --
@@ -41,15 +45,86 @@ class Selection a => Crossover a where
 --
 --      *) length (crossover l) = length l
 --
---
     crossover :: MonadRandom r => [a] -> r [a]
     crossover l = do
-          shuffled <- shuffleM l
-          zipWithM (\x y -> fst <$> crossoverI x y) shuffled (reverse shuffled)
+        shuffled <- shuffleM l
+        zipWithM (\x y -> fst <$> crossoverI x y) shuffled (reverse shuffled)
 
--- TODO:
---   *) Create custom Crossover between Players or else there will be no information sharing!
+-- | Crossover between two lists of the same individual
 --
+--   *) currently only using the first child of two
+--
+--  the following should hold:
+--
+--   *) let lengthA = length listA
+--          lengthB = length listB
+--      
+--      length (crossoverBetween listA listB) = mininum [lengthA,lengthB]
+--
+    crossoverBetween :: MonadRandom r => [a] -> [a] -> r [a]
+    crossoverBetween a b = zipWithM (\x y -> fst <$> crossoverI x y) a b
+
+
+instance Crossover ActionDist where
+
+-- uniformCO :: MonadRandom r => ActionDist -> ActionDist -> r (ActionDist, ActionDist)
+   uniformCO (ActionDist distA genA) (ActionDist distB genB) = do
+
+        -- calculate the average of the probabilities using the generator lists
+        let genAB = zipWith (\x y -> (x+y) `div` 2) genA genB
+            dist  = generateDistributionFrom genAB
+
+            actions = map fst distA   :: [Action]
+            distAB = zip actions dist :: [(Action, Int)]
+
+            -- only one child with the current implementation
+            result = ActionDist distAB genAB
+
+        return (result, result)
+
+instance Crossover BallActionDist where
+
+-- uniformCO :: MonadRandom r => BallActionDist -> BallActionDist -> r (BallActionDist, BallActionDist)
+   uniformCO (BallActionDist distA genA) (BallActionDist distB genB) = do
+
+        -- calculate the average of the probabilities using the generator lists
+        let genAB = zipWith (\x y -> (x+y) `div` 2) genA genB
+            dist  = generateDistributionFrom genAB
+
+            actions = map fst distA   :: [BallAction]
+            distAB = zip actions dist :: [(BallAction, Int)]
+
+            -- only one child with the current implementation
+            result = BallActionDist distAB genAB
+
+        return (result, result)
+
+instance Crossover Defense where
+
+--  uniformCO :: MonadRandom r => Defense -> Defense -> r (Defense, Defense)
+    uniformCO (Defense actionDistA) (Defense actionDistB) = do
+
+            actionDistAB <- crossoverBetween actionDistA actionDistB
+
+            -- only one child with the current implementation (maybe TODO)
+            let result = Defense actionDistAB
+
+            return (result, result)
+
+instance Crossover Offense where
+
+--  uniformCO :: MonadRandom r => Offense -> Offense -> r (Offense, Offense)
+    uniformCO (Offense actionDistA ballActionDistA) (Offense actionDistB ballActionDistB) = do
+
+            actionDistAB     <- crossoverBetween actionDistA     actionDistB
+            ballActionDistAB <- crossoverBetween ballActionDistA ballActionDistB
+
+            -- only one child with the current implementation (maybe TODO)
+            let result = Offense actionDistAB ballActionDistAB
+
+            return (result, result)
+
+
 instance Crossover DefenseTeam where
 
 --  uniformCO :: MonadRandom r => DefenseTeam -> DefenseTeam -> r (DefenseTeam, DefenseTeam)
@@ -57,14 +132,13 @@ instance Crossover DefenseTeam where
 
             let fstTeam = [fst1, fst2, fst3, fst4] :: [Defense]
                 sndTeam = [snd1, snd2, snd3, snd4] :: [Defense]
-                teams   = zip fstTeam sndTeam      :: [(Defense, Defense)]
 
-            ([fst1',fst2',fst3',fst4'], [snd1',snd2',snd3',snd4']) <- unzipWithM switch teams
+            [p1, p2, p3, p4] <- crossoverBetween fstTeam sndTeam
 
-            let team1 = DefenseTeam fst1' fst2' fst3' fst4' (0, [])
-                team2 = DefenseTeam snd1' snd2' snd3' snd4' (0, [])
+            -- only one child with the current implementation (maybe TODO)
+            let result = DefenseTeam p1 p2 p3 p4 (0, [])
 
-            return (team1, team2)
+            return (result, result)
 
 instance Crossover OffenseTeam where
 
@@ -73,16 +147,16 @@ instance Crossover OffenseTeam where
 
             let fstTeam = [fst1, fst2, fst3, fst4] :: [Offense]
                 sndTeam = [snd1, snd2, snd3, snd4] :: [Offense]
-                teams   = zip fstTeam sndTeam      :: [(Offense, Offense)]
 
-            ([fst1',fst2',fst3',fst4'], [snd1',snd2',snd3',snd4']) <- unzipWithM switch teams
+            [p1, p2, p3, p4] <- crossoverBetween fstTeam sndTeam
 
-            let team1 = OffenseTeam fst1' fst2' fst3' fst4' (0, [])
-                team2 = OffenseTeam snd1' snd2' snd3' snd4' (0, [])
+            -- only one child with the current implementation (maybe TODO)
+            let result = OffenseTeam p1 p2 p3 p4 (0, [])
 
-            return (team1, team2)
+            return (result, result)
 
-
+-- | TODO: Remove if not used anymore
+--
 switch :: MonadRandom r => (a, a) -> r (a, a)
 switch (x,y) = go <$> getRandomR (True, False)
     where go True  = (y,x)

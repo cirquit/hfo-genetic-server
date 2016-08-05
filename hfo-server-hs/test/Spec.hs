@@ -67,8 +67,6 @@ main = hspec . modifyMaxSuccess (const 5000) $ do
                 describe "JSON Encoding / Decoding" $ do
                     prop "Action"      jsonPropAction
                     prop "BallAction"  jsonPropBallAction
-                    prop "BallAction"  jsonPropBallAction
-                    prop "BallAction"  jsonPropBallAction
                     prop "Offense"     jsonPropOffense
                     prop "Defense"     jsonPropDefense
                     prop "DefenseTeam" jsonPropDefenseTeam
@@ -79,6 +77,9 @@ main = hspec . modifyMaxSuccess (const 5000) $ do
             describe "Genetic.Allele"    $ do
                 return ()
             describe "Genetic.Crossover" $ do
+                prop "ActionDist crossover does not affect the sum rule of the distribution (sum dist = 100)" crossoverActionDist
+                prop "Offense crossover does not affect the sum rule of the distribuion (sum dist = 100)" crossoverOffense
+                prop "Defense crossover does not affect the sum rule of the distribuion (sum dist = 100)" crossoverDefense
                 return ()
             describe "Genetic.Mutation"  $ do
                 prop "offense mutations does not affect the sum rule of the distribution (sum dist = 100)" mutationOffenseDist

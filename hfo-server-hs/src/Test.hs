@@ -165,6 +165,29 @@ mutationDefenseDist defense = monadicIO $ do
     mutated <- run $ mutateI delta lambda defense
     assert (actionDistDefenseGeneration mutated)
 
+-- | check if crossover violates the distribution sum rule
+
+crossoverActionDist :: ActionDist -> ActionDist -> Property
+crossoverActionDist adistA adistB = monadicIO $ do
+    (child, _) <- run $ crossoverI adistA adistB
+    assert (actionDistSumRule child)
+
+crossoverBallActionDist :: BallActionDist -> BallActionDist -> Property
+crossoverBallActionDist adistA adistB = monadicIO $ do
+    (child, _) <- run $ crossoverI adistA adistB
+    assert (ballActionDistSumRule child)
+
+crossoverDefense :: Defense -> Defense -> Property
+crossoverDefense defA defB = monadicIO $ do
+    (child, _) <- run $ crossoverI defA defB
+    assert (actionDistDefenseGeneration child)
+
+crossoverOffense :: Offense -> Offense -> Property
+crossoverOffense offA offB = monadicIO $ do
+    (child, _) <- run $ crossoverI offA offB
+    assert (actionDistOffenseGeneration child)
+
+
 -- | json serialization tests
 --
 jsonPropAction :: Action -> Bool
