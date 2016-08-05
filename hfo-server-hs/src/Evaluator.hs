@@ -12,12 +12,16 @@ import           Data.List           (genericLength)
 import           System.Process      (proc, createProcess, CreateProcess(..))
 
 import           Text.Printf
+import           Data.List.Split     (chunksOf)
 import           Control.Category    ((>>>))
+import           Data.Ord            (comparing)
+import           Data.Foldable       (maximumBy)
+
 
 import HFO.Server               (ServerConf(..), defaultServer, runServer_, runServer)
 import HFO.Agent                (AgentConf(..), defaultAgent, DefenseTeam(..), OffenseTeam(..)
                                 ,runDefenseTeam, runOffenseTeam, waitForProcesses, SerializedTeams(..), HFOState(..)
-                                ,Offense(..), Defense(..))
+                                ,Offense(..), Defense(..), ActionDist(..), BallActionDist(..))
 import HFO.StateParser          (clearLog, writePopulation, readPopulation
                                 , printPrettyPopulation, writePrettyPopulationTo, readPopulationFrom)
 
@@ -29,8 +33,8 @@ import Genetic.Selection
 
 
 resultsFile n = concat [ "/home/rewrite/Documents/Project-Repos/hfo-genetic-server/results/"
-                     , "13_07_v" ++ show 1 ++ "/"
---                     , "json-data/"
+                     , "05_08_v" ++ show 1 ++ "/"
+                     , "json-data/"
                      , "results" ++ show n ++ ".json"
                      ]
 
@@ -55,9 +59,14 @@ testServerConf :: ServerConf
 testServerConf = defaultServer { untouchedTime = 50
                                , trials        = testGamesCount
 --                               , showMonitor   = False
+                               , offenseAgents = 2
+                               , defenseAgents = 0
+                               , offenseNpcs   = 0
+                               , defenseNpcs   = 2
                                , standartPace  = True
---                               , giveBallToPlayer = 9   -- this does not work at all
+                               , giveBallToPlayer = 1 -- gives the ball to the first player...with the number 7
                                }
+
 --
 testAgentConf :: AgentConf
 testAgentConf = defaultAgent { episodes = testGamesCount }
@@ -78,13 +87,81 @@ startSingleSimulation defense offense = do
     offphs <- runOffenseTeam testAgentConf
 
 --  Start the defensive agents and return the handle from goalie
-    defphs <- runDefenseTeam testAgentConf
+--    defphs <- runDefenseTeam testAgentConf
 
 --  If any player terminated, the simualtion is over
-    waitForProcesses (offphs ++ defphs)
-
+    waitForProcesses offphs
+--    waitForProcesses (offphs ++ defphs)
 
     uncurry (\[x] [y] -> (x,y)) <$> readPopulation
+
+
+-- get the distribution of all the actions for every of the 16th fields
+--
+getOffDistData :: Offense -> [[Int]]
+getOffDistData off = [move, intercept, catch, noop, shoot, dribble, pass7, pass11]
+    where
+        move      = map (snd . (!! 0) . actionDist) (offActionDist off)
+        intercept = map (snd . (!! 1) . actionDist) (offActionDist off)
+        catch     = map (snd . (!! 2) . actionDist) (offActionDist off)
+        noop      = map (snd . (!! 3) . actionDist) (offActionDist off)
+        shoot     = map (snd . (!! 0) . ballActionDist) (offBallActionDist off)
+        dribble   = map (snd . (!! 1) . ballActionDist) (offBallActionDist off)
+        pass7     = map (snd . (!! 2) . ballActionDist) (offBallActionDist off)
+        pass11    = map (snd . (!! 3) . ballActionDist) (offBallActionDist off)
+
+saveDistData :: [[Int]] -> IO ()
+saveDistData dists = do
+    let move      = dists !! 0
+        intercept = dists !! 1
+        catch     = dists !! 2
+        noop      = dists !! 3
+        shoot     = dists !! 4
+        dribble   = dists !! 5
+        pass7     = dists !! 6
+        pass11    = dists !! 7
+
+        adjustFormat = unlines . map unwords . chunksOf 4 . map show
+
+    writeFile (graphsLogFile ++ "move.dat") (adjustFormat move)
+    writeFile (graphsLogFile ++ "intercept.dat") (adjustFormat intercept)
+    writeFile (graphsLogFile ++ "catch.dat") (adjustFormat catch)
+    writeFile (graphsLogFile ++ "noop.dat") (adjustFormat noop)
+    writeFile (graphsLogFile ++ "shoot.dat") (adjustFormat shoot)
+    writeFile (graphsLogFile ++ "dribble.dat") (adjustFormat dribble)
+    writeFile (graphsLogFile ++ "pass7.dat") (adjustFormat pass7)
+    writeFile (graphsLogFile ++ "pass11.dat") (adjustFormat pass11)
+
+saveAvgMaxFitness :: Int -> Int -> IO ()
+saveAvgMaxFitness n m = do
+        (_, offs) <- getDataFromTo n m
+        let maxFitness   = map (maximum . map classify . take 7) offs   -- we only take the first 7 teams because the rest is newly generated
+            meanFitness  = map (mean    . map classify . take 7) offs   --
+            gamesCount   = map (stateCount . maximumBy (comparing fst) . (\x -> zip (map classify x) x) . take 7) offs
+            
+            stateCount :: (Int, OffenseTeam) -> Int
+            stateCount = length . snd . offFitness . snd
+    
+            combinedData = zipWith (\x y -> show x ++ ' ' : show y) maxFitness meanFitness -- gamesCount
+
+        writeFile (graphsLogFile ++ "offenseFitness.dat") (unlines combinedData)
+
+
+mean :: [Int] -> Int
+mean l = sum l `div` len
+    where
+        len = length l
+
+
+
+getDataFromTo :: Int -> Int -> IO ([[DefenseTeam]], [[OffenseTeam]])
+getDataFromTo n m = go <$> mapM (readPopulationFrom . resultsFile) [n .. m]
+    where
+        go :: [([DefenseTeam], [OffenseTeam])] -> ([[DefenseTeam]], [[OffenseTeam]])
+        go = rev . unzip
+
+        rev :: ([a],[b]) -> ([a], [b])
+        rev (x,y) = (reverse x, reverse y)
 
 
 countFitness :: Either OffenseTeam DefenseTeam -> Double

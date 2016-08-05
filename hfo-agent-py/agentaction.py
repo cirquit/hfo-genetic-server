@@ -103,7 +103,7 @@ def getAction(state, isOffense, actionJSON):
   # subfieldIndex :: Int (0-15)
     subfieldIndex = getSubfieldIndex(state)
 
-    print("currently on subfield #{0}\n").format(subfieldIndex)
+  # print("currently on subfield #{0}\n").format(subfieldIndex)
 
   # if we are a defense player, we only have 4 possible actions to choose from
     if (not isOffense):
@@ -162,7 +162,7 @@ class Action(object):
         if self.actionenum == NOOP:      env.act(NOOP);
         if self.actionenum == SHOOT:     env.act(SHOOT);
         if self.actionenum == DRIBBLE:   env.act(DRIBBLE);
-        if self.actionenum == PASS:      print env.act(PASS, self.arguments[0]);
+        if self.actionenum == PASS:      env.act(PASS, self.arguments[0]);
         if self.actionenum == MOVE_TO:
              x   = self.arguments[0]
              y   = self.arguments[1]

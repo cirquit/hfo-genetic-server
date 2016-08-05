@@ -36,7 +36,7 @@ serverConf = defaultServer { untouchedTime = 50
                            , defenseNpcs   = 2
 --                           , showMonitor   = False
 --                           , standartPace  = True
-                           , giveBallToPlayer = 1   -- 1 should give it to the first player...with the number 11
+                           , giveBallToPlayer = 1   -- 1 should give it to the first player...with the number 7
                            }
 --
 --  Python agent script configuration (see HFO.Agent.Conf)
@@ -46,7 +46,7 @@ agentConf = defaultAgent { episodes = teamEpisodes }
 -- | Genetic algorithms parameters
 --
 generations :: Int
-generations    = 2 -- how many times does the GA loop (Simulation -> Selection -> Crossover -> Mutation)
+generations    = 50 -- how many times does the GA loop (Simulation -> Selection -> Crossover -> Mutation)
 
 popSize :: Int
 popSize        = 50 -- population size (for offense as well as defense teams)
