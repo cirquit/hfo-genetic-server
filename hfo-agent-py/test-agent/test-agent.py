@@ -13,10 +13,10 @@ from pprint import pprint
 
 
 from hfo import *
-from coloredoutput import info, warn
-from common        import stateToString, actionToString
-from agentaction   import getAction
-from jsonparser    import parseJSON, updateJSON, writeJSON, getActionDistribution
+# from coloredoutput import info, warn
+# from common        import stateToString, actionToString
+# from agentaction   import getAction
+# from jsonparser    import parseJSON, updateJSON, writeJSON, getActionDistribution
 
 
 # command line parser for the configurations + genome encoding (TODO)
@@ -37,38 +37,24 @@ def runParser():
 # Absolute paths for the formations and log files
 #
 formationsPath = "/home/rewrite/Documents/Project-Repos/HFO/bin/teams/base/config/formations-dt"
-logPath        = "/home/rewrite/Documents/Project-Repos/hfo-genetic-server/communication/communication.json"
+# logPath        = "/home/rewrite/Documents/Project-Repos/hfo-genetic-server/communication/communication.json"
 
 
 #   getMyLogPath :: Bool -> Int -> FilePath
 #
-def getMyLogPath(isOffense, index):
-
-    if isOffense:
-        return "/home/rewrite/Documents/Project-Repos/hfo-genetic-server/communication/communication" + str(index) + "off.json"
-    else:
-        return "/home/rewrite/Documents/Project-Repos/hfo-genetic-server/communication/communication" + str(index) + "def.json"
-
-
-
-def getMaxXPos(state, curMaxXPos):
-    '''
-        returns the all times maximum X-Position with the ball
-    '''
-    ballPossession = state[5]
-
-    if (ballPossession == 1):
-        newXPos = state[0]
-        return max(newXPos, curMaxXPos);
-
-    return curMaxXPos
+# def getMyLogPath(isOffense, index):
+# 
+#     if isOffense:
+#         return "/home/rewrite/Documents/Project-Repos/hfo-genetic-server/communication/communication" + str(index) + "off.json"
+#     else:
+#         return "/home/rewrite/Documents/Project-Repos/hfo-genetic-server/communication/communication" + str(index) + "def.json"
 
 
 # Main entry point
 #
 def main():
 
-    jsonData = parseJSON(logPath)
+#     jsonData = parseJSON(logPath)
 
     # parse the command line arguments
     options = runParser()
@@ -90,41 +76,42 @@ def main():
     hfo.connectToServer(HIGH_LEVEL_FEATURE_SET, formationsPath, 6000, "localhost", teamname, isGoalie)
 
     # check if we have the same amount of offense as defense teams
-    offTeamCount = len(jsonData["offenseTeams"])
+#    offTeamCount = len(jsonData["offenseTeams"])
 #    assert offTeamCount == len(jsonData["defenseTeams"])
 
-    currentTeam = -1
+#    currentTeam = -1
 
-#   added for fitness evaluation, will be stored for every episode in the json
-    curMaxXPos  = -1
-
-    for currentEpisode in xrange(offTeamCount * episodes):
+    for currentEpisode in xrange(episodes):
 
         # switch to next team if the current team played all episodes
-        # reset the maximum X-Position
-        if (currentEpisode % episodes) == 0:
-            currentTeam = currentTeam + 1
-            curMaxXPos = -1
+#        if (currentEpisode % episodes) == 0:
+#            currentTeam = currentTeam + 1
 
         # action distribution of the player I represent
         # playerDist :: ActionJSON (defined in jsonparser.py)
-        playerDist = getActionDistribution(jsonData, currentTeam, isOffense, playerNumber)
-
+#        playerDist = getActionDistribution(jsonData, currentTeam, isOffense, playerNumber)
+        
         # Main game loop
-        state = IN_GAME
-        while state == IN_GAME:
+        timestep = 0
+        gamestate = IN_GAME
+        while gamestate == IN_GAME:
             state  = hfo.getState()
-            action = getAction(state, isOffense, playerDist)
-            action.execute(env = hfo)
-            curMaxXPos = getMaxXPos(state, curMaxXPos)
-            state  = hfo.step()
+#            print("playerpos:{0},{1}").format(state[0], state[1])
+            if (state[5] == 1): hfo.act(KICK, 30, 0)
+#            if (state[9] == 1): hfo.act(KICK, 80, 0)
+            else:  hfo.act(NOOP)
+#            hfo.act(NOOP)
+            gamestate     = hfo.step()
+            timestep +=1
+            print("ballprox: {0}, timestep: {1}").format(state[3], timestep)
+#            print("ballvel: {0}, timestep: {1}").format(state[55], timestep)
 
         # Goalie logs every result in the json object
-        jsonData = updateJSON(jsonData, state, currentTeam, curMaxXPos)
+#        jsonData = updateJSON(jsonData, state, currentTeam)
 
     # when we are done with every team, write the updated json object to the log
-    myLogPath = getMyLogPath(isOffense, playerNumber)
-    writeJSON(jsonData, myLogPath)
+#    myLogPath = getMyLogPath(isOffense, playerNumber)
+#    writeJSON(jsonData, myLogPath)
 
 
 if __name__ == "__main__":

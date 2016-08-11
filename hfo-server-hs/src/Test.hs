@@ -54,12 +54,12 @@ instance Arbitrary BallActionDist where
 instance Arbitrary Defense where
 
 --  arbitrary :: Gen Defense
-    arbitrary = Defense <$> replicateM 16 arbitrary
+    arbitrary = Defense <$> {- replicateM 16 -} arbitrary
 
 instance Arbitrary Offense where
 
 --  arbitrary :: Gen Offense
-    arbitrary = Offense <$> replicateM 16 arbitrary <*> replicateM 16 arbitrary
+    arbitrary = Offense <$> {- replicateM 16 -} arbitrary <*> {- replicateM 16 -} arbitrary
 
 instance Arbitrary OffenseTeam where
 
@@ -68,7 +68,7 @@ instance Arbitrary OffenseTeam where
                             <*> arbitrary
                             <*> arbitrary
                             <*> arbitrary
-                            <*> ((,) <$> arbitrary `suchThat` (>= 0)
+                            <*> ((,) <$> (listOf $ elements [-1,-0.9..1])
                                      <*> arbitrary)
 
 instance Arbitrary DefenseTeam where
@@ -78,7 +78,7 @@ instance Arbitrary DefenseTeam where
                             <*> arbitrary
                             <*> arbitrary
                             <*> arbitrary
-                            <*> ((,) <$> (arbitrary `suchThat` (>= 0))
+                            <*> ((,) <$> (listOf $ elements [-1,-0.9..1])
                                      <*> (listOf $ oneof [Just <$> arbitrary, (return Nothing)]))
 
 genTestActions :: Gen ([Action], Int)
@@ -90,7 +90,7 @@ genTestActions = do
 --    x   <- roundTo 4 <$> choose (-1.0, 1.0)
 --    y   <- roundTo 4 <$> choose (-1.0, 1.0)
 
-    let res = [Move, Intercept, Catch, NoOp] -- , MoveTo (x,y) (xBs,yBs)]
+    let res = [Move, Intercept, NoOp] -- , MoveTo (x,y) (xBs,yBs)]
     return (res, length res)
 
 genTestBallActions :: Gen ([BallAction], Int)
@@ -133,13 +133,13 @@ flagDefenseAgent =
 -- | test if the distribution always amounts summed to 100
 --
 actionDistOffenseGeneration     :: Offense -> Bool
-actionDistOffenseGeneration     Offense{..} = all actionDistSumRule     offActionDist
+actionDistOffenseGeneration     Offense{..} = {- all -} actionDistSumRule     offActionDist
 
 ballActionDistOffenseGeneration :: Offense -> Bool
-ballActionDistOffenseGeneration Offense{..} = all ballActionDistSumRule offBallActionDist
+ballActionDistOffenseGeneration Offense{..} = {- all -} ballActionDistSumRule offBallActionDist
 
 actionDistDefenseGeneration     :: Defense -> Bool
-actionDistDefenseGeneration     Defense{..} = all actionDistSumRule     defActionDist
+actionDistDefenseGeneration     Defense{..} = {- all -} actionDistSumRule     defActionDist
 
 actionDistSumRule     :: ActionDist -> Bool
 actionDistSumRule         ActionDist{..} = foldr ((+) . snd) 0 actionDist == 100

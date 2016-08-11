@@ -48,7 +48,8 @@ def getActionDistribution(jsonData, teamIndex, isOffense, playerNumber):
         else:
             player = "op4"
 
-        return jsonData["offenseTeams"][teamIndex][player]["offActionDist"] + jsonData["offenseTeams"][teamIndex][player]["offBallActionDist"]
+#        return jsonData["offenseTeams"][teamIndex][player]["offActionDist"] + jsonData["offenseTeams"][teamIndex][player]["offBallActionDist"]
+        return jsonData["offenseTeams"][teamIndex][player]["offActionDist"]["actionDist"] + jsonData["offenseTeams"][teamIndex][player]["offBallActionDist"]["ballActionDist"]
 
     else:
 
@@ -62,7 +63,8 @@ def getActionDistribution(jsonData, teamIndex, isOffense, playerNumber):
         else:
             player = "dp4"
 
-        return jsonData["defenseTeams"][teamIndex][player]["defActionDist"]
+#        return jsonData["defenseTeams"][teamIndex][player]["defActionDist"]
+        return jsonData["defenseTeams"][teamIndex][player]["defActionDist"]["actionDist"]
 
 
 
@@ -74,11 +76,12 @@ def getActionDistribution(jsonData, teamIndex, isOffense, playerNumber):
 #   because the goalie can not know vs which team it plays
 #
 #   updateJSON :: JSON -> GameState -> Int -> JSON
-def updateJSON(jsonData, state, teamIndex):
+def updateJSON(jsonData, state, teamIndex, curMaxXPos):
 
     strstate = stateToString(state)
-    jsonData["offenseTeams"][teamIndex]["offFutureFitness"].append(strstate)
-#    jsonData["defenseTeams"][teamIndex]["defFutureFitness"].append(strstate)
+    jsonData["offenseTeams"][teamIndex]["offStateFitness"].append(strstate)
+    jsonData["offenseTeams"][teamIndex]["offPosFitness"].append(curMaxXPos)
+#    jsonData["defenseTeams"][teamIndex]["defStateFitness"].append(strstate)
     return jsonData
 
 

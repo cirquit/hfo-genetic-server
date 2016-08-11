@@ -17,6 +17,8 @@ import           Control.Category    ((>>>))
 import           Data.Ord            (comparing)
 import           Data.Foldable       (maximumBy)
 
+import           Data.Conduit
+import qualified Data.Conduit.List as CL
 
 import HFO.Server               (ServerConf(..), defaultServer, runServer_, runServer)
 import HFO.Agent                (AgentConf(..), defaultAgent, DefenseTeam(..), OffenseTeam(..)
@@ -31,10 +33,11 @@ import Genetic.Mutation
 import Genetic.Crossover
 import Genetic.Selection
 
+-- gen 383, off !! 0
 
 resultsFile n = concat [ "/home/rewrite/Documents/Project-Repos/hfo-genetic-server/results/"
-                     , "05_08_v" ++ show 1 ++ "/"
-                     , "json-data/"
+--                     , "06_08_v" ++ show 1 ++ "/"
+--                     , "json-data/"
                      , "results" ++ show n ++ ".json"
                      ]
 
@@ -95,7 +98,7 @@ startSingleSimulation defense offense = do
 
     uncurry (\[x] [y] -> (x,y)) <$> readPopulation
 
-
+{-
 -- get the distribution of all the actions for every of the 16th fields
 --
 getOffDistData :: Offense -> [[Int]]
@@ -163,7 +166,7 @@ getDataFromTo n m = go <$> mapM (readPopulationFrom . resultsFile) [n .. m]
         rev :: ([a],[b]) -> ([a], [b])
         rev (x,y) = (reverse x, reverse y)
 
-
+-}
 countFitness :: Either OffenseTeam DefenseTeam -> Double
 countFitness team =
         -- printf "%-20s: %-6f, %6f%%\n"  "Goals"             goals (roundTo ((goals / len) * 100) 2)
@@ -203,6 +206,8 @@ countFitness team =
 
             to2Percent :: Double -> Double
             to2Percent n = (roundTo ((n / len) * 100) 2)
+
+-- conduitTest :: 
 
 --readInformationFromTo :: Int -> Int -> IO ()
 --readInformationFromTo n m = do

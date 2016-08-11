@@ -107,33 +107,42 @@ def getAction(state, isOffense, actionJSON):
 
   # if we are a defense player, we only have 4 possible actions to choose from
     if (not isOffense):
-        actionDist = actionJSON[subfieldIndex]["actionDist"]
+#        actionDist = actionJSON[subfieldIndex]["actionDist"]
+        actionDist = actionJSON
 
         actions = [ (Action(actionenum = MOVE),      actionDist[0][1])
                   , (Action(actionenum = INTERCEPT), actionDist[1][1])
-                  , (Action(actionenum = CATCH),     actionDist[2][1])
-                  , (Action(actionenum = NOOP),      actionDist[3][1])
+#                  , (Action(actionenum = CATCH),     actionDist[2][1])
+                  , (Action(actionenum = NOOP),      actionDist[2][1])
   #                , (Action(actionenum = MOVE_TO, arguments = actionJSON[4][0]["arguments"]), actionJSON[subfieldIndex]["actionDist"] [4][1])
                   ]
         return chooseFrom(actions)
 
   # if we are an offense player, we have 4 possible actions + 2 ball actions to choose from
     else:
-        actionDist = actionJSON[subfieldIndex]["actionDist"]
+#        actionDist = actionJSON[subfieldIndex]["actionDist"]
+        actionDist = actionJSON
 
         actions = [ (Action(actionenum = MOVE),      actionDist[0][1])
                   , (Action(actionenum = INTERCEPT), actionDist[1][1])
-                  , (Action(actionenum = CATCH),     actionDist[2][1])
-                  , (Action(actionenum = NOOP),      actionDist[3][1])
+#                  , (Action(actionenum = CATCH),     actionDist[2][1])
+                  , (Action(actionenum = NOOP),      actionDist[2][1])
 #                  , (Action(actionenum = MOVE_TO, arguments = actionJSON[4][0]["arguments"]), actionJSON[subfieldIndex]["actionDist"][4][1])
                   ]
 
         # the 0-15 index of actionJSON are the normal actions for every subfield, 16-31 are the ballActions for every subfield
-        ballActionDist = actionJSON[subfieldIndex + 16]["ballActionDist"]
-        ballActions = [ (Action(actionenum = SHOOT),                                                   ballActionDist[0][1])
-                      , (Action(actionenum = DRIBBLE),                                                 ballActionDist[1][1])
-                      , (Action(actionenum = PASS, arguments = ballActionDist[2][0]["ballArguments"]), ballActionDist[2][1])
-                      , (Action(actionenum = PASS, arguments = ballActionDist[3][0]["ballArguments"]), ballActionDist[3][1])
+#        ballActionDist = actionJSON[subfieldIndex + 16]["ballActionDist"]
+
+        ballActionDist = actionJSON
+        ballActions = [ (Action(actionenum = SHOOT),                                                   ballActionDist[3][1])
+                      , (Action(actionenum = DRIBBLE),                                                 ballActionDist[4][1])
+                      , (Action(actionenum = PASS, arguments = ballActionDist[5][0]["ballArguments"]), ballActionDist[5][1])
+                      , (Action(actionenum = PASS, arguments = ballActionDist[6][0]["ballArguments"]), ballActionDist[6][1])
+#        ballActions = [ (Action(actionenum = SHOOT),                                                   ballActionDist[0][1])
+#                      , (Action(actionenum = DRIBBLE),                                                 ballActionDist[1][1])
+#                      , (Action(actionenum = PASS, arguments = ballActionDist[2][0]["ballArguments"]), ballActionDist[2][1])
+#                      , (Action(actionenum = PASS, arguments = ballActionDist[3][0]["ballArguments"]), ballActionDist[3][1])
+
 #                      , (Action(actionenum = PASS, arguments = actionJSON[8][0]["ballArguments"]),  actionJSON[8][1])
 #                      , (Action(actionenum = PASS, arguments = actionJSON[9][0]["ballArguments"]),  actionJSON[9][1])
                       ]

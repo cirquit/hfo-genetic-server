@@ -30,7 +30,7 @@ import Genetic.Selection
 serverConf :: ServerConf
 serverConf = defaultServer { untouchedTime = 50
                            , trials        = popSize * teamEpisodes
-                           , offenseAgents = 2
+                           , offenseAgents = 1
                            , defenseAgents = 0
                            , offenseNpcs   = 0
                            , defenseNpcs   = 2
@@ -52,7 +52,7 @@ popSize :: Int
 popSize        = 50 -- population size (for offense as well as defense teams)
 
 teamEpisodes :: Int
-teamEpisodes   = 15 -- amount of trials for every team
+teamEpisodes   = 25 -- amount of trials for every team
 
 alpha :: Double
 alpha = 0.35   -- % of best individuals will be selected - [0.0, 0.5] (if its >= 0.5 then we won't have any inherently new individuals)
@@ -83,7 +83,7 @@ main = do
         offPopulation :: [OffenseTeam]
         offPopulation = flip evalRand g $ genIndividuals popSize
 
---    (defPopulation, offPopulation) <- readPopulationFrom (resultsPath 2)
+--    (defPopulation, offPopulation) <- readPopulationFrom (resultsPath 312)
 
     runGA defPopulation offPopulation generations
 

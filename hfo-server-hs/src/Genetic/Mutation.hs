@@ -17,6 +17,15 @@ import HFO.Agent
 --
 class Mutation a where
 
+-- | Mutate β percent of invidiuals
+--
+--                               β        δ       λ
+    mutate :: MonadRandom r => Double -> Int -> Double -> [a] -> r [a]
+    mutate beta delta lambda ps = mapM go ps
+        where
+            go individual = (beta >=) <$> getRandomR (0.0, 1.0) >>= \x -> if x then mutateI delta lambda individual
+                                                                               else return individual
+
 -- | How to mutate a single individual
 --
 --
@@ -54,22 +63,14 @@ class Mutation a where
 --        *) try to make splitDelta follow the sum-rule
 --
 --                               δ       λ
-    mutateI :: MonadRandom r => Int -> Double -> a -> r a
 
--- | Mutate β percent of invidiuals
---
---                               β        δ       λ
-    mutate :: MonadRandom r => Double -> Int -> Double -> [a] -> r [a]
-    mutate beta delta lambda ps = mapM go ps
-        where
-            go individual = (beta >=) <$> getRandomR (0.0, 1.0) >>= \x -> if x then mutateI delta lambda individual
-                                                                               else return individual
+    mutateI :: MonadRandom r => Int -> Double -> a -> r a
 
 instance Mutation Offense where
 
 --  mutateI :: MonadRandom r => Int -> Double -> Offense -> r Offense
-    mutateI delta lambda Offense{..} = Offense <$> mapM (go mutateActionD)     offActionDist
-                                               <*> mapM (go mutateBallActionD) offBallActionDist
+    mutateI delta lambda Offense{..} = Offense <$> {- mapM (go -} mutateActionD     offActionDist
+                                               <*> {- mapM (go -} mutateBallActionD offBallActionDist
 
         where 
                 go :: MonadRandom r => (a -> r a) -> a -> r a
@@ -103,7 +104,7 @@ instance Mutation Offense where
 instance Mutation Defense where
 
 --  mutateI :: MonadRandom r => Int -> Double -> Defense -> r Defense
-    mutateI delta lambda Defense{..} = Defense <$> mapM (go mutateActionD) defActionDist
+    mutateI delta lambda Defense{..} = Defense <$> {- mapM (go -} mutateActionD defActionDist
         where 
                 go :: MonadRandom r => (a -> r a) -> a -> r a
                 go f segment = (lambda >=) <$> getRandomR (0.0, 1.0) >>= \x -> if x then f segment
@@ -128,7 +129,7 @@ instance Mutation DefenseTeam where
                                                        <*> mutateI delta lambda dp2
                                                        <*> mutateI delta lambda dp3
                                                        <*> mutateI delta lambda dp4
-                                                       <*> pure (0, [])
+                                                       <*> pure ([], [])
 
 instance Mutation OffenseTeam where
 
@@ -137,7 +138,7 @@ instance Mutation OffenseTeam where
                                                        <*> mutateI delta lambda op2
                                                        <*> mutateI delta lambda op3
                                                        <*> mutateI delta lambda op4
-                                                       <*> pure (0, [])
+                                                       <*> pure ([], [])
 
 -- | splits delta (0-100) in n parts  (negative partition - number theory)
 --

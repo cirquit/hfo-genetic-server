@@ -48,8 +48,8 @@ instance Allele Offense where
         (actions, actionsLen)         <- genActions
         (ballActions, ballActionsLen) <- genBallActions
 
-        let actionsDist     = replicateM 16 $ uncurry (ActionDist     . zip actions)     <$> genUniformDistributionGen actionsLen
-            ballActionsDist = replicateM 16 $ uncurry (BallActionDist . zip ballActions) <$> genUniformDistributionGen ballActionsLen
+        let actionsDist     = {- replicateM 16 $ -} uncurry (ActionDist     . zip actions)     <$> genUniformDistributionGen actionsLen
+            ballActionsDist = {- replicateM 16 $ -} uncurry (BallActionDist . zip ballActions) <$> genUniformDistributionGen ballActionsLen
 
         Offense <$> actionsDist <*> ballActionsDist
 
@@ -65,7 +65,7 @@ instance Allele Defense where
 --  genIndividual :: MonadRandom r => r a
     genIndividual = do
         (actions, actionsLen) <- genActions
-        let actionsDist = replicateM 16 $ uncurry (ActionDist . zip actions) <$> genUniformDistributionGen actionsLen
+        let actionsDist = {- replicateM 16 $ -} uncurry (ActionDist . zip actions) <$> genUniformDistributionGen actionsLen
 
         Defense <$> actionsDist
 
@@ -76,7 +76,7 @@ instance Allele Defense where
 instance Allele OffenseTeam where
 
 --  genIndividual :: MonadRandom r => r OffenseTeam
-    genIndividual = OffenseTeam <$> genIndividual <*> genIndividual <*> genIndividual <*> genIndividual <*> pure (0, [])
+    genIndividual = OffenseTeam <$> genIndividual <*> genIndividual <*> genIndividual <*> genIndividual <*> pure ([], [])
 
 -- | Generate a whole 'Defense team' - individual
 --
@@ -85,7 +85,7 @@ instance Allele OffenseTeam where
 instance Allele DefenseTeam where
 
 --  genIndividual :: MonadRandom r => DefenseTeam
-    genIndividual = DefenseTeam <$> genIndividual <*> genIndividual <*> genIndividual <*> genIndividual <*> pure (0, [])
+    genIndividual = DefenseTeam <$> genIndividual <*> genIndividual <*> genIndividual <*> genIndividual <*> pure ([], [])
 
 
 -- | generates random Actions
@@ -100,7 +100,7 @@ genActions = do
 --    x   <- roundTo 4 <$> getRandomR (-1.0, 1.0)
 --    y   <- roundTo 4 <$> getRandomR (-1.0, 1.0)
 
-    let res = [Move, Intercept, Catch, NoOp] -- MoveTo (x,y) (xBs, yBs)]
+    let res = [Move, Intercept, NoOp] -- MoveTo (x,y) (xBs, yBs)]
     return (res, length res)
 
 -- | generates random BallActions

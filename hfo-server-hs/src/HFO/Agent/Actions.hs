@@ -16,7 +16,7 @@ import qualified Data.Vector as V
 -- 
 data Action  = Move                                    -- high level move based on strategy (whatever this might be - TODO)
              | Intercept                               -- intercept the ball
-             | Catch                                   -- goalie only  (this may be a little bit ugly)
+--             | Catch                                   -- goalie only  (this may be a little bit ugly)
              | NoOp                                    -- no operation
 --             | MoveTo (Double,Double)                  -- (x,y) (xBounds, yBounds) x € [-1,1], y € [-1,1]
 --             | Dash Int Int                          -- power in [0,100], direction in [-180,180]
@@ -49,14 +49,14 @@ instance FromJSON Action where
 toActionText :: Action -> Text
 toActionText Move         = "MOVE"
 toActionText Intercept    = "INTERCEPT"
-toActionText Catch        = "CATCH"
+-- toActionText Catch        = "CATCH"
 toActionText NoOp         = "NOOP"
 -- toActionText (MoveTo _ _) = "MOVE_TO"
 
 toMAction :: Text -> V.Vector Value -> Maybe Action
 toMAction "MOVE"      _ = Just Move
 toMAction "INTERCEPT" _ = Just Intercept
-toMAction "CATCH"     _ = Just Catch
+-- toMAction "CATCH"     _ = Just Catch
 toMAction "NOOP"      _ = Just NoOp
 -- toMAction "MOVE_TO"    l = let (Number mx : Number my : Number mxBy : Number myBs : _) = V.toList l
 --                                [x, y, xBs, yBs] = map (toDouble . floatingOrInteger) [mx,my,mxBy,myBs]

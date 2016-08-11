@@ -91,7 +91,7 @@ toMState _                      = Nothing
 --
 -- !! If this order changes we have to update the python code too !!
 
-data Defense = Defense { defActionDist :: [ActionDist] }
+data Defense = Defense { defActionDist :: ActionDist }
     deriving (Show, Eq)
 
 instance ToJSON Defense where
@@ -111,8 +111,8 @@ instance FromJSON Defense where
 --   *) Same order of actionDists to segments of the field as in Defense
 --   *) We have two distributions, because we either have the ball, or not
 --   
-data Offense = Offense { offActionDist     :: [ActionDist]
-                       , offBallActionDist :: [BallActionDist]
+data Offense = Offense { offActionDist     :: ActionDist
+                       , offBallActionDist :: BallActionDist
                        }
     deriving (Show, Eq)
 
@@ -147,7 +147,7 @@ data OffenseTeam = OffenseTeam { op1        :: Offense
                                , op2        :: Offense
                                , op3        :: Offense
                                , op4        :: Offense
-                               , offFitness :: (Int, [Maybe HFOState])
+                               , offFitness :: ([Double], [Maybe HFOState])
                                }
     deriving (Show, Eq)
 
@@ -158,8 +158,8 @@ instance ToJSON OffenseTeam where
       ,"op2" .= op2
       ,"op3" .= op3
       ,"op4" .= op4
-      ,"offFitness"       .= fst offFitness
-      ,"offFutureFitness" .= snd offFitness
+      ,"offPosFitness"   .= fst offFitness
+      ,"offStateFitness" .= snd offFitness
       ]
 
 instance FromJSON OffenseTeam where
@@ -169,15 +169,15 @@ instance FromJSON OffenseTeam where
         op2 <- o .: "op2"
         op3 <- o .: "op3"
         op4 <- o .: "op4"
-        offFitness       <- o .: "offFitness"
-        offFutureFitness <- o .: "offFutureFitness"
+        offFitness       <- o .: "offPosFitness"
+        offFutureFitness <- o .: "offStateFitness"
         return $ OffenseTeam op1 op2 op3 op4 (offFitness, offFutureFitness)
 
 data DefenseTeam = DefenseTeam { goalie     :: Defense
                                , dp2        :: Defense
                                , dp3        :: Defense
                                , dp4        :: Defense
-                               , defFitness :: (Int, [Maybe HFOState])}
+                               , defFitness :: ([Double], [Maybe HFOState])}
     deriving (Show, Eq)
 
 instance ToJSON DefenseTeam where
@@ -187,8 +187,8 @@ instance ToJSON DefenseTeam where
       ,"dp2" .= dp2
       ,"dp3" .= dp3
       ,"dp4" .= dp4
-      ,"defFitness"       .= fst defFitness
-      ,"defFutureFitness" .= snd defFitness
+      ,"defPosFitness"   .= fst defFitness
+      ,"defStateFitness" .= snd defFitness
       ]
 
 
@@ -199,8 +199,8 @@ instance FromJSON DefenseTeam where
         dp2    <- o .: "dp2"
         dp3    <- o .: "dp3"
         dp4    <- o .: "dp4"
-        defFitness       <- o .: "defFitness"
-        defFutureFitness <- o .: "defFutureFitness"
+        defFitness       <- o .: "defPosFitness"
+        defFutureFitness <- o .: "defStateFitness"
         return $ DefenseTeam goalie dp2 dp3 dp4 (defFitness, defFutureFitness)
 
 -- | This data type is only used to create a better JSON representation to parse with Python
@@ -226,25 +226,25 @@ instance FromJSON SerializedTeams where
 --
 -- (testing purposes only)
 defaultDefense :: Defense
-defaultDefense = Defense { defActionDist = take 16 (repeat seg01) }
+defaultDefense = Defense { defActionDist = {- take 16 (repeat -} seg01 }
     where
         seg01 :: ActionDist
-        seg01 = ActionDist { actionDist       = [(Move, 50), (Intercept, 20), (Catch, 15), (NoOp, 15)]
-                           , actionGenerator  = [0, 50, 70, 85, 100]
+        seg01 = ActionDist { actionDist       = [(Move, 50), (Intercept, 20), (NoOp, 30)]
+                           , actionGenerator  = [0, 50, 70, 100]
                            }
 
 -- (testing purposes only)
 defaultOffense :: Offense
-defaultOffense = Offense { offActionDist     = take 16 (repeat seg01)
-                         , offBallActionDist = take 16 (repeat seg01Ball)
+defaultOffense = Offense { offActionDist     = {- take 16 (repeat -} seg01
+                         , offBallActionDist = {- take 16 (repeat -} seg01Ball
                          }
     where
         seg01 :: ActionDist
-        seg01 = ActionDist { actionDist       = [(Move, 50), (Intercept, 20), (Catch, 15), (NoOp, 15)]
-                           , actionGenerator  = [0, 50, 70, 85, 100]
+        seg01 = ActionDist { actionDist       = [(Move, 50), (Intercept, 20), (NoOp, 30)]
+                           , actionGenerator  = [0, 50, 70, 100]
                            }
         seg01Ball :: BallActionDist
-        seg01Ball = BallActionDist { ballActionDist      = [(Shoot,50), (Dribble,10), (Pass 7,10), (Pass 8,10), (Pass 9,10), (Pass 11,10)]
+        seg01Ball = BallActionDist { ballActionDist      = [(Shoot,50), (Dribble,10), (Pass 7,10), (Pass 11,10)]
                                    , ballActionGenerator = [0,50,60,70,80,90,100]
                                    }
 
@@ -254,7 +254,7 @@ defaultDefenseTeam  = DefenseTeam { goalie     = defaultDefense
                                   , dp2        = defaultDefense
                                   , dp3        = defaultDefense
                                   , dp4        = defaultDefense
-                                  , defFitness = (0, [])
+                                  , defFitness = ([-1], [])
                                   }
 
 -- (testing purposes only)
@@ -263,7 +263,7 @@ defaultOffenseTeam = OffenseTeam { op1        = defaultOffense
                                  , op2        = defaultOffense
                                  , op3        = defaultOffense
                                  , op4        = defaultOffense
-                                 , offFitness = (0, [])
+                                 , offFitness = ([-1], [])
                                  }
 
 -- (testing purposes only)

@@ -49,6 +49,8 @@ library
                      , bytestring
                      , filepath
                      , split
+                     , conduit        >= 1.2.0.0
+                     , conduit-extra  >= 1.1.0.0
                      
 
   default-language:    Haskell2010
