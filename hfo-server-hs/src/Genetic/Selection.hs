@@ -53,11 +53,24 @@ class Selection a where
 
 instance Selection OffenseTeam where
 
+--  ([X-Pos (Double)], [Maybe HFOStates])
+--    
+--  1) we compute the average x-position
+--  2) we compute based on "fitness-function" the HFOStates and divide them by 4
+--  at last we add 1) and 2) together
+--
+--  avg-case-scenario: avg.X-Pos is ~ 0.5 and we scored one goal => 1 / 4
+--  => 0.75
+--  
+--  I want to favor the goal-scoring as an avg 0.25(meter) space "win"
+--
+--  3) multiplication is only to avoid floating point madness
+--
 --  classify :: OffenseTeam -> Int
     classify OffenseTeam{..} =
             let (posFitness, stateFitness) = offFitness
                 summedPosFitness   = (sum posFitness)                               / (genericLength posFitness)
-                summedStateFitness = (foldl' (flip ((+) . fitness)) 0 stateFitness) / (genericLength stateFitness)
+                summedStateFitness = (foldl' (flip ((+) . fitness)) 0 stateFitness) / 4
             in  round $ (summedPosFitness + summedStateFitness) * 10000
         where
             fitness :: Maybe HFOState -> Double
@@ -70,20 +83,26 @@ instance Selection OffenseTeam where
             fitness _                         = 0
 
 
--- if we want to update the fitness gradually then it has to be a relative fitness, not an absolute
--- count of simulation results
-
---  updateFitness :: OffenseTeam -> OffenseTeam
---    updateFitness offense = offense { offFitness = (classify offense, []) }
-
-
 instance Selection DefenseTeam where
 
+--  ([X-Pos (Double)], [Maybe HFOStates])
+--    
+--  1) we compute the average x-position
+--  2) we compute based on "fitness-function" the HFOStates and divide them by 4
+--  at last we add 1) and 2) together
+--
+--  avg-case-scenario: avg.X-Pos is ~ 0.5 and we scored one goal => 1 / 4
+--  => 0.75
+--  
+--  I want to favor the goal-scoring as an avg 0.25(meter) space "win"
+--
+--  3) multiplication is only to avoid floating point madnessating point madness
+--
 --  classify :: DefenseTeam -> Int
     classify DefenseTeam{..} =
             let (posFitness, stateFitness) = defFitness
                 summedPosFitness   = (sum posFitness)                               / (genericLength posFitness)
-                summedStateFitness = (foldl' (flip ((+) . fitness)) 0 stateFitness) / (genericLength stateFitness)
+                summedStateFitness = (foldl' (flip ((+) . fitness)) 0 stateFitness) / 4
             in  round $ (summedPosFitness + summedStateFitness) * 10000
         where
             fitness :: Maybe HFOState -> Double
