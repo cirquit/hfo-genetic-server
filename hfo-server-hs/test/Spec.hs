@@ -65,13 +65,14 @@ main = hspec . modifyMaxSuccess (const 5000) $ do
                                                ]
             describe "HFO.Agent.Data" $ do
                 describe "JSON Encoding / Decoding" $ do
-                    prop "Action"      jsonPropAction
-                    prop "BallAction"  jsonPropBallAction
-                    prop "Offense"     jsonPropOffense
-                    prop "Defense"     jsonPropDefense
-                    prop "DefenseTeam" jsonPropDefenseTeam
-                    prop "OffenseTeam" jsonPropOffenseTeam
-                    prop "HFOState"    jsonPropHFOState
+                    prop "Action"          jsonPropAction
+                    prop "BallAction"      jsonPropBallAction
+                    prop "Offense"         jsonPropOffense
+                    prop "Defense"         jsonPropDefense
+                    prop "DefenseTeam"     jsonPropDefenseTeam
+                    prop "OffenseTeam"     jsonPropOffenseTeam
+                    prop "SerializedTeams" jsonPropSerializedTeams
+                    prop "HFOState"        jsonPropHFOState
 
         describe "Genetic" $ do
             describe "Genetic.Allele"    $ do

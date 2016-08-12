@@ -81,6 +81,12 @@ instance Arbitrary DefenseTeam where
                             <*> ((,) <$> (listOf $ elements [-1,-0.9..1])
                                      <*> (listOf $ oneof [Just <$> arbitrary, (return Nothing)]))
 
+instance Arbitrary SerializedTeams where
+
+--  arbitrary :: Gen SerializedTeams
+    arbitrary = SerializedTeams <$> (take 5 <$> listOf arbitrary) -- limit to 5 so the tests dont take too long
+                                <*> (take 5 <$> listOf arbitrary)
+
 genTestActions :: Gen ([Action], Int)
 genTestActions = do
 --    let boundsLength = 0.4

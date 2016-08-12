@@ -6,9 +6,10 @@ import Data.Aeson
 import Data.Aeson.Utils
 import Data.Aeson.Types
 import qualified Data.Text as T
-import GHC.Exts         -- (fromList)
+import GHC.Exts
 
 import HFO.Agent.Actions
+
 -- | All the possible states that our server can have
 --
 --   The states are parsed To/FromJSON based on the show instances defined and copied by the python library
@@ -135,13 +136,12 @@ instance FromJSON Offense where
 --
 --   The Half-Field Offense Task defines 4 offensive and 3 defensive players + goalie
 --
---  *) The fitness is evaluated once in Selection
---
---              already      new states from
---              calculated     simulation
---                  |          /
---                  |         |
---                (Int, [HFOState])
+--              max-X-pos    
+--              while holding   new states from
+--               the ball         simulation
+--                    |              |
+--                    |              |
+--                ([Double], [HFOState])
 --
 data OffenseTeam = OffenseTeam { op1        :: Offense
                                , op2        :: Offense
@@ -254,7 +254,7 @@ defaultDefenseTeam  = DefenseTeam { goalie     = defaultDefense
                                   , dp2        = defaultDefense
                                   , dp3        = defaultDefense
                                   , dp4        = defaultDefense
-                                  , defFitness = ([-1], [])
+                                  , defFitness = ([], [])
                                   }
 
 -- (testing purposes only)
@@ -263,7 +263,7 @@ defaultOffenseTeam = OffenseTeam { op1        = defaultOffense
                                  , op2        = defaultOffense
                                  , op3        = defaultOffense
                                  , op4        = defaultOffense
-                                 , offFitness = ([-1], [])
+                                 , offFitness = ([], [])
                                  }
 
 -- (testing purposes only)
