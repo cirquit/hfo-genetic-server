@@ -62,10 +62,10 @@ testServerConf :: ServerConf
 testServerConf = defaultServer { untouchedTime = 50
                                , trials        = testGamesCount
 --                               , showMonitor   = False
-                               , offenseAgents = 2
+                               , offenseAgents = 1
                                , defenseAgents = 0
                                , offenseNpcs   = 0
-                               , defenseNpcs   = 2
+                               , defenseNpcs   = 1
                                , standartPace  = True
                                , giveBallToPlayer = 1 -- gives the ball to the first player...with the number 7
                                }
@@ -97,6 +97,52 @@ startSingleSimulation defense offense = do
 --    waitForProcesses (offphs ++ defphs)
 
     uncurry (\[x] [y] -> (x,y)) <$> readPopulation
+
+
+
+evaluate :: [[OffenseTeam]] -> IO ()
+evaluate offTeams = do
+        let infos       = foldl go [[],[],[],[]] offTeams
+            bestFitness = concat (infos !! 0)   -- best per generation               ~ [Double]
+            meanFitness = concat (infos !! 1)   -- mean per generation               ~ [Double]
+            bestActions = infos !! 2            -- best distribution per generation  ~ [[Shoot, Dribble, Pass7, Pass11]]
+            meanActions = infos !! 3            -- mean distribution per generation  ~ [[Shoot, Dribble, Pass7, Pass11]]
+
+
+        writeFile (graphsLogFile ++ "offenseFitness.dat") (unlines $ zipWith (\x y -> show x ++ ' ':(show y)) bestFitness meanFitness)
+        writeFile (graphsLogFile ++ "offenseActDist.dat") (unlines $ map (unwords . map show) meanActions)
+
+
+go :: [[[Double]]] -> [OffenseTeam] -> [[[Double]]]
+go [bFit, mFit, bAct, mAct] offs = [ [curBestFitness] : bFit
+                                   , [curMeanFitness] : mFit
+                                   , curBestActions   : bAct
+                                   , curMeanActions   : mAct
+                                   ]
+    where
+        curBestFitness :: Double
+        curBestFitness = fromIntegral . classify $ sortedOffs !! 0
+
+        curBestActions :: [Double]
+        curBestActions =  getBallActions $ sortedOffs !! 0
+
+        curMeanFitness :: Double
+        curMeanFitness = (fromIntegral $ sum (map classify sortedOffs)) / teamCount
+
+        curMeanActions :: [Double]
+        curMeanActions = zipWith (flip (/)) (replicate 4 teamCount)
+                       $ foldl (zipWith (+)) [0,0,0,0] (map getBallActions sortedOffs)
+
+        getBallActions :: OffenseTeam -> [Double]
+        getBallActions = map (fromIntegral . snd) . ballActionDist . offBallActionDist . op1
+
+        sortedOffs :: [OffenseTeam]
+        sortedOffs = take 14 $ sortByDescFitness offs  -- take 14 because we don't want the random generated individuals to influence the results
+
+        teamCount :: Num a => a
+        teamCount = genericLength $ take 14 offs
+
+
 
 {-
 -- get the distribution of all the actions for every of the 16th fields
@@ -155,18 +201,19 @@ mean l = sum l `div` len
     where
         len = length l
 
-
+-}
 
 getDataFromTo :: Int -> Int -> IO ([[DefenseTeam]], [[OffenseTeam]])
 getDataFromTo n m = go <$> mapM (readPopulationFrom . resultsFile) [n .. m]
     where
         go :: [([DefenseTeam], [OffenseTeam])] -> ([[DefenseTeam]], [[OffenseTeam]])
-        go = rev . unzip
+        go = unzip
 
         rev :: ([a],[b]) -> ([a], [b])
         rev (x,y) = (reverse x, reverse y)
 
--}
+
+
 countFitness :: Either OffenseTeam DefenseTeam -> Double
 countFitness team =
         -- printf "%-20s: %-6f, %6f%%\n"  "Goals"             goals (roundTo ((goals / len) * 100) 2)

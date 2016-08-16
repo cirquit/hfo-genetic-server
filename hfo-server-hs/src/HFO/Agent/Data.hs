@@ -158,20 +158,23 @@ instance ToJSON OffenseTeam where
       ,"op2" .= op2
       ,"op3" .= op3
       ,"op4" .= op4
-      ,"offPosFitness"   .= fst offFitness
+      ,"offPosFitness"   .= (map show $ fst offFitness)
       ,"offStateFitness" .= snd offFitness
       ]
 
 instance FromJSON OffenseTeam where
 
     parseJSON (Object o) = do
-        op1 <- o .: "op1"
-        op2 <- o .: "op2"
-        op3 <- o .: "op3"
-        op4 <- o .: "op4"
-        offFitness       <- o .: "offPosFitness"
-        offFutureFitness <- o .: "offStateFitness"
-        return $ OffenseTeam op1 op2 op3 op4 (offFitness, offFutureFitness)
+            op1 <- o .: "op1"
+            op2 <- o .: "op2"
+            op3 <- o .: "op3"
+            op4 <- o .: "op4"
+            offFitness       <- map readDouble <$> o .: "offPosFitness"
+            offFutureFitness <- o .: "offStateFitness"
+            return $ OffenseTeam op1 op2 op3 op4 (offFitness, offFutureFitness)
+        where
+            readDouble :: String -> Double
+            readDouble = read
 
 data DefenseTeam = DefenseTeam { goalie     :: Defense
                                , dp2        :: Defense
@@ -187,7 +190,7 @@ instance ToJSON DefenseTeam where
       ,"dp2" .= dp2
       ,"dp3" .= dp3
       ,"dp4" .= dp4
-      ,"defPosFitness"   .= fst defFitness
+      ,"defPosFitness"   .= (map show $ fst defFitness)
       ,"defStateFitness" .= snd defFitness
       ]
 
@@ -195,13 +198,16 @@ instance ToJSON DefenseTeam where
 instance FromJSON DefenseTeam where
 
     parseJSON (Object o) = do
-        goalie <- o .: "goalie"
-        dp2    <- o .: "dp2"
-        dp3    <- o .: "dp3"
-        dp4    <- o .: "dp4"
-        defFitness       <- o .: "defPosFitness"
-        defFutureFitness <- o .: "defStateFitness"
-        return $ DefenseTeam goalie dp2 dp3 dp4 (defFitness, defFutureFitness)
+            goalie <- o .: "goalie"
+            dp2    <- o .: "dp2"
+            dp3    <- o .: "dp3"
+            dp4    <- o .: "dp4"
+            defFitness       <- map readDouble <$> o .: "defPosFitness"
+            defFutureFitness <- o .: "defStateFitness"
+            return $ DefenseTeam goalie dp2 dp3 dp4 (defFitness, defFutureFitness)
+        where
+            readDouble :: String -> Double
+            readDouble = read
 
 -- | This data type is only used to create a better JSON representation to parse with Python
 --

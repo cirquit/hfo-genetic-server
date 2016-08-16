@@ -75,6 +75,8 @@ toDouble (Right i) = fromInteger i
 data BallAction  = Shoot                  -- shoot in (possibly in looking direction)
                  | Dribble                -- dribble in whatever direction?...
                  | Pass Integer                 -- pass to teammate in [0,11]
+                 | BNoOp
+                 | GoalKick               -- predefined Kick that tries to cleverly shoot in the space between goalie and goal
 --                 | Kick   Int Int       -- power in [0,100], direction in [-180, 180]
 --                 | KickTo Int Int Int   -- x in [-1,1], y in [-1,1], power in [0,3]
 --                 | DribbleTo Int Int    -- x in [-1,1], y in [-1,1]
@@ -104,6 +106,8 @@ toBallActionText :: BallAction -> Text
 toBallActionText Shoot    = "SHOOT"
 toBallActionText Dribble  = "DRIBBLE"
 toBallActionText (Pass _) = "PASS"
+toBallActionText BNoOp    = "NOOP"
+toBallActionText GoalKick = "GOALKICK"
 
 toMBallAction :: Text -> V.Vector Value -> Maybe BallAction
 toMBallAction "SHOOT"   _        = Just Shoot
@@ -112,7 +116,9 @@ toMBallAction "PASS"    l        = let (Number i):_ = V.toList l in
      case floatingOrInteger i of
           Left float -> Just $ Pass (round float)  -- this is just to convert from Double to Int, it should never change the value
           Right int  -> Just $ Pass int
-toMBallAction _        _                  = Nothing
+toMBallAction "NOOP"     _       = Just BNoOp
+toMBallAction "GOALKICK" _       = Just GoalKick
+toMBallAction _          _       = Nothing
 
 
 

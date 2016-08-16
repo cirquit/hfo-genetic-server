@@ -10,7 +10,7 @@ import HFO.ToFlags
 
 
 main :: IO ()
-main = hspec . modifyMaxSuccess (const 5000) $ do
+main = hspec . modifyMaxSuccess (const 2000) $ do
     describe "HSpec tests for hfo-server-hs" $ do
         describe "HFO" $ do
             describe "HFO.Agent" $ do

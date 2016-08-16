@@ -519,6 +519,22 @@
 	},
 	"buffers":
 	[
+		{
+			"file": "/home/rewrite/Documents/Project-Repos/hfo-genetic-server/hfo-server-hs/app/Main.hs",
+			"settings":
+			{
+				"buffer_size": 6154,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "HFO/Agent/Actions.hs",
+			"settings":
+			{
+				"buffer_size": 7200,
+				"line_ending": "Unix"
+			}
+		}
 	],
 	"build_system": "",
 	"build_system_choices":
@@ -620,8 +636,13 @@
 		"side_bar_visible": false,
 		"status_bar_visible": false
 	},
+	"expanded_folders":
+	[
+		"/home/rewrite/Documents/Project-Repos/hfo-genetic-server"
+	],
 	"file_history":
 	[
+		"/home/rewrite/.xsessionrc",
 		"/home/rewrite/Documents/Project-Repos/genetic-tic-tac-toe/src/Board/Utils.hs",
 		"/home/rewrite/Documents/Project-Repos/hfo-genetic-server/hfo-server-hs/src/HFO/StateParser.hs",
 		"/home/rewrite/Documents/Project-Repos/hfo-genetic-server/hfo-server-hs/src/HFO/Agent/Data.hs",
@@ -642,7 +663,6 @@
 		"/home/rewrite/Documents/Project-Repos/hfo-genetic-server/hfo-server-hs/src/HFO/ToFlags.hs",
 		"/home/rewrite/Documents/Project-Repos/hfo-genetic-server/hfo-server-hs/src/HFO/Server.hs",
 		"/home/rewrite/Documents/Project-Repos/hfo-genetic-server/hfo-agent-py/agentaction.py",
-		"/home/rewrite/.xsessionrc",
 		"/home/rewrite/Documents/Project-Repos/hfo-genetic-server/hfo-server-hs/hfo-server-hs.cabal",
 		"/home/rewrite/Documents/Project-Repos/hfo-genetic-server/graphs/gnupscripts/offenseFitness.p",
 		"/home/rewrite/Documents/Project-Repos/hfo-genetic-server/graphs/gnupscripts/old/best-and-mean-fitness-in-percent-for-all-players.p",
@@ -971,8 +991,69 @@
 	"groups":
 	[
 		{
+			"selected": 0,
 			"sheets":
 			[
+				{
+					"buffer": 0,
+					"file": "/home/rewrite/Documents/Project-Repos/hfo-genetic-server/hfo-server-hs/app/Main.hs",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 6154,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								1871,
+								1871
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Haskell/Haskell.tmLanguage",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 612.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 0,
+					"type": "text"
+				},
+				{
+					"buffer": 1,
+					"file": "HFO/Agent/Actions.hs",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 7200,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								0,
+								0
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Haskell/Haskell.tmLanguage",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 1,
+					"type": "text"
+				}
 			]
 		}
 	],
@@ -1024,6 +1105,14 @@
 		"last_filter": "",
 		"selected_items":
 		[
+			[
+				"actio",
+				"hfo-server-hs/src/HFO/Agent/Actions.hs"
+			],
+			[
+				"main",
+				"hfo-server-hs/app/Main.hs"
+			]
 		],
 		"width": 0.0
 	},

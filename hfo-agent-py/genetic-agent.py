@@ -104,18 +104,20 @@ def main():
         # reset the maximum X-Position
         if (currentEpisode % episodes) == 0:
             currentTeam = currentTeam + 1
-            curMaxXPos = -1
 
         # action distribution of the player I represent
         # playerDist :: ActionJSON (defined in jsonparser.py)
         playerDist = getActionDistribution(jsonData, currentTeam, isOffense, playerNumber)
+
+        # reset maximum x-position
+        curMaxXPos = -1
 
         # Main game loop
         state = IN_GAME
         while state == IN_GAME:
             state  = hfo.getState()
             action = getAction(state, isOffense, playerDist)
-            action.execute(env = hfo)
+            action.execute(env = hfo, state = state)
             curMaxXPos = getMaxXPos(state, curMaxXPos)
             state  = hfo.step()
 

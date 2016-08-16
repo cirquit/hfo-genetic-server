@@ -1,6 +1,8 @@
 {-# LANGUAGE BangPatterns #-}
 
-module Genetic.Crossover where
+module Genetic.Crossover
+    ( Crossover(..)
+    ) where
 
 import System.Random
 import Control.Monad.Random
@@ -67,35 +69,65 @@ class Crossover a where
 
 instance Crossover ActionDist where
 
--- uniformCO :: MonadRandom r => ActionDist -> ActionDist -> r (ActionDist, ActionDist)
-   uniformCO (ActionDist distA genA) (ActionDist distB genB) = do
+--  uniformCO :: MonadRandom r => ActionDist -> ActionDist -> r (ActionDist, ActionDist)
+    uniformCO (ActionDist distA genA) (ActionDist distB genB) = do
 
+-- ## Generator Crossover
         -- calculate the average of the probabilities using the generator lists
-        let genAB = zipWith (\x y -> (x+y) `div` 2) genA genB
-            dist  = generateDistributionFrom genAB
+        --let genAB = zipWith (\x y -> (x+y) `div` 2) genA genB
+        --    dist  = generateDistributionFrom genAB
 
-            actions = map fst distA   :: [Action]
-            distAB = zip actions dist :: [(Action, Int)]
+        --    actions = map fst distA    :: [Action]
+        --    distAB  = zip actions dist :: [(Action, Int)]
 
-            -- only one child with the current implementation
-            result = ActionDist distAB genAB
+        --    -- only one child with the current implementation
+        --    result = ActionDist distAB genAB
+
+        --return (result, result)
+
+-- ## Simple Crossover without using the generator
+        let dist       = zipWith (\(_,x) (_,y) -> x + y) distA distB
+
+        --  normalize the distribution
+            normDistAB = normalizeDist dist
+
+            actions = map fst distA          :: [Action]
+            distAB  = zip actions normDistAB :: [(Action, Int)]
+
+        --  we don't have any generator so it stays empty, if we use this method mutation has to be adjusted
+            result  = ActionDist distAB []
 
         return (result, result)
+
 
 instance Crossover BallActionDist where
 
 -- uniformCO :: MonadRandom r => BallActionDist -> BallActionDist -> r (BallActionDist, BallActionDist)
    uniformCO (BallActionDist distA genA) (BallActionDist distB genB) = do
 
-        -- calculate the average of the probabilities using the generator lists
-        let genAB = zipWith (\x y -> (x+y) `div` 2) genA genB
-            dist  = generateDistributionFrom genAB
+        ---- calculate the average of the probabilities using the generator lists
+        --let genAB = zipWith (\x y -> (x+y) `div` 2) genA genB
+        --    dist  = generateDistributionFrom genAB
 
-            actions = map fst distA   :: [BallAction]
-            distAB = zip actions dist :: [(BallAction, Int)]
+        --    actions = map fst distA   :: [BallAction]
+        --    distAB = zip actions dist :: [(BallAction, Int)]
 
-            -- only one child with the current implementation
-            result = BallActionDist distAB genAB
+        --    -- only one child with the current implementation
+        --    result = BallActionDist distAB genAB
+
+        --return (result, result)
+
+-- ## Simple Crossover without using the generator
+        let dist       = zipWith (\(_,x) (_,y) -> x + y) distA distB
+
+        --  normalize the distribution
+            normDistAB = normalizeDist dist
+
+            actions = map fst distA          :: [BallAction]
+            distAB  = zip actions normDistAB :: [(BallAction, Int)]
+
+        --  we don't have any generator so it stays empty, if we use this method mutation has to be adjusted
+            result  = BallActionDist distAB []
 
         return (result, result)
 
@@ -181,3 +213,23 @@ unzipWithM' f = go ([],[])
         go (xs, ys) ((a,b) : abs) = do
             !(!x,!y) <- f (a,b)
             go (xs ++ [x], ys ++ [y]) abs
+
+
+-- Kinda hacky way to ensure the 100-sum-rule 
+--
+-- Normalize the probabilities except for the last one
+-- The last one will be computed by 100 - (sum of other probabilities)
+-- 
+-- That way we don't get any floating point errors
+--
+normalizeDist :: [Int] -> [Int]
+normalizeDist dist = resDist ++ [rest]
+    where
+
+        rest    = 100 - (sum resDist) :: Int
+
+        resDist = init fullNormDist :: [Int]
+
+        fullNormDist = map (round . (* 100) . (\x -> fromIntegral x / distSum)) dist :: [Int]
+
+        distSum = fromIntegral (sum dist) :: Double

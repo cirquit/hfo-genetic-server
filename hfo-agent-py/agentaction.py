@@ -136,8 +136,10 @@ def getAction(state, isOffense, actionJSON):
         ballActionDist = actionJSON
         ballActions = [ (Action(actionenum = SHOOT),                                                   ballActionDist[3][1])
                       , (Action(actionenum = DRIBBLE),                                                 ballActionDist[4][1])
-                      , (Action(actionenum = PASS, arguments = ballActionDist[5][0]["ballArguments"]), ballActionDist[5][1])
-                      , (Action(actionenum = PASS, arguments = ballActionDist[6][0]["ballArguments"]), ballActionDist[6][1])
+                      , (Action(actionenum = NOOP),                                                    ballActionDist[5][1])
+                      , (Action(actionenum = GOALKICK),                                                ballActionDist[6][1])
+#                      , (Action(actionenum = PASS, arguments = ballActionDist[5][0]["ballArguments"]), ballActionDist[5][1])
+#                      , (Action(actionenum = PASS, arguments = ballActionDist[6][0]["ballArguments"]), ballActionDist[6][1])
 #        ballActions = [ (Action(actionenum = SHOOT),                                                   ballActionDist[0][1])
 #                      , (Action(actionenum = DRIBBLE),                                                 ballActionDist[1][1])
 #                      , (Action(actionenum = PASS, arguments = ballActionDist[2][0]["ballArguments"]), ballActionDist[2][1])
@@ -152,6 +154,9 @@ def getAction(state, isOffense, actionJSON):
       # otherwise, choose from the normal actions
         else: return chooseFrom(actions)
 
+# new Action Enums, they start from index 15, to be sure not to collide with the predefined Actions in hfo.py
+GOALKICK = 16 # smart kick in the middle from goalie and furthest goalpost (max -power)
+
 
 # Action object for every possible hfoaction
 # needed to store optional arguments for the actions like playernumber, or coordiantes
@@ -163,7 +168,7 @@ class Action(object):
         self.actionenum = actionenum   # this can be any possible action 
         self.arguments  = arguments
 
-    def execute(self, env):
+    def execute(self, env, state = []):
 
         if self.actionenum == MOVE:      env.act(MOVE);
         if self.actionenum == INTERCEPT: env.act(INTERCEPT);
@@ -186,7 +191,7 @@ class Action(object):
 
              print("moving to x:{0} y:{1}").format(xTo, yTo)
              env.act(MOVE_TO, xTo, yTo);
-
+        if self.actionenum == GOALKICK:  env.act(KICK, 100, state[8]); print("Kicking...!")
 
 # gamestates for the future (TODO)
 

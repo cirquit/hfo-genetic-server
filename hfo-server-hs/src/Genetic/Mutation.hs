@@ -1,6 +1,8 @@
 {-# LANGUAGE RecordWildCards #-}
 
-module Genetic.Mutation where
+module Genetic.Mutation
+    ( Mutation(..)
+    ) where
 
 import Control.Monad.Random
 import Control.Monad
@@ -66,61 +68,76 @@ class Mutation a where
 
     mutateI :: MonadRandom r => Int -> Double -> a -> r a
 
+instance Mutation ActionDist where
+
+--  mutateI :: MonadRandom r => Int -> Double -> ActionDist -> r ActionDist
+    mutateI delta _ (ActionDist dist generator) = do
+
+-- ## Generator Mutation
+          --let actions    = map fst dist :: [Action]
+          --    actionsLen = length  dist :: Int
+
+          --summands <- splitDelta delta (actionsLen - 1)
+
+          --let newGenerator  = mutateGenerator generator summands
+          --    newActionDist = zip actions $ generateDistributionFrom newGenerator
+
+          --return $ ActionDist newActionDist newGenerator
+
+-- ## Simpler Mutation without generator
+        let actions    = map fst dist :: [Action]
+            actionsLen = length dist  :: Int
+
+        summands <- splitDelta delta actionsLen
+
+        let newDist = zipWith (+) summands (map snd dist) :: [Int]
+
+            normDist = normalizeDist newDist
+
+            newActionDist = zip actions normDist :: [(Action, Int)]
+
+    --  we don't have any generator so it stays empty, if we use this method crossover has to be adjusted
+        return $ ActionDist newActionDist []
+
+
+instance Mutation BallActionDist where
+
+--  mutateI :: MonadRandom r => Int -> Double -> BallActionDist -> r BallActionDist
+    mutateI delta _ (BallActionDist dist generator) = do
+        --let ballActions    = map fst dist :: [BallAction]
+        --    ballActionsLen = length  dist :: Int
+
+        --summands <- splitDelta delta (ballActionsLen - 1)
+
+        --let newGenerator      = mutateGenerator generator summands
+        --    newBallActionDist = zip ballActions $ generateDistributionFrom newGenerator
+
+        --return $ BallActionDist newBallActionDist newGenerator
+
+        let actions    = map fst dist :: [BallAction]
+            actionsLen = length dist  :: Int
+
+        summands <- splitDelta delta actionsLen
+
+        let newDist = zipWith (+) summands (map snd dist) :: [Int]
+
+            normDist = normalizeDist newDist
+
+            newActionDist = zip actions normDist :: [(BallAction, Int)]
+
+    --  we don't have any generator so it stays empty, if we use this method crossover has to be adjusted
+        return $ BallActionDist newActionDist []
+
 instance Mutation Offense where
 
 --  mutateI :: MonadRandom r => Int -> Double -> Offense -> r Offense
-    mutateI delta lambda Offense{..} = Offense <$> {- mapM (go -} mutateActionD     offActionDist
-                                               <*> {- mapM (go -} mutateBallActionD offBallActionDist
-
-        where 
-                go :: MonadRandom r => (a -> r a) -> a -> r a
-                go f segment = (lambda >=) <$> getRandomR (0.0, 1.0) >>= \x -> if x then f segment
-                                                                                    else return segment
-
-                mutateActionD :: MonadRandom r => ActionDist -> r ActionDist
-                mutateActionD (ActionDist dist generator) = do
-                    let actions    = map fst dist :: [Action]
-                        actionsLen = length  dist :: Int
-
-                    summands <- splitDelta delta (actionsLen - 1)
-
-                    let newGenerator  = mutateGenerator generator summands
-                        newActionDist = zip actions $ generateDistributionFrom newGenerator
-
-                    return $ ActionDist newActionDist newGenerator
-
-                mutateBallActionD :: MonadRandom r => BallActionDist -> r BallActionDist
-                mutateBallActionD (BallActionDist dist generator)  = do
-                    let ballActions    = map fst dist :: [BallAction]
-                        ballActionsLen = length  dist :: Int
-
-                    summands <- splitDelta delta (ballActionsLen - 1)
-
-                    let newGenerator      = mutateGenerator generator summands
-                        newBallActionDist = zip ballActions $ generateDistributionFrom newGenerator
-
-                    return $ BallActionDist newBallActionDist newGenerator
+    mutateI delta lambda Offense{..} = Offense <$> {- mutate lambda delta 0 -} mutateI delta 0 offActionDist
+                                               <*> {- mutate lambda delta 0 -} mutateI delta 0 offBallActionDist
 
 instance Mutation Defense where
 
 --  mutateI :: MonadRandom r => Int -> Double -> Defense -> r Defense
-    mutateI delta lambda Defense{..} = Defense <$> {- mapM (go -} mutateActionD defActionDist
-        where 
-                go :: MonadRandom r => (a -> r a) -> a -> r a
-                go f segment = (lambda >=) <$> getRandomR (0.0, 1.0) >>= \x -> if x then f segment
-                                                                                    else return segment
-
-                mutateActionD :: MonadRandom r => ActionDist -> r ActionDist
-                mutateActionD (ActionDist dist generator) = do
-                    let actions    = map fst dist :: [Action]
-                        actionsLen = length  dist :: Int
-
-                    summands <- splitDelta delta (actionsLen - 1)
-
-                    let newGenerator  = mutateGenerator generator summands
-                        newActionDist = zip actions $ generateDistributionFrom newGenerator
-
-                    return $ ActionDist newActionDist newGenerator
+    mutateI delta lambda Defense{..} = Defense <$> {- mutate lambda delta 0 -} mutateI delta 0 defActionDist
 
 instance Mutation DefenseTeam where
 
@@ -185,3 +202,23 @@ mutateGenerator generator deltas = sort $ zipWith (((max 0 . min 100) .) . (+)) 
 --     where
 --         go (MoveTo (x,y) (xBs,yBs)) as = as ++ [MoveTo (x,y) (xBs,yBs)]
 --         go a as                        = as ++ [a]
+
+
+-- Kinda hacky way to ensure the 100-sum-rule 
+--
+-- Normalize the probabilities except for the last one
+-- The last one will be computed by 100 - (sum of other probabilities)
+-- 
+-- That way we don't get any floating point errors
+--
+normalizeDist :: [Int] -> [Int]
+normalizeDist dist = resDist ++ [rest]
+    where
+
+        rest    = 100 - (sum resDist) :: Int
+
+        resDist = init fullNormDist :: [Int]
+
+        fullNormDist = map (round . (* 100) . (\x -> fromIntegral x / distSum)) dist :: [Int]
+
+        distSum = fromIntegral (sum dist) :: Double

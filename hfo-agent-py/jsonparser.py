@@ -80,7 +80,7 @@ def updateJSON(jsonData, state, teamIndex, curMaxXPos):
 
     strstate = stateToString(state)
     jsonData["offenseTeams"][teamIndex]["offStateFitness"].append(strstate)
-    jsonData["offenseTeams"][teamIndex]["offPosFitness"].append(curMaxXPos)
+    jsonData["offenseTeams"][teamIndex]["offPosFitness"].append(str(curMaxXPos)) # we cast the float to string to avoid JSON problems
 #    jsonData["defenseTeams"][teamIndex]["defStateFitness"].append(strstate)
     return jsonData
 

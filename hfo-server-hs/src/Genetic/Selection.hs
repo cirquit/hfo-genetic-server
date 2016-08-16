@@ -59,10 +59,10 @@ instance Selection OffenseTeam where
 --  2) we compute based on "fitness-function" the HFOStates and divide them by 4
 --  at last we add 1) and 2) together
 --
---  avg-case-scenario: avg.X-Pos is ~ 0.5 and we scored one goal => 1 / 4
---  => 0.75
+--  avg-case-scenario: avg.X-Pos is ~ 0.5 and we scored one goal out of 10 => 2 * 1 / 10
+--  => 0.6
 --  
---  I want to favor the goal-scoring as an avg 0.25(meter) space "win"
+--  I want to favor the goal-scoring as an avg 0.1(meter) space "win"
 --
 --  3) multiplication is only to avoid floating point madness
 --
@@ -70,7 +70,7 @@ instance Selection OffenseTeam where
     classify OffenseTeam{..} =
             let (posFitness, stateFitness) = offFitness
                 summedPosFitness   = (sum posFitness)                               / (genericLength posFitness)
-                summedStateFitness = (foldl' (flip ((+) . fitness)) 0 stateFitness) / 4
+                summedStateFitness = 10 * (foldl' (flip ((+) . fitness)) 0 stateFitness) / (genericLength stateFitness)
             in  round $ (summedPosFitness + summedStateFitness) * 10000
         where
             fitness :: Maybe HFOState -> Double
@@ -102,7 +102,7 @@ instance Selection DefenseTeam where
     classify DefenseTeam{..} =
             let (posFitness, stateFitness) = defFitness
                 summedPosFitness   = (sum posFitness)                               / (genericLength posFitness)
-                summedStateFitness = (foldl' (flip ((+) . fitness)) 0 stateFitness) / 4
+                summedStateFitness = 2 * (foldl' (flip ((+) . fitness)) 0 stateFitness) / (genericLength stateFitness)
             in  round $ (summedPosFitness + summedStateFitness) * 10000
         where
             fitness :: Maybe HFOState -> Double
