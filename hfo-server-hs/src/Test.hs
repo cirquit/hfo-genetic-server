@@ -153,6 +153,13 @@ actionDistSumRule         ActionDist{..} = foldr ((+) . snd) 0 actionDist == 100
 ballActionDistSumRule :: BallActionDist -> Bool
 ballActionDistSumRule BallActionDist{..} = foldr ((+) . snd) 0 ballActionDist == 100
 
+actionDistPosRule :: ActionDist -> Bool
+actionDistPosRule         ActionDist{..} = all (>= 0) (map snd actionDist)
+
+ballActionDistPosRule :: BallActionDist -> Bool
+ballActionDistPosRule BallActionDist{..} = all (>= 0) (map snd ballActionDist)
+
+
 
 -- | check if the mutation violates the distribution sum rule
 --
@@ -170,6 +177,20 @@ mutationDefenseDist defense = monadicIO $ do
         lambda = 0.5
     mutated <- run $ mutateI delta lambda defense
     assert (actionDistDefenseGeneration mutated)
+
+mutationActionDistPos :: ActionDist -> Property
+mutationActionDistPos actionDist = monadicIO $ do
+    let delta = 15
+        lambda = 0
+    mutated <- run $ mutateI delta lambda actionDist
+    assert (actionDistPosRule mutated)
+
+mutationBallActionDistPos :: BallActionDist -> Property
+mutationBallActionDistPos actionDist = monadicIO $ do
+    let delta = 15
+        lambda = 0
+    mutated <- run $ mutateI delta lambda actionDist
+    assert (ballActionDistPosRule mutated)
 
 -- | check if crossover violates the distribution sum rule
 
@@ -192,6 +213,17 @@ crossoverOffense :: Offense -> Offense -> Property
 crossoverOffense offA offB = monadicIO $ do
     (child, _) <- run $ crossoverI offA offB
     assert (actionDistOffenseGeneration child)
+
+crossoverActionDistPos :: ActionDist -> ActionDist -> Property
+crossoverActionDistPos aDistA aDistB = monadicIO $ do
+    (child, _) <- run $ crossoverI aDistA aDistB
+    assert (actionDistPosRule child)
+
+crossoverBallActionDistPos :: BallActionDist -> BallActionDist -> Property
+crossoverBallActionDistPos aDistA aDistB = monadicIO $ do
+    (child, _) <- run $ crossoverI aDistA aDistB
+    assert (ballActionDistPosRule child)
+
 
 
 -- | json serialization tests

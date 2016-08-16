@@ -112,35 +112,35 @@ evaluate offTeams = do
         writeFile (graphsLogFile ++ "offenseFitness.dat") (unlines $ zipWith (\x y -> show x ++ ' ':(show y)) bestFitness meanFitness)
         writeFile (graphsLogFile ++ "offenseActDist.dat") (unlines $ map (unwords . map show) meanActions)
 
-
-go :: [[[Double]]] -> [OffenseTeam] -> [[[Double]]]
-go [bFit, mFit, bAct, mAct] offs = [ [curBestFitness] : bFit
-                                   , [curMeanFitness] : mFit
-                                   , curBestActions   : bAct
-                                   , curMeanActions   : mAct
-                                   ]
     where
-        curBestFitness :: Double
-        curBestFitness = fromIntegral . classify $ sortedOffs !! 0
+        go :: [[[Double]]] -> [OffenseTeam] -> [[[Double]]]
+        go [bFit, mFit, bAct, mAct] offs = [ [curBestFitness] : bFit
+                                           , [curMeanFitness] : mFit
+                                           , curBestActions   : bAct
+                                           , curMeanActions   : mAct
+                                           ]
+            where
+                curBestFitness :: Double
+                curBestFitness = fromIntegral . classify $ sortedOffs !! 0
 
-        curBestActions :: [Double]
-        curBestActions =  getBallActions $ sortedOffs !! 0
+                curBestActions :: [Double]
+                curBestActions =  getBallActions $ sortedOffs !! 0
 
-        curMeanFitness :: Double
-        curMeanFitness = (fromIntegral $ sum (map classify sortedOffs)) / teamCount
+                curMeanFitness :: Double
+                curMeanFitness = (fromIntegral $ sum (map classify sortedOffs)) / teamCount
 
-        curMeanActions :: [Double]
-        curMeanActions = zipWith (flip (/)) (replicate 4 teamCount)
-                       $ foldl (zipWith (+)) [0,0,0,0] (map getBallActions sortedOffs)
+                curMeanActions :: [Double]
+                curMeanActions = zipWith (flip (/)) (replicate 4 teamCount)
+                               $ foldl (zipWith (+)) [0,0,0,0] (map getBallActions sortedOffs)
 
-        getBallActions :: OffenseTeam -> [Double]
-        getBallActions = map (fromIntegral . snd) . ballActionDist . offBallActionDist . op1
+                getBallActions :: OffenseTeam -> [Double]
+                getBallActions = map (fromIntegral . snd) . ballActionDist . offBallActionDist . op1
 
-        sortedOffs :: [OffenseTeam]
-        sortedOffs = take 14 $ sortByDescFitness offs  -- take 14 because we don't want the random generated individuals to influence the results
+                sortedOffs :: [OffenseTeam]
+                sortedOffs = take 14 $ sortByDescFitness offs  -- take 14 because we don't want the random generated individuals to influence the results
 
-        teamCount :: Num a => a
-        teamCount = genericLength $ take 14 offs
+                teamCount :: Num a => a
+                teamCount = genericLength $ take 14 offs
 
 
 

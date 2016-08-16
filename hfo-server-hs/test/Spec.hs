@@ -10,7 +10,7 @@ import HFO.ToFlags
 
 
 main :: IO ()
-main = hspec . modifyMaxSuccess (const 2000) $ do
+main = hspec . modifyMaxSuccess (const 5000) $ do
     describe "HSpec tests for hfo-server-hs" $ do
         describe "HFO" $ do
             describe "HFO.Agent" $ do
@@ -78,12 +78,18 @@ main = hspec . modifyMaxSuccess (const 2000) $ do
             describe "Genetic.Allele"    $ do
                 return ()
             describe "Genetic.Crossover" $ do
-                prop "ActionDist crossover does not affect the sum rule of the distribution (sum dist = 100)" crossoverActionDist
-                prop "Offense crossover does not affect the sum rule of the distribuion (sum dist = 100)" crossoverOffense
-                prop "Defense crossover does not affect the sum rule of the distribuion (sum dist = 100)" crossoverDefense
+                prop "ActionDist crossover does not affect the sum rule of the distribution (sum dist = 100)"     crossoverActionDist
+                prop "BallActionDist crossover does not affect the sum rule of the distribution (sum dist = 100)" crossoverBallActionDist
+                prop "Offense crossover does not affect the sum rule of the distribuion (sum dist = 100)"         crossoverOffense
+                prop "Defense crossover does not affect the sum rule of the distribuion (sum dist = 100)"         crossoverDefense
+                prop "ActionDist crossover does not affect (all (>= 0) dist) "                                    crossoverActionDistPos
+                prop "BallActionDist crossover does not affect (all (>= 0) dist)"                                 crossoverBallActionDistPos
                 return ()
             describe "Genetic.Mutation"  $ do
                 prop "offense mutations does not affect the sum rule of the distribution (sum dist = 100)" mutationOffenseDist
                 prop "defense mutations does not affect the sum rule of the distribution (sum dist = 100)" mutationDefenseDist
+                prop "ActionDist mutation does not affect (all (>= 0) dist) "                              mutationActionDistPos
+                prop "BallActionDist mutation does not affect (all (>= 0) dist)"                           mutationBallActionDistPos
+
             describe "Genetic.Selection" $ do
                 return ()

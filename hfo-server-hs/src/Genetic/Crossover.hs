@@ -2,6 +2,7 @@
 
 module Genetic.Crossover
     ( Crossover(..)
+    , normalizeDist
     ) where
 
 import System.Random
@@ -230,6 +231,6 @@ normalizeDist dist = resDist ++ [rest]
 
         resDist = init fullNormDist :: [Int]
 
-        fullNormDist = map (round . (* 100) . (\x -> fromIntegral x / distSum)) dist :: [Int]
+        fullNormDist = map (floor . (* 100) . (\x -> fromIntegral x / distSum)) dist :: [Int]
 
         distSum = fromIntegral (sum dist) :: Double

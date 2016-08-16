@@ -12,6 +12,7 @@ import Data.List             (sort)
 import Debug.Trace
 
 import Genetic.Allele        (generateDistributionFrom)
+import Genetic.Crossover     (normalizeDist)
 
 import HFO.Agent
 
@@ -90,7 +91,7 @@ instance Mutation ActionDist where
 
         summands <- splitDelta delta actionsLen
 
-        let newDist = zipWith (+) summands (map snd dist) :: [Int]
+        let newDist = zipWith (\x y -> max 0 (x + y)) summands (map snd dist) :: [Int]
 
             normDist = normalizeDist newDist
 
@@ -119,7 +120,7 @@ instance Mutation BallActionDist where
 
         summands <- splitDelta delta actionsLen
 
-        let newDist = zipWith (+) summands (map snd dist) :: [Int]
+        let newDist = zipWith (\x y -> max 0 (x + y)) summands (map snd dist) :: [Int]
 
             normDist = normalizeDist newDist
 
@@ -202,23 +203,3 @@ mutateGenerator generator deltas = sort $ zipWith (((max 0 . min 100) .) . (+)) 
 --     where
 --         go (MoveTo (x,y) (xBs,yBs)) as = as ++ [MoveTo (x,y) (xBs,yBs)]
 --         go a as                        = as ++ [a]
-
-
--- Kinda hacky way to ensure the 100-sum-rule 
---
--- Normalize the probabilities except for the last one
--- The last one will be computed by 100 - (sum of other probabilities)
--- 
--- That way we don't get any floating point errors
---
-normalizeDist :: [Int] -> [Int]
-normalizeDist dist = resDist ++ [rest]
-    where
-
-        rest    = 100 - (sum resDist) :: Int
-
-        resDist = init fullNormDist :: [Int]
-
-        fullNormDist = map (round . (* 100) . (\x -> fromIntegral x / distSum)) dist :: [Int]
-
-        distSum = fromIntegral (sum dist) :: Double
