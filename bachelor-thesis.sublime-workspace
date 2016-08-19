@@ -520,7 +520,7 @@
 	"buffers":
 	[
 		{
-			"file": "/home/rewrite/Documents/Project-Repos/hfo-genetic-server/hfo-server-hs/app/Main.hs",
+			"file": "hfo-server-hs/app/Main.hs",
 			"settings":
 			{
 				"buffer_size": 6387,
@@ -528,7 +528,7 @@
 			}
 		},
 		{
-			"file": "HFO/Agent/Actions.hs",
+			"file": "hfo-server-hs/src/HFO/Agent/Actions.hs",
 			"settings":
 			{
 				"buffer_size": 7208,
@@ -576,7 +576,7 @@
 			}
 		},
 		{
-			"file": "Genetic/Mutation.hs",
+			"file": "hfo-server-hs/src/Genetic/Mutation.hs",
 			"settings":
 			{
 				"buffer_size": 7721,
@@ -584,7 +584,7 @@
 			}
 		},
 		{
-			"file": "Genetic/Crossover.hs",
+			"file": "hfo-server-hs/src/Genetic/Crossover.hs",
 			"settings":
 			{
 				"buffer_size": 7909,
@@ -1060,7 +1060,7 @@
 			[
 				{
 					"buffer": 0,
-					"file": "/home/rewrite/Documents/Project-Repos/hfo-genetic-server/hfo-server-hs/app/Main.hs",
+					"file": "hfo-server-hs/app/Main.hs",
 					"semi_transient": false,
 					"settings":
 					{
@@ -1090,7 +1090,7 @@
 				},
 				{
 					"buffer": 1,
-					"file": "HFO/Agent/Actions.hs",
+					"file": "hfo-server-hs/src/HFO/Agent/Actions.hs",
 					"semi_transient": false,
 					"settings":
 					{
@@ -1270,7 +1270,7 @@
 				},
 				{
 					"buffer": 7,
-					"file": "Genetic/Mutation.hs",
+					"file": "hfo-server-hs/src/Genetic/Mutation.hs",
 					"semi_transient": false,
 					"settings":
 					{
@@ -1300,7 +1300,7 @@
 				},
 				{
 					"buffer": 8,
-					"file": "Genetic/Crossover.hs",
+					"file": "hfo-server-hs/src/Genetic/Crossover.hs",
 					"semi_transient": false,
 					"settings":
 					{
@@ -1395,7 +1395,7 @@
 		"height": 0.0
 	},
 	"pinned_build_system": "",
-	"project": "Evaluator.sublime-project",
+	"project": "bachelor-thesis.sublime-project",
 	"replace":
 	{
 		"height": 72.0

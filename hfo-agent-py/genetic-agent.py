@@ -5,6 +5,14 @@
 #              ./genetic-agent.py --team base_left --episodes 1 --seed 123 --playerNumber 1 --isOffense
 #              ./bin/HFO --offense-agents 2 --defense-npcs 2 --defense-team base --no-sync --offense-on-ball 1 
 
+# Custom test2 : ./bin/HFO --offense-agents 1 --defense-agents 1 --no-sync --offense-on-ball 1
+#                ./genetic-agent.py --team base_left --episodes 1 --seed 123 --playerNumber 0 --isOffense
+#                ./genetic-agent.py --team base_right --episodes 1 --seed 123 --playerNumber 0
+
+# Custom test3 : ./bin/HFO --offense-agents 1 --defense-npcs 1 --no-sync --offense-on-ball 1
+#                ./genetic-agent.py --team base_left --episodes 1 --seed 123 --playerNumber 0 --isOffense
+
+
 import random
 import thread
 import argparse
@@ -87,6 +95,7 @@ def main():
     hfo = HFOEnvironment()
 
     # Connect to the server with the specified feature set
+    # hfo.connectToServer(HIGH_LEVEL_FEATURE_SET, formationsPath, 6000, "localhost", teamname, isGoalie)
     hfo.connectToServer(HIGH_LEVEL_FEATURE_SET, formationsPath, 6000, "localhost", teamname, isGoalie)
 
     # check if we have the same amount of offense as defense teams

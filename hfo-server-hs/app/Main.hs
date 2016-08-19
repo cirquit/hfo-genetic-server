@@ -49,10 +49,10 @@ generations :: Int
 generations    = 50 -- how many times does the GA loop (Simulation -> Selection -> Crossover -> Mutation)
 
 popSize :: Int
-popSize        = 20 -- population size (for offense as well as defense teams)
+popSize        = 50 -- population size (for offense as well as defense teams)
 
 teamEpisodes :: Int
-teamEpisodes   = 10  -- amount of trials for every team
+teamEpisodes   = 15  -- amount of trials for every team
 
 alpha :: Double
 alpha = 0.35   -- % of best individuals will be selected - [0.0, 0.5] (if its >= 0.5 then we won't have any inherently new individuals)
@@ -66,8 +66,12 @@ delta = 20     -- by how many units will the distribution of actions be changed 
 lambda :: Double
 lambda = 0.5   -- % of fieldseparations will be mutated  - [0.0, 1.0]
 
-resultsPath :: Int -> FilePath
-resultsPath n = "/home/rewrite/Documents/Project-Repos/hfo-genetic-server/results/results" ++ show n ++ ".json"
+-- | Path to save all the intermediate results so we can easily start from the last population
+--   if the simulation "broke"
+--
+intermediateResultsPath :: Int -> FilePath
+intermediateResultsPath x = "/home/rewrite/Documents/Project-Repos/hfo-genetic-server/results/results" ++ show x ++ ".json"
+
 
 -- | Main entry point
 --
@@ -77,13 +81,13 @@ main = do
 --  start with a seed
     let g = mkStdGen 31415926
 
-        defPopulation :: [DefenseTeam]
-        defPopulation = flip evalRand g $ genIndividuals 0 -- popSize
+--        defPopulation :: [DefenseTeam]
+--        defPopulation = flip evalRand g $ genIndividuals 0 -- popSize
+--
+--        offPopulation :: [OffenseTeam]
+--        offPopulation = flip evalRand g $ genIndividuals popSize
 
-        offPopulation :: [OffenseTeam]
-        offPopulation = flip evalRand g $ genIndividuals popSize
-
---    (defPopulation, offPopulation) <- readPopulationFrom (resultsPath 20)
+    (defPopulation, offPopulation) <- readPopulationFrom (intermediateResultsPath 21)
 
     runGA defPopulation offPopulation generations
 
@@ -91,13 +95,15 @@ main = do
 -- | Main loop for the genetic algorithm
 --
 runGA :: [DefenseTeam] -> [OffenseTeam] -> Int -> IO ()
-runGA defense offense 0   = writePrettyPopulationTo (resultsPath 0) defense offense
+runGA defense offense 0   = writePrettyPopulationTo (intermediateResultsPath 0) defense offense
 runGA defense offense gen = do
 
 --  Start the simulation for every pair of (defense <-> offense)
     (defenseTeams, offenseTeams) <- startSimulation (defense,offense)
 
-    writePrettyPopulationTo (resultsPath gen) defenseTeams offenseTeams
+    let savePath = intermediateResultsPath gen :: FilePath
+    writePrettyPopulationTo savePath defenseTeams offenseTeams
+
 
  -- Selection of alpha % best individuals
     let defSelected = select alpha defenseTeams

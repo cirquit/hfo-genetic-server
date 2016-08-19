@@ -2,6 +2,7 @@
 # encoding: utf-8
 
 import random
+from math import acos
 from hfo import *
 from common import actionToString
 
@@ -98,10 +99,12 @@ def getAction(state, isOffense, actionJSON):
         raise Exception("None of the actions were used - r: " + str(r))
 
   # ballPossession :: Int (0 or 1) - (False or True)
-    ballPossession = state[5]
+    ballPossession = state[5]      # high level feature set
+  #  ballPossession = state[12]      # low level feature
+
 
   # subfieldIndex :: Int (0-15)
-    subfieldIndex = getSubfieldIndex(state)
+  # subfieldIndex = getSubfieldIndex(state)
 
   # print("currently on subfield #{0}\n").format(subfieldIndex)
 
@@ -117,6 +120,7 @@ def getAction(state, isOffense, actionJSON):
   #                , (Action(actionenum = MOVE_TO, arguments = actionJSON[4][0]["arguments"]), actionJSON[subfieldIndex]["actionDist"] [4][1])
                   ]
         return chooseFrom(actions)
+#        return actions[2][0]
 
   # if we are an offense player, we have 4 possible actions + 2 ball actions to choose from
     else:
@@ -137,7 +141,7 @@ def getAction(state, isOffense, actionJSON):
         ballActions = [ (Action(actionenum = SHOOT),                                                   ballActionDist[3][1])
                       , (Action(actionenum = DRIBBLE),                                                 ballActionDist[4][1])
                       , (Action(actionenum = NOOP),                                                    ballActionDist[5][1])
-                      , (Action(actionenum = GOALKICK),                                                ballActionDist[6][1])
+#                      , (Action(actionenum = GOALKICK),                                                ballActionDist[6][1])
 #                      , (Action(actionenum = PASS, arguments = ballActionDist[5][0]["ballArguments"]), ballActionDist[5][1])
 #                      , (Action(actionenum = PASS, arguments = ballActionDist[6][0]["ballArguments"]), ballActionDist[6][1])
 #        ballActions = [ (Action(actionenum = SHOOT),                                                   ballActionDist[0][1])
@@ -170,7 +174,10 @@ class Action(object):
 
     def execute(self, env, state = []):
 
-        if self.actionenum == MOVE:      env.act(MOVE);
+        print("Player rot: {0}").format(state[2]*180)
+        print("Goal opening angle: {0}").format(toAngleHF(state[8]))
+
+        if self.actionenum == MOVE:      env.act(MOVE); 
         if self.actionenum == INTERCEPT: env.act(INTERCEPT);
         if self.actionenum == CATCH:     env.act(CATCH);
         if self.actionenum == NOOP:      env.act(NOOP);
@@ -191,7 +198,15 @@ class Action(object):
 
              print("moving to x:{0} y:{1}").format(xTo, yTo)
              env.act(MOVE_TO, xTo, yTo);
-        if self.actionenum == GOALKICK:  env.act(KICK, 100, state[8]); print("Kicking...!")
+        if self.actionenum == GOALKICK:
+
+# opening angles are encoded as (0, 3.1415926) and normalized to (-1, 1)
+# to transfrom back: add 1, divide by 2, multiply by 3.1415926
+#
+            goalOpeningAngle = (state[8] + 1) / 2 * 3.1415926
+#            angle = state[8] * 180;  # all values are normalized to [-1..1]
+            print("kicking to {0}°").format(state[8])
+            env.act(KICK, 100, 0);
 
 # gamestates for the future (TODO)
 
@@ -203,3 +218,29 @@ class Action(object):
 #  goalCenterProximity = state[6]
 #  goalCenterAngle     = state[7]
 #  goalOpeningAngle    = state[8]
+
+
+def toAngleHF(encoded):
+    '''
+      angle decoding in HIGH FEATURE STATE
+
+      opening angles are encoded as (0, 3.1415926) and normalized to (-1, 1)
+      to transfrom back: add 1, divide by 2, multiply by 3.1415926
+    '''
+    return ((encoded + 1) / 2) * 3.1415926
+
+def toAngleLF(feature1, feature2):
+    '''
+      angle decoding in LOW FEATURE STATE
+
+      angles are encoded as sin(µ) and cos(µ) where µ is the original angle
+      to transfrom back: multiply sign of feature1 on acos(feature2), and we get radians
+                         then divide by 3.1415926, multiply 180 to get the angle
+    '''
+
+#        theta = acos(ypos) * xsign / 3.1415926 * 180
+
+    if feature1 >= 0: sign = 1
+    else:             sign = -1
+
+    return (sign * acos(feature2) / 3.1415926) * 180

@@ -73,8 +73,8 @@ instance Crossover ActionDist where
 --  uniformCO :: MonadRandom r => ActionDist -> ActionDist -> r (ActionDist, ActionDist)
     uniformCO (ActionDist distA genA) (ActionDist distB genB) = do
 
--- ## Generator Crossover
-        -- calculate the average of the probabilities using the generator lists
+-- | OLD crossover with generator
+--   calculate the average of the probabilities using the generator lists
         --let genAB = zipWith (\x y -> (x+y) `div` 2) genA genB
         --    dist  = generateDistributionFrom genAB
 
@@ -86,7 +86,8 @@ instance Crossover ActionDist where
 
         --return (result, result)
 
--- ## Simple Crossover without using the generator
+-- | NEW crossover without using the generator
+--
         let dist       = zipWith (\(_,x) (_,y) -> x + y) distA distB
 
         --  normalize the distribution
@@ -106,7 +107,9 @@ instance Crossover BallActionDist where
 -- uniformCO :: MonadRandom r => BallActionDist -> BallActionDist -> r (BallActionDist, BallActionDist)
    uniformCO (BallActionDist distA genA) (BallActionDist distB genB) = do
 
-        ---- calculate the average of the probabilities using the generator lists
+-- | OLD crossover with generator
+--   calculate the average of the probabilities using the generator lists
+
         --let genAB = zipWith (\x y -> (x+y) `div` 2) genA genB
         --    dist  = generateDistributionFrom genAB
 
@@ -118,7 +121,8 @@ instance Crossover BallActionDist where
 
         --return (result, result)
 
--- ## Simple Crossover without using the generator
+-- | NEW crossover without using the generator
+--
         let dist       = zipWith (\(_,x) (_,y) -> x + y) distA distB
 
         --  normalize the distribution

@@ -111,7 +111,7 @@ genActions = do
 genBallActions :: MonadRandom r => r ([BallAction], Int)
 genBallActions = do
     -- p <- head . filter (/= 10) <$> getRandomRs (7,11)
-    let res = [Shoot, Dribble, BNoOp, GoalKick]-- Pass 7, Pass 11] --Pass 8, Pass 9, Pass 11]
+    let res = [Shoot, Dribble, BNoOp] --, GoalKick]-- Pass 7, Pass 11] --Pass 8, Pass 9, Pass 11]
     return (res, length res) 
 
 -- | creates a uniform distribution for 'n' Elements 

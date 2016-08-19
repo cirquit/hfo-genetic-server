@@ -74,7 +74,7 @@ instance Mutation ActionDist where
 --  mutateI :: MonadRandom r => Int -> Double -> ActionDist -> r ActionDist
     mutateI delta _ (ActionDist dist generator) = do
 
--- ## Generator Mutation
+-- | OLD Mutation with generator
           --let actions    = map fst dist :: [Action]
           --    actionsLen = length  dist :: Int
 
@@ -85,7 +85,7 @@ instance Mutation ActionDist where
 
           --return $ ActionDist newActionDist newGenerator
 
--- ## Simpler Mutation without generator
+-- | NEW Mutation without generator
         let actions    = map fst dist :: [Action]
             actionsLen = length dist  :: Int
 
@@ -105,6 +105,8 @@ instance Mutation BallActionDist where
 
 --  mutateI :: MonadRandom r => Int -> Double -> BallActionDist -> r BallActionDist
     mutateI delta _ (BallActionDist dist generator) = do
+
+-- | OLD mutation with generator
         --let ballActions    = map fst dist :: [BallAction]
         --    ballActionsLen = length  dist :: Int
 
@@ -115,6 +117,8 @@ instance Mutation BallActionDist where
 
         --return $ BallActionDist newBallActionDist newGenerator
 
+-- | NEW mutation without using the generator
+--
         let actions    = map fst dist :: [BallAction]
             actionsLen = length dist  :: Int
 
