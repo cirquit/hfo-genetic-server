@@ -7,6 +7,7 @@ A server written in Haskell for to communicate with Half-Field Offense for my un
   * Check if the simulation is still running
     * this is being done via the solo agent that connects to the server
   * Dispatch one dummy agent script
+
   * Dispatch multiple agent scripts in parallel
   * look up every possivle action for defender / attacker and try to run them in the python script from a cmd given distribution 
   * Create a python script that takes information based on cmd-flags OR designated config-files (look up YAML)
@@ -32,6 +33,37 @@ A server written in Haskell for to communicate with Half-Field Offense for my un
     * Rerun simulation with seed
     * Rerun simulation based on log-files (this won't work because every logs after the first run are broken (?))
   * Create examples for every encoding possible on LOW/HIGH Feature space. It's easier to understand and run examples than read a pdf
+
+## Possible ways to go forward
+  * split the field in 4 parts and learn P(Action)
+      ** with new/old Mutation and Crossover
+      ** goalOpening or xPos as fitness
+  * new parametrized actions
+      ** Shoot if the goalAngle (1) is big enough, else pass to a teammate (2)
+      ** Dribble to teammate (1)
+      ** Break clear without ball vs two players in direction calculated by the orthogonal vector from the connection between the opponents
+      ** Pass to teammate (1)
+      ** Intercept based on distance to ball (1)
+  * players have passive properties, actions are partially dependent on these
+      ** Aggressivity
+          *** affects the strength of Shoot/Pass
+          *** affects the distance where the player tries to intercept the ball
+      ** Teamwork
+          *** breaking clear (unknown parameter)
+          *** affects smart shoot/pass
+
+  * Actionchains instead of actionpicking every frame, create a FIFO stack, this allows for more complex actions like break free
+     ** parameters of these high-level actions
+        *** count of atomar actions (dependend on global state or passive properties)
+        *** which state is it dependend on
+     ** need to create multiple single-step actions, like
+        *** move away from enemy
+        *** pass to nearest / best (dependend on angle) teammate
+        *** turn to ball
+     ** break free example
+        *** [moveawayfromenemy, moveawayfromenemy, moveawayfromenemy, turntoball]
+        *** every subaction is dependend on the global state
+
 
 
 ## Info for the future:
