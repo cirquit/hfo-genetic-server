@@ -4,7 +4,7 @@
 import random
 from math import acos
 from hfo import *
-from common import actionToString
+from common import actionToString, toAngleHF, toAngleLF
 
 def getSubfieldIndex(state):
     '''
@@ -220,27 +220,3 @@ class Action(object):
 #  goalOpeningAngle    = state[8]
 
 
-def toAngleHF(encoded):
-    '''
-      angle decoding in HIGH FEATURE STATE
-
-      opening angles are encoded as (0, 3.1415926) and normalized to (-1, 1)
-      to transfrom back: add 1, divide by 2, multiply by 3.1415926
-    '''
-    return ((encoded + 1) / 2) * 3.1415926
-
-def toAngleLF(feature1, feature2):
-    '''
-      angle decoding in LOW FEATURE STATE
-
-      angles are encoded as sin(µ) and cos(µ) where µ is the original angle
-      to transfrom back: multiply sign of feature1 on acos(feature2), and we get radians
-                         then divide by 3.1415926, multiply 180 to get the angle
-    '''
-
-#        theta = acos(ypos) * xsign / 3.1415926 * 180
-
-    if feature1 >= 0: sign = 1
-    else:             sign = -1
-
-    return (sign * acos(feature2) / 3.1415926) * 180

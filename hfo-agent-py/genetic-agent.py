@@ -23,13 +23,15 @@ from pprint import pprint
 from hfo import *
 from coloredoutput import info, warn
 from common        import stateToString, actionToString
-from agentaction   import getAction
+from agentaction   import getAction, toAngleHF, toAngleLF
 from jsonparser    import parseJSON, updateJSON, writeJSON, getActionDistribution
 
 
-# command line parser for the configurations + genome encoding (TODO)
-#
+
 def runParser():
+    '''
+    command line parser for the configurations + genome encoding (TODO)
+    '''
 
     parser = argparse.ArgumentParser();
     parser.add_argument("--team",         dest = "team");
@@ -48,15 +50,14 @@ formationsPath = "/home/rewrite/Documents/Project-Repos/HFO/bin/teams/base/confi
 logPath        = "/home/rewrite/Documents/Project-Repos/hfo-genetic-server/communication/communication.json"
 
 
-#   getMyLogPath :: Bool -> Int -> FilePath
-#
 def getMyLogPath(isOffense, index):
-
+    '''
+    getMyLogPath :: Bool -> Int -> FilePath
+    '''
     if isOffense:
         return "/home/rewrite/Documents/Project-Repos/hfo-genetic-server/communication/communication" + str(index) + "off.json"
     else:
         return "/home/rewrite/Documents/Project-Repos/hfo-genetic-server/communication/communication" + str(index) + "def.json"
-
 
 
 def getMaxXPos(state, curMaxXPos):
@@ -72,9 +73,10 @@ def getMaxXPos(state, curMaxXPos):
     return curMaxXPos
 
 
-# Main entry point
-#
 def main():
+    '''
+    Main entry point
+    '''
 
     jsonData = parseJSON(logPath)
 
