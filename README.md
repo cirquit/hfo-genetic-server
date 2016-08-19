@@ -31,6 +31,8 @@ A server written in Haskell for to communicate with Half-Field Offense for my un
     * calculate everything needed for gnuplot
     * Rerun simulation with seed
     * Rerun simulation based on log-files (this won't work because every logs after the first run are broken (?))
+  * Create examples for every encoding possible on LOW/HIGH Feature space. It's easier to understand and run examples than read a pdf
+
 
 ## Info for the future:
 
