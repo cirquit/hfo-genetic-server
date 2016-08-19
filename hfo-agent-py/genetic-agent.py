@@ -22,7 +22,7 @@ from pprint import pprint
 
 from hfo import *
 from coloredoutput import info, warn
-from common        import stateToString, actionToString
+from common        import stateToString, actionToString, getMaxXPos, getGoalOpeningAngle
 from agentaction   import getAction, toAngleHF, toAngleLF
 from jsonparser    import parseJSON, updateJSON, writeJSON, getActionDistribution
 
@@ -60,18 +60,6 @@ def getMyLogPath(isOffense, index):
         return "/home/rewrite/Documents/Project-Repos/hfo-genetic-server/communication/communication" + str(index) + "def.json"
 
 
-def getMaxXPos(state, curMaxXPos):
-    '''
-        returns the all times maximum X-Position with the ball
-    '''
-    ballPossession = state[5]
-
-    if (ballPossession == 1):
-        newXPos = state[0]
-        return max(newXPos, curMaxXPos);
-
-    return curMaxXPos
-
 
 def main():
     '''
@@ -107,7 +95,10 @@ def main():
     currentTeam = -1
 
 #   added for fitness evaluation, will be stored for every episode in the json
-    curMaxXPos  = -1
+    xPos  = -1
+
+#   added for fitness evaluation, will be stored for every episode in the json
+    goalOpeningAngle = 0
 
     for currentEpisode in xrange(offTeamCount * episodes):
 
@@ -121,7 +112,10 @@ def main():
         playerDist = getActionDistribution(jsonData, currentTeam, isOffense, playerNumber)
 
         # reset maximum x-position
-        curMaxXPos = -1
+        xPos = -1
+
+        # reset maximum goal opening
+        goalOpeningAngle = 0
 
         # Main game loop
         state = IN_GAME
@@ -129,11 +123,12 @@ def main():
             state  = hfo.getState()
             action = getAction(state, isOffense, playerDist)
             action.execute(env = hfo, state = state)
-            curMaxXPos = getMaxXPos(state, curMaxXPos)
+            # xPos = getMaxXPos(state, xPos)
+            goalOpeningAngle = getGoalOpeningAngle(state, goalOpeningAngle)
             state  = hfo.step()
 
         # Goalie logs every result in the json object
-        jsonData = updateJSON(jsonData, state, currentTeam, curMaxXPos)
+        jsonData = updateJSON(jsonData, state, currentTeam, goalOpeningAngle)
 
     # when we are done with every team, write the updated json object to the log
     myLogPath = getMyLogPath(isOffense, playerNumber)

@@ -82,3 +82,32 @@ def toAngleLF(feature1, feature2):
 
     return (sign * acos(feature2) / 3.1415926) * 180
 
+
+def getMaxXPos(state, xPos):
+    '''
+        returns the all times maximum X-Position with the ball
+        using HIGH FEATURE STATE
+    '''
+    ballPossession = state[5]
+
+    if (ballPossession == 1):
+        newXPos = state[0]
+        return max(newXPos, xPos);
+
+    return xPos
+
+def getGoalOpeningAngle(state, goalOpeningAngle):
+    '''
+        returns the all times maximum X-Position with the ball
+        using HIGH FEATURE STATE
+    '''
+    ballPossession = state[5]
+
+    if (ballPossession == 1):
+        newGOA = state[8]
+        return max(newGOA, goalOpeningAngle);
+
+    return goalOpeningAngle
+
+
+
