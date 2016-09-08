@@ -4,6 +4,34 @@
 		"selected_items":
 		[
 			[
+				"CABAL",
+				"CABALARGS"
+			],
+			[
+				"affe",
+				"affectMyselfOnBattlefield"
+			],
+			[
+				"Layere",
+				"LayeredObjectEffect"
+			],
+			[
+				"play",
+				"playObject"
+			],
+			[
+				"car",
+				"Card"
+			],
+			[
+				"fom",
+				"format	format"
+			],
+			[
+				"concat",
+				"concat_lists"
+			],
+			[
 				"inter",
 				"intermediateResultsPath"
 			],
@@ -486,119 +514,11 @@
 			[
 				"offense",
 				"offenseTeams"
-			],
-			[
-				"Maybe",
-				"Maybe-Monade"
-			],
-			[
-				"p",
-				"Present"
-			],
-			[
-				"statr",
-				"startSimulation"
-			],
-			[
-				"process",
-				"processHandle"
-			],
-			[
-				"cros",
-				"crossover"
-			],
-			[
-				"shuf",
-				"shuffled"
-			],
-			[
-				"Offe",
-				"Offense"
 			]
 		]
 	},
 	"buffers":
 	[
-		{
-			"file": "hfo-server-hs/app/Main.hs",
-			"settings":
-			{
-				"buffer_size": 6387,
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "hfo-server-hs/src/HFO/Agent/Actions.hs",
-			"settings":
-			{
-				"buffer_size": 7208,
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "/home/rewrite/Documents/Project-Repos/HFO/hfo/hfo.py",
-			"settings":
-			{
-				"buffer_size": 5444,
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "/home/rewrite/Documents/Project-Repos/HFO/hfo/hfo_c_wrapper.h",
-			"settings":
-			{
-				"buffer_size": 2019,
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "/home/rewrite/Documents/Project-Repos/HFO/src/HFO.cpp",
-			"settings":
-			{
-				"buffer_size": 3944,
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "/home/rewrite/Documents/Project-Repos/HFO/src/agent.cpp",
-			"settings":
-			{
-				"buffer_size": 29931,
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "/home/rewrite/Documents/Project-Repos/HFO/src/chain_action/shoot_generator.cpp",
-			"settings":
-			{
-				"buffer_size": 25833,
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "hfo-server-hs/src/Genetic/Mutation.hs",
-			"settings":
-			{
-				"buffer_size": 7721,
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "hfo-server-hs/src/Genetic/Crossover.hs",
-			"settings":
-			{
-				"buffer_size": 7909,
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "/home/rewrite/Documents/Uni/Master/cv/cv-eng.tex",
-			"settings":
-			{
-				"buffer_size": 9067,
-				"line_ending": "Unix"
-			}
-		}
 	],
 	"build_system": "",
 	"build_system_choices":
@@ -612,12 +532,24 @@
 		"selected_items":
 		[
 			[
-				"file hi",
-				"File History: Open most recently closed file"
+				"remove",
+				"Package Control: Remove Package"
+			],
+			[
+				"markdownPre",
+				"Markdown Preview: Preview in Browser"
+			],
+			[
+				"in",
+				"Package Control: Install Package"
 			],
 			[
 				"install",
 				"Package Control: Install Package"
+			],
+			[
+				"file hi",
+				"File History: Open most recently closed file"
 			],
 			[
 				"ins",
@@ -668,10 +600,6 @@
 				"Package Control: Remove Package"
 			],
 			[
-				"remove",
-				"Package Control: Remove Package"
-			],
-			[
 				"view",
 				"View: Toggle Menu"
 			],
@@ -702,10 +630,117 @@
 	},
 	"expanded_folders":
 	[
-		"/home/rewrite/Documents/Project-Repos/hfo-genetic-server"
+		"/home/rewrite/Documents/Project-Repos/Magic",
+		"/home/rewrite/Documents/Project-Repos/Magic/Magic",
+		"/home/rewrite/Documents/Project-Repos/Magic/Magic-CLI",
+		"/home/rewrite/Documents/Project-Repos/Magic/Magic-Cards",
+		"/home/rewrite/Documents/Project-Repos/Magic/Magic-Web-Client",
+		"/home/rewrite/Documents/Project-Repos/Magic/Magic-Web-Server",
+		"/home/rewrite/Documents/Project-Repos/Magic/Magic-Web-Server/src",
+		"/home/rewrite/Documents/Project-Repos/Magic/Magic-Web-Server/src/Magic"
 	],
 	"file_history":
 	[
+		"/home/rewrite/.zshrc",
+		"/home/rewrite/.oh-my-zsh/themes/wedisagree-custom.zsh-theme",
+		"/usr/bin/dircolors",
+		"/home/rewrite/Documents/Project-Repos/temp/Magic/Magic-Cards/src/Magic/M13.hs",
+		"/home/rewrite/Documents/Project-Repos/temp/Magic/.travis.yml",
+		"/home/rewrite/Documents/Project-Repos/temp/Magic/Magic-Web-Server/src/Magic/Json.hs",
+		"/home/rewrite/Documents/Project-Repos/temp/Magic/Magic/Magic.cabal",
+		"/home/rewrite/Documents/Project-Repos/temp/Magic/Magic-Web-Server/Magic-Web-Server.cabal",
+		"/home/rewrite/Documents/Project-Repos/temp/Magic/Magic/src/Magic/Predicates.hs",
+		"/home/rewrite/Documents/Project-Repos/Magic/stack.yaml",
+		"/home/rewrite/Documents/Project-Repos/Magic/Magic-Cards/stack.yaml",
+		"/home/rewrite/Documents/Project-Repos/Magic/Magic/stack.yaml",
+		"/home/rewrite/Documents/Project-Repos/Magic/Magic/Magic.cabal",
+		"/home/rewrite/Documents/Project-Repos/Magic/rds",
+		"/home/rewrite/Documents/Project-Repos/Magic/cabal.project",
+		"/home/rewrite/Documents/Project-Repos/Magic/Magic/src/Magic/Predicates.hs",
+		"/home/rewrite/Documents/Project-Repos/Magic/Magic-Web-Server/Magic-Web-Server.cabal",
+		"/home/rewrite/Documents/Project-Repos/Magic/Magic-Web-Server/src/Magic/Json.hs",
+		"/home/rewrite/Documents/Project-Repos/Magic/.travis.yml",
+		"/home/rewrite/Documents/Project-Repos/Magic/Magic-Cards/src/Magic/M13.hs",
+		"/home/rewrite/Documents/Project-Repos/Magic/.gitignore",
+		"/home/rewrite/Documents/Project-Repos/Magic/Magic-Cards/Magic-Cards.cabal",
+		"/home/rewrite/Documents/Personal-Repository/Bash/test.sh",
+		"/home/rewrite/Documents/Project-Repos/Magic/Magic-CLI/src/Main.hs",
+		"/home/rewrite/Documents/Project-Repos/Magic/Magic/src/Magic/Types.hs",
+		"/home/rewrite/Documents/Project-Repos/Magic/Magic/src/Magic/Some.hs",
+		"/home/rewrite/Documents/Project-Repos/Magic/Magic/src/Magic/Abilities.hs",
+		"/home/rewrite/Documents/Project-Repos/Magic/Magic/src/Magic/Engine/Types.hs",
+		"/home/rewrite/Documents/Project-Repos/Magic/Magic/src/Magic/Layers.hs",
+		"/home/rewrite/Documents/Project-Repos/Magic/Magic/src/Magic/Engine.hs",
+		"/home/rewrite/Documents/Project-Repos/Magic/Magic-CLI/src/Magic/CLI.hs",
+		"/home/rewrite/Documents/Project-Repos/Magic/Magic-CLI/src/Magic/Description.hs",
+		"/home/rewrite/Documents/Project-Repos/Magic/Magic/src/Magic/Core.hs",
+		"/home/rewrite/Documents/Project-Repos/Magic/Magic-CLI/stack.yaml",
+		"/home/rewrite/Documents/Project-Repos/Magic/Magic/src/Magic/Events.hs",
+		"/home/rewrite/Documents/Project-Repos/Magic/Magic/src/Magic/IdList.hs",
+		"/home/rewrite/Documents/Project-Repos/Magic/Magic-Cards/src/Magic/BasicLands.hs",
+		"/home/rewrite/Documents/Project-Repos/Magic/Magic-CLI/src/Ma",
+		"/home/rewrite/Documents/Project-Repos/Magic/Magic-Cards/src/Magic/AvacynRestored.hs",
+		"/home/rewrite/Documents/Project-Repos/Magic/Magic/src/Magic/Engine/Events.hs",
+		"/home/rewrite/Documents/Project-Repos/Magic/Magic/src/Magic/Target.hs",
+		"/home/rewrite/Documents/Project-Repos/hfo-genetic-server/hfo-server-hs/src/Genetic/Allele.hs",
+		"/home/rewrite/Documents/Project-Repos/Magic/TargetList.hs",
+		"/home/rewrite/Documents/Project-Repos/Magic/README.md",
+		"/home/rewrite/Documents/Project-Repos/Magic/Magic/src/Magic/Utils.hs",
+		"/home/rewrite/Documents/Project-Repos/Magic/Magic/src/Magic/Object.hs",
+		"/home/rewrite/.config/sublime-text-3/Packages/User/Default (Linux).sublime-keymap",
+		"/home/rewrite/Documents/Project-Repos/Magic/.travis-old.yml",
+		"/home/rewrite/Documents/Project-Repos/Magic/Makefile",
+		"/home/rewrite/Documents/Project-Repos/Magic/Magic-Web-Server/src/Main.hs",
+		"/home/rewrite/Documents/Project-Repos/Magic/Magic-Web-Server/stack.yaml",
+		"/home/rewrite/.ghc/ghci.conf",
+		"/home/rewrite/.stack/global-project/.ghci",
+		"/home/rewrite/Documents/Project-Repos/hfo-genetic-server/bachelor-thesis.sublime-project",
+		"/home/rewrite/Documents/Project-Repos/Magic/Magic-Web-Server/src/Ma",
+		"/home/rewrite/Documents/Project-Repos/delicious/stack.yaml",
+		"/home/rewrite/Documents/Project-Repos/Magic/Magic-CLI/Magic-CLI.cabal",
+		"/home/rewrite/Documents/Uni/Semester6/Bachelorarbeit/firstpresentation/Theory.tex",
+		"/home/rewrite/Documents/Project-Repos/keras-example/deep_dream.py",
+		"/home/rewrite/Documents/Project-Repos/hfo-genetic-server/hfo-agent-py/lstm/hfolstm.py",
+		"/home/rewrite/.xsessionrc",
+		"/home/rewrite/Documents/Project-Repos/hfo-genetic-server/hfo-agent-py/lstm/lstm-test.py",
+		"/home/rewrite/Documents/Project-Repos/keras-example/style_transfer.py",
+		"/home/rewrite/.theanorc",
+		"/home/rewrite/test.sh",
+		"/home/rewrite/.profile",
+		"/home/rewrite/.bashrc",
+		"/home/rewrite/Documents/Project-Repos/hfo-genetic-server/hfo-server-hs/app/Main.hs",
+		"/home/rewrite/Documents/Project-Repos/hfo-genetic-server/hfo-server-hs/src/Evaluator.hs",
+		"/home/rewrite/.theanorc_old",
+		"/home/rewrite/Documents/Project-Repos/hfo-genetic-server/README.md",
+		"/home/rewrite/Documents/Project-Repos/caffe/Makefile",
+		"/home/rewrite/Documents/Personal-Repository/Python/test.sh",
+		"/home/rewrite/Documents/OpenCV/README.md",
+		"/home/rewrite/Documents/Project-Repos/caffe/Makefile.config",
+		"/home/rewrite/Documents/installopencv",
+		"/home/rewrite/Documents/OpenCV/samples/python/video.py",
+		"/home/rewrite/Documents/Project-Repos/hfo-genetic-server/hfo-server-hs/src/HFO/Agent/Data.hs",
+		"/home/rewrite/Documents/Project-Repos/hfo-genetic-server/hfo-server-hs/src/Genetic/Mutation.hs",
+		"/home/rewrite/Documents/Project-Repos/hfo-genetic-server/hfo-agent-py/agentaction.py",
+		"/home/rewrite/Documents/Project-Repos/hfo-genetic-server/hfo-agent-py/genetic-agent.py",
+		"/home/rewrite/Documents/Project-Repos/hfo-genetic-server/hfo-agent-py/jsonparser.py",
+		"/home/rewrite/Documents/Project-Repos/hfo-genetic-server/hfo-agent-py/common.py",
+		"/home/rewrite/Documents/Project-Repos/hfo-genetic-server/hfo-server-hs/src/Genetic/Selection.hs",
+		"/home/rewrite/Documents/Project-Repos/hfo-genetic-server/results/1off-3actions-newCOMUMethods-21-8-newFitness/info.txt",
+		"/home/rewrite/Documents/Project-Repos/hfo-genetic-server/communication/communication0off.json",
+		"/home/rewrite/Documents/Project-Repos/hfo-genetic-server/graphs/gnupscripts/offenseActionDists.p",
+		"/home/rewrite/Documents/Project-Repos/hfo-genetic-server/graphs/gnupscripts/offenseFitness.p",
+		"/home/rewrite/Documents/Project-Repos/hfo-genetic-server/graphs/gnupscripts/offenseBallActionDists.p",
+		"/home/rewrite/Documents/Project-Repos/hfo-genetic-server/results/1off-3actions-newCOMUMethods-19-08-goalAngleFitness/info.txt",
+		"/home/rewrite/Documents/Project-Repos/hfo-genetic-server/hfo-server-hs/src/HFO/Agent/Actions.hs",
+		"/home/rewrite/Documents/Project-Repos/hfo-genetic-server/hfo-server-hs/src/HFO/Agent.hs",
+		"/home/rewrite/Documents/Project-Repos/hfo-genetic-server/hfo-server-hs/src/Genetic/Crossover.hs",
+		"/home/rewrite/Documents/Project-Repos/hfo-genetic-server/results/1off-3actions-newCOMUMethods-100pop-19-08/info.txt",
+		"/home/rewrite/Documents/Uni/Master/cv/cv-eng.tex",
+		"/home/rewrite/Documents/Project-Repos/HFO/hfo/hfo.py",
+		"/home/rewrite/Documents/Project-Repos/HFO/hfo/hfo_c_wrapper.h",
+		"/home/rewrite/Documents/Project-Repos/HFO/src/HFO.cpp",
+		"/home/rewrite/Documents/Project-Repos/HFO/src/agent.cpp",
+		"/home/rewrite/Documents/Project-Repos/HFO/src/chain_action/shoot_generator.cpp",
 		"/home/rewrite/Documents/Project-Repos/HFO/src/bhv_basic_offensive_kick.cpp",
 		"/home/rewrite/Documents/Project-Repos/HFO/src/common.hpp",
 		"/home/rewrite/Documents/Project-Repos/HFO/hfo/libhfo_c.so",
@@ -715,16 +750,8 @@
 		"/home/rewrite/Documents/Uni/Master/cv/cv-eng.",
 		"/home/rewrite/Documents/Uni/Master/cv/res.cls",
 		"/home/rewrite/Documents/Project-Repos/hfo-genetic-server/hfo-server-hs/src/Test.hs",
-		"/home/rewrite/Documents/Project-Repos/hfo-genetic-server/hfo-agent-py/agentaction.py",
-		"/home/rewrite/Documents/Project-Repos/hfo-genetic-server/hfo-agent-py/jsonparser.py",
-		"/home/rewrite/Documents/Project-Repos/hfo-genetic-server/hfo-agent-py/genetic-agent.py",
 		"/home/rewrite/Documents/Project-Repos/hfo-genetic-server/hfo-server-hs/src/HFO/StateParser.hs",
-		"/home/rewrite/Documents/Project-Repos/hfo-genetic-server/graphs/gnupscripts/offenseActionDists.p",
-		"/home/rewrite/Documents/Project-Repos/hfo-genetic-server/hfo-server-hs/src/Evaluator.hs",
 		"/home/rewrite/Documents/Project-Repos/hfo-genetic-server/results/1off-3actions-newCOMUMethods-18-08/info.txt",
-		"/home/rewrite/Documents/Project-Repos/hfo-genetic-server/hfo-server-hs/src/Genetic/Allele.hs",
-		"/home/rewrite/Documents/Project-Repos/hfo-genetic-server/hfo-server-hs/src/Genetic/Crossover.hs",
-		"/home/rewrite/Documents/Project-Repos/hfo-genetic-server/hfo-server-hs/src/Genetic/Mutation.hs",
 		"/home/rewrite/Documents/Project-Repos/hfo-genetic-server/communication/communication.json",
 		"/home/rewrite/Documents/Project-Repos/HFO/example/mid_level_kick_agent.cpp",
 		"/home/rewrite/Documents/Uni/Semester6/IT-Kompetenz/examples/example.c",
@@ -741,99 +768,7 @@
 		"/home/rewrite/Documents/Project-Repos/HFO/example/example_high_level_random_agent.py",
 		"/home/rewrite/Documents/Project-Repos/HFO/example/hfo_example_agent.py",
 		"/home/rewrite/Documents/Project-Repos/HFO/build/example/communication_agent",
-		"/home/rewrite/Documents/Project-Repos/HFO/build/example/hfo_example_agent",
-		"/home/rewrite/Documents/Project-Repos/HFO/build/example/high_level_random_agent",
-		"/home/rewrite/Documents/Project-Repos/HFO/build/example/low_level_random_agent",
-		"/home/rewrite/Documents/Project-Repos/HFO/build/example/mid_level_dribble_agent",
-		"/home/rewrite/Documents/Project-Repos/HFO/build/example/mid_level_kick_agent",
-		"/home/rewrite/Documents/Project-Repos/HFO/build/example/mid_level_move_agent",
-		"/home/rewrite/Documents/Project-Repos/HFO/build/hfo-teams-prefix/src/hfo-teams-stamp/hfo-teams-build",
-		"/home/rewrite/Documents/Project-Repos/HFO/build/hfo-teams-prefix/src/hfo-teams-stamp/hfo-teams-configure",
-		"/home/rewrite/Documents/Project-Repos/HFO/build/hfo-teams-prefix/src/hfo-teams-stamp/hfo-teams-done",
-		"/home/rewrite/Documents/Project-Repos/HFO/build/hfo-teams-prefix/src/hfo-teams-stamp/hfo-teams-download",
-		"/home/rewrite/Documents/Project-Repos/HFO/build/hfo-teams-prefix/src/hfo-teams-stamp/hfo-teams-gitclone-lastrun.txt",
-		"/home/rewrite/Documents/Project-Repos/HFO/build/hfo-teams-prefix/src/hfo-teams-stamp/hfo-teams-gitinfo.txt",
-		"/home/rewrite/Documents/Project-Repos/HFO/build/hfo-teams-prefix/src/hfo-teams-stamp/hfo-teams-install",
-		"/home/rewrite/Documents/Project-Repos/HFO/build/hfo-teams-prefix/src/hfo-teams-stamp/hfo-teams-mkdir",
-		"/home/rewrite/Documents/Project-Repos/HFO/build/hfo-teams-prefix/src/hfo-teams-stamp/hfo-teams-patch",
-		"/home/rewrite/Documents/Project-Repos/HFO/build/hfo-teams-prefix/src/hfo-teams-stamp/hfo-teams-update",
-		"/home/rewrite/Documents/Project-Repos/HFO/build/hfo-teams-prefix/src/hfo-teams/teams/helios/helios-13Eindhoven/data/ball_table.dat",
-		"/home/rewrite/Documents/Project-Repos/HFO/build/hfo-teams-prefix/src/hfo-teams/teams/helios/helios-13Eindhoven/data/sirm_evaluator/ball-pos.sirm",
-		"/home/rewrite/Documents/Project-Repos/HFO/build/hfo-teams-prefix/src/hfo-teams/teams/helios/helios-13Eindhoven/data/formations/goal-kick-our.conf",
-		"/home/rewrite/Documents/Project-Repos/HFO/build/hfo-teams-prefix/src/hfo-teams/teams/helios/helios-13Eindhoven/data/formations/before-kick-off.conf",
-		"/home/rewrite/Documents/Project-Repos/HFO/build/hfo-teams-prefix/src/hfo-teams/teams/helios/helios-13Eindhoven/data/role.conf",
-		"/home/rewrite/Documents/Project-Repos/HFO/bin/Teams.py",
-		"/home/rewrite/Documents/Project-Repos/HFO/bin/teams/base/config/player.conf",
-		"/home/rewrite/Documents/Project-Repos/HFO/bin/teams/base/config/coach.conf",
-		"/home/rewrite/Documents/Project-Repos/HFO/bin/teams/helios/kill",
-		"/home/rewrite/Documents/Project-Repos/HFO/bin/teams/helios/start.sh",
-		"/home/rewrite/Documents/Project-Repos/HFO/bin/teams/helios/helios-13Eindhoven/player.conf",
-		"/home/rewrite/Documents/Project-Repos/HFO/bin/teams/helios/helios-13Eindhoven/coach.conf",
-		"/home/rewrite/Documents/Project-Repos/HFO/bin/teams/helios/helios-13Eindhoven/helios_player",
-		"/home/rewrite/Documents/Project-Repos/HFO/hfo/hfo.py",
-		"/home/rewrite/.xmonad/xmonad.hs",
-		"/home/rewrite/Documents/Personal-Repository/C/test/test.c",
-		"/home/rewrite/Documents/Project-Repos/hfo-genetic-server/hfo-server-hs/test/Spec.hs",
-		"/home/rewrite/Documents/Project-Repos/hfo-genetic-server/hfo-server-hs/src/HFO/Agent/Actions.hs",
-		"/home/rewrite/Documents/Project-Repos/hfo-genetic-server/hfo-server-hs/src/HFO/Agent.hs",
-		"/home/rewrite/Documents/Project-Repos/hfo-genetic-server/results/1off-4actions-test-16-08/info.txt",
-		"/home/rewrite/.xsessionrc",
-		"/home/rewrite/Documents/Project-Repos/genetic-tic-tac-toe/src/Board/Utils.hs",
-		"/home/rewrite/Documents/Project-Repos/hfo-genetic-server/hfo-server-hs/src/HFO/Agent/Data.hs",
-		"/home/rewrite/Documents/Project-Repos/hfo-genetic-server/hfo-server-hs/src/Genetic/Selection.hs",
-		"/home/rewrite/Documents/Personal-Repository/Vim/vim-cheatsheet.hs",
-		"/home/rewrite/Documents/Project-Repos/hfo-genetic-server/hfo-agent-py/test-agent/test-agent.py",
-		"/home/rewrite/Documents/Project-Repos/hfo-genetic-server/hfo-server-hs/src/HFO/Agent/Conf.hs",
-		"/home/rewrite/.zshrc",
-		"/home/rewrite/.bashrc",
-		"/home/rewrite/Documents/Project-Repos/hfo-genetic-server/hfo-server-hs/app/Main.hs",
-		"/home/rewrite/Documents/Project-Repos/hfo-genetic-server/hfo-server-hs/src/HFO/Server/Conf.hs",
-		"/home/rewrite/Documents/Project-Repos/hfo-genetic-server/hfo-server-hs/src/HFO/ToFlags.hs",
-		"/home/rewrite/Documents/Project-Repos/hfo-genetic-server/hfo-server-hs/src/HFO/Server.hs",
-		"/home/rewrite/Documents/Project-Repos/hfo-genetic-server/hfo-server-hs/hfo-server-hs.cabal",
-		"/home/rewrite/Documents/Project-Repos/hfo-genetic-server/graphs/gnupscripts/offenseFitness.p",
-		"/home/rewrite/Documents/Project-Repos/hfo-genetic-server/graphs/gnupscripts/old/best-and-mean-fitness-in-percent-for-all-players.p",
-		"/home/rewrite/Documents/Project-Repos/hfo-genetic-server/graphs/ploteverything",
-		"/home/rewrite/Documents/Project-Repos/hfo-genetic-server/graphs/gnupscripts/pass7.p",
-		"/home/rewrite/Documents/Project-Repos/hfo-genetic-server/graphs/gnupscripts/shoot.p",
-		"/home/rewrite/Documents/Project-Repos/hfo-genetic-server/graphs/gnupscripts/pass11.p",
-		"/home/rewrite/Documents/Project-Repos/hfo-genetic-server/graphs/gnupscripts/noop.p",
-		"/home/rewrite/Documents/Project-Repos/hfo-genetic-server/graphs/gnupscripts/move.p",
-		"/home/rewrite/Documents/Project-Repos/hfo-genetic-server/graphs/gnupscripts/intercept.p",
-		"/home/rewrite/Documents/Project-Repos/hfo-genetic-server/graphs/gnupscripts/catch.p",
-		"/home/rewrite/Documents/Project-Repos/hfo-genetic-server/graphs/gnupscripts/dribble.p",
-		"/home/rewrite/Documents/Project-Repos/hfo-genetic-server/graphs/gnupscripts/griddata.dat",
-		"/home/rewrite/Documents/Project-Repos/hfo-genetic-server/graphs/gnupscripts/heatmap-example.p",
-		"/home/rewrite/Documents/Project-Repos/hfo-genetic-server/graphs/info/catch.dat",
-		"/home/rewrite/Documents/Project-Repos/hfo-genetic-server/graphs/gnupscripts/testdata.txt",
-		"/home/rewrite/Documents/Project-Repos/hfo-genetic-server/graphs/gnupscripts/heatmap-python.py",
-		"/home/rewrite/Documents/Project-Repos/hfo-genetic-server/graphs/gnupscripts/heatmap-copied.p",
-		"/home/rewrite/Documents/Project-Repos/hfo-genetic-server/graphs/gnupscripts/best-and-mean-fitness-in-percent-for-all-players.p",
-		"/home/rewrite/Documents/Project-Repos/hfo-genetic-server/communication/communication1off.json",
-		"/home/rewrite/Documents/Project-Repos/hfo-genetic-server/hfo-agent-py/common.py",
-		"/home/rewrite/Documents/Project-Repos/hfo-genetic-server/hfo-agent-py/coloredoutput.py",
-		"/home/rewrite/Documents/Project-Repos/hfo-genetic-server/README.md",
-		"/home/rewrite/Documents/Project-Repos/4chan2txt/src/Parser.hs",
-		"/home/rewrite/Documents/Personal-Repository/Haskell/freemonad/bf-interpreter/src/BFInterpreter.hs",
-		"/home/rewrite/Documents/Personal-Repository/Haskell/freemonad/bf-interpreter/src/wiki-program.bf",
-		"/home/rewrite/Documents/Project-Repos/mAInsweeper/controller.js",
-		"/home/rewrite/Documents/Project-Repos/mAInsweeper/mAInsweeperGM.js",
-		"/home/rewrite/Documents/Project-Repos/mAInsweeper/README.md",
-		"/home/rewrite/Documents/Project-Repos/mAInsweeper/convnetController.js",
-		"/home/rewrite/Documents/Personal-Repository/JS/minesweeper/minesweeperNN.js",
-		"/home/rewrite/Documents/Personal-Repository/Haskell/freemonad/bf-interpreter/bf-interpreter.cabal",
-		"/home/rewrite/Documents/Project-Repos/4chan2txt/4chan2txt.cabal",
-		"/home/rewrite/Documents/Personal-Repository/Haskell/freemonad/bf-interpreter/app/Main.hs",
-		"/home/rewrite/.stack/config.yaml",
-		"/home/rewrite/Desktop/js/convnetjs.js",
-		"/home/rewrite/Desktop/index.html",
-		"/home/rewrite/Desktop/brain/training-worker.js",
-		"/home/rewrite/Desktop/brain/blackorwhite.js",
-		"/home/rewrite/Desktop/css/styles.css",
-		"/home/rewrite/Desktop/brain/index.html",
-		"/home/rewrite/Desktop/js/script.js",
-		"/home/rewrite/Documents/Uni/Semester6/ProMo-Tut/promo-ss16/SS2016/Klausuren/probeklausur/probeklausur-L.hs",
-		"/home/rewrite/test.hs"
+		"/home/rewrite/Documents/Project-Repos/HFO/build/example/hfo_example_agent"
 	],
 	"find":
 	{
@@ -854,6 +789,76 @@
 		"case_sensitive": false,
 		"find_history":
 		[
+			"traverse",
+			"Vector",
+			"mastiff",
+			"thunder",
+			"thundermaw",
+			"thunder",
+			"Some",
+			"SomeObjectRef",
+			"ModifyObject",
+			"ObjectTypes",
+			"affect",
+			"a",
+			"affect",
+			"LayeredEffect",
+			"PlayerRef",
+			"Contextual",
+			"Object",
+			"ModifyPT",
+			"tick",
+			"ModifyObject",
+			"wolf",
+			"has",
+			"elems",
+			"not",
+			"notController",
+			"targets",
+			"filter",
+			"target",
+			"PT",
+			"ModifyPT",
+			"ObjectTypes",
+			"LayeredEffect",
+			"Wolf",
+			"DamageObject",
+			"revive",
+			"revice",
+			"throwError",
+			"strMsg",
+			"noMsg",
+			"strMsg",
+			"noMsg",
+			"GameOver",
+			"noMsg",
+			"strMsg",
+			"Error",
+			"Effect",
+			"WillMoveObject",
+			"AbilityType",
+			"Object",
+			"disento",
+			"ActivatedAbility",
+			"activatedAbilities",
+			"planeswalker",
+			"planes",
+			"availableFromBattlefield",
+			"ActivatedAbility",
+			"data ActivatedAbility",
+			"ActivatedAbility",
+			"Activated",
+			"newtype ",
+			"model",
+			"3",
+			"weights_path",
+			"opencv",
+			"offPosFitness",
+			"offFitness",
+			"getGoalOpeningAngle",
+			"getMax",
+			"getGoal",
+			"posFitness",
 			"courses(",
 			"courses",
 			"ShootGenerator",
@@ -911,77 +916,7 @@
 			"offFutureFitness",
 			"offfFutureFitness",
 			"defFutureFitness",
-			"defFitness",
-			"defFutureFitness",
-			"offFutureFitness",
-			"defFutureFitness",
-			"defFitness",
-			"offFitness",
-			"offfFitness",
-			"defFitness",
-			"\"defFutureFitness\":[]",
-			"defFutureFitness\":[]",
-			"defFutureFitness",
-			"defFitness",
-			"offFitness",
-			"defFitness",
-			"popsizeOffense",
-			"popsizeDefense",
-			"popsizeOffense",
-			"popsizeDefense",
-			"print",
-			"resultsFile",
-			"options",
-			"genActinsDistribution",
-			"stateToString",
-			"byte",
-			"Generic",
-			"appendFile",
-			"sort",
-			"shuffleM",
-			"shuffle;",
-			"HFOStates",
-			"comm",
-			"Status",
-			"StatusToString",
-			"status_t",
-			"Property",
-			"tolist",
-			"to_list",
-			"toarray",
-			"tolist",
-			"trails",
-			"nilp",
-			"offline_mode",
-			"offline-mode",
-			"config_dir",
-			"integer",
-			"xmobar",
-			"SUDO_ASKPASS",
-			"log",
-			"as_ctypes",
-			"getState",
-			"unum",
-			"f",
-			"section",
-			"Main",
-			"argsParser",
-			"Bachelorarbeit",
-			"german",
-			"&",
-			"TYPE",
-			"cons",
-			"comment",
-			"string",
-			"strnig",
-			"String",
-			"comment",
-			"subPL",
-			"0.51",
-			"GOT IT",
-			"getData",
-			":",
-			"COm"
+			"defFitness"
 		],
 		"highlight": true,
 		"in_selection": false,
@@ -989,6 +924,7 @@
 		"regex": false,
 		"replace_history":
 		[
+			"otherFitness",
 			"actionJSON",
 			"replicateM",
 			"updateFieldState",
@@ -1055,313 +991,14 @@
 	"groups":
 	[
 		{
-			"selected": 6,
 			"sheets":
 			[
-				{
-					"buffer": 0,
-					"file": "hfo-server-hs/app/Main.hs",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 6387,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								6387,
-								6387
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/Haskell/Haskell.tmLanguage",
-							"tab_size": 4,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 2396.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 3,
-					"type": "text"
-				},
-				{
-					"buffer": 1,
-					"file": "hfo-server-hs/src/HFO/Agent/Actions.hs",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 7208,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								4405,
-								4405
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/Haskell/Haskell.tmLanguage",
-							"tab_size": 2,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 1172.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 6,
-					"type": "text"
-				},
-				{
-					"buffer": 2,
-					"file": "/home/rewrite/Documents/Project-Repos/HFO/hfo/hfo.py",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 5444,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								5205,
-								5205
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/Python/Python.tmLanguage",
-							"tab_size": 2,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": -0.0,
-						"translation.y": 1716.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 5,
-					"type": "text"
-				},
-				{
-					"buffer": 3,
-					"file": "/home/rewrite/Documents/Project-Repos/HFO/hfo/hfo_c_wrapper.h",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 2019,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								0,
-								0
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/C++/C++.tmLanguage",
-							"tab_size": 2,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": -0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 4,
-					"type": "text"
-				},
-				{
-					"buffer": 4,
-					"file": "/home/rewrite/Documents/Project-Repos/HFO/src/HFO.cpp",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 3944,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								1052,
-								1052
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/C++/C++.tmLanguage",
-							"tab_size": 2,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 1683.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 2,
-					"type": "text"
-				},
-				{
-					"buffer": 5,
-					"file": "/home/rewrite/Documents/Project-Repos/HFO/src/agent.cpp",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 29931,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								23074,
-								23074
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/C++/C++.tmLanguage",
-							"tab_size": 2,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 11765.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 1,
-					"type": "text"
-				},
-				{
-					"buffer": 6,
-					"file": "/home/rewrite/Documents/Project-Repos/HFO/src/chain_action/shoot_generator.cpp",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 25833,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								23277,
-								23277
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/C++/C++.tmLanguage",
-							"tab_size": 2,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 12343.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 0,
-					"type": "text"
-				},
-				{
-					"buffer": 7,
-					"file": "hfo-server-hs/src/Genetic/Mutation.hs",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 7721,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								2562,
-								2562
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/Haskell/Haskell.tmLanguage",
-							"tab_size": 2,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 1020.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 9,
-					"type": "text"
-				},
-				{
-					"buffer": 8,
-					"file": "hfo-server-hs/src/Genetic/Crossover.hs",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 7909,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								4307,
-								4307
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/Haskell/Haskell.tmLanguage",
-							"tab_size": 4,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 2142.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 7,
-					"type": "text"
-				},
-				{
-					"buffer": 9,
-					"file": "/home/rewrite/Documents/Uni/Master/cv/cv-eng.tex",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 9067,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								3178,
-								3178
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/LaTeXing/support/LaTeX.tmLanguage"
-						},
-						"translation.x": 0.0,
-						"translation.y": 1513.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 8,
-					"type": "text"
-				}
 			]
 		}
 	],
 	"incremental_find":
 	{
-		"height": 25.0
+		"height": 26.0
 	},
 	"input":
 	{
@@ -1398,7 +1035,7 @@
 	"project": "bachelor-thesis.sublime-project",
 	"replace":
 	{
-		"height": 72.0
+		"height": 48.0
 	},
 	"save_all_on_build": true,
 	"select_file":
@@ -1407,6 +1044,118 @@
 		"last_filter": "",
 		"selected_items":
 		[
+			[
+				"json",
+				"Magic-Web-Server/src/Magic/Json.hs"
+			],
+			[
+				"m13",
+				"Magic-Cards/src/Magic/M13.hs"
+			],
+			[
+				"types",
+				"Magic/src/Magic/Engine/Types.hs"
+			],
+			[
+				"eng",
+				"Magic/src/Magic/Engine.hs"
+			],
+			[
+				"some",
+				"Magic/src/Magic/Some.hs"
+			],
+			[
+				"abil",
+				"Magic/src/Magic/Abilities.hs"
+			],
+			[
+				"de",
+				"Magic-CLI/src/Magic/Description.hs"
+			],
+			[
+				"cli",
+				"Magic-CLI/src/Magic/CLI.hs"
+			],
+			[
+				"id",
+				"Magic/src/Magic/IdList.hs"
+			],
+			[
+				"core",
+				"Magic/src/Magic/Core.hs"
+			],
+			[
+				"bais",
+				"Magic-Cards/src/Magic/BasicLands.hs"
+			],
+			[
+				"predi",
+				"Magic/src/Magic/Predicates.hs"
+			],
+			[
+				"",
+				"Magic-CLI/src/Magic/CLI.hs"
+			],
+			[
+				"cl",
+				"Magic-CLI/src/Magic/CLI.hs"
+			],
+			[
+				"object",
+				"Magic/src/Magic/Object.hs"
+			],
+			[
+				"abi",
+				"Magic/src/Magic/Abilities.hs"
+			],
+			[
+				"mut",
+				"hfo-server-hs/src/Genetic/Mutation.hs"
+			],
+			[
+				"data",
+				"hfo-server-hs/src/HFO/Agent/Data.hs"
+			],
+			[
+				"muta",
+				"hfo-server-hs/src/Genetic/Mutation.hs"
+			],
+			[
+				"act",
+				"hfo-server-hs/src/HFO/Agent/Actions.hs"
+			],
+			[
+				"action",
+				"graphs/gnupscripts/offenseActionDists.p"
+			],
+			[
+				"eva",
+				"hfo-server-hs/src/Evaluator.hs"
+			],
+			[
+				"agent",
+				"hfo-server-hs/src/HFO/Agent.hs"
+			],
+			[
+				"common",
+				"hfo-agent-py/common.py"
+			],
+			[
+				"gene",
+				"hfo-agent-py/genetic-agent.py"
+			],
+			[
+				"age",
+				"hfo-agent-py/agentaction.py"
+			],
+			[
+				"sele",
+				"hfo-server-hs/src/Genetic/Selection.hs"
+			],
+			[
+				"actio",
+				"hfo-server-hs/src/HFO/Agent/Actions.hs"
+			],
 			[
 				"cros",
 				"hfo-server-hs/src/Genetic/Crossover.hs"
@@ -1432,22 +1181,6 @@
 				"hfo-server-hs/src/Test.hs"
 			],
 			[
-				"actio",
-				"hfo-server-hs/src/HFO/Agent/Actions.hs"
-			],
-			[
-				"json",
-				"hfo-agent-py/jsonparser.py"
-			],
-			[
-				"eva",
-				"hfo-server-hs/src/Evaluator.hs"
-			],
-			[
-				"gene",
-				"hfo-agent-py/genetic-agent.py"
-			],
-			[
 				"comm",
 				"communication/communication.json"
 			],
@@ -1456,24 +1189,12 @@
 				"hfo-agent-py/agentaction.py"
 			],
 			[
-				"age",
-				"hfo-server-hs/src/HFO/Agent.hs"
-			],
-			[
-				"agent",
-				"hfo-server-hs/src/HFO/Agent.hs"
-			],
-			[
 				"spe",
 				"hfo-server-hs/test/Spec.hs"
 			],
 			[
 				"spec",
 				"hfo-server-hs/test/Spec.hs"
-			],
-			[
-				"muta",
-				"hfo-server-hs/src/Genetic/Mutation.hs"
 			],
 			[
 				"main",
@@ -1493,10 +1214,78 @@
 	},
 	"select_symbol":
 	{
-		"height": 144.0,
-		"last_filter": "results",
+		"height": 400.0,
+		"last_filter": "toLi",
 		"selected_items":
 		[
+			[
+				"toLi",
+				"toList"
+			],
+			[
+				"hasName",
+				"hasName"
+			],
+			[
+				"affectSef",
+				"affectSelf"
+			],
+			[
+				"askTarget",
+				"askTargetsUpTo"
+			],
+			[
+				"askTargetsU",
+				"askTargetsUpTo"
+			],
+			[
+				"askTarg",
+				"askTarget"
+			],
+			[
+				"stackTarg",
+				"stackTargetSelf"
+			],
+			[
+				"mkCar",
+				"mkCard"
+			],
+			[
+				"Card",
+				"card"
+			],
+			[
+				"Actived",
+				"activatedAbilities"
+			],
+			[
+				"ActivateA",
+				"activatedAbilities"
+			],
+			[
+				"fire",
+				"faerieInvaders"
+			],
+			[
+				"avaia",
+				"availableFromHand"
+			],
+			[
+				"view",
+				"view"
+			],
+			[
+				"availa",
+				"availableFromBattlefield"
+			],
+			[
+				"",
+				"(=:)"
+			],
+			[
+				"Offense",
+				"defaultOffenseTeam"
+			],
 			[
 				"results",
 				"resultsPath"
@@ -1522,10 +1311,6 @@
 				"genTestBallActions"
 			],
 			[
-				"",
-				"getActionDistribution"
-			],
-			[
 				"getA",
 				"getAction"
 			]
@@ -1539,8 +1324,8 @@
 	"show_minimap": true,
 	"show_open_files": true,
 	"show_tabs": true,
-	"side_bar_visible": false,
-	"side_bar_width": 255.0,
+	"side_bar_visible": true,
+	"side_bar_width": 195.0,
 	"status_bar_visible": true,
 	"template_settings":
 	{

@@ -64,7 +64,8 @@ A server written in Haskell for to communicate with Half-Field Offense for my un
         *** [moveawayfromenemy, moveawayfromenemy, moveawayfromenemy, turntoball]
         *** every subaction is dependend on the global state
 
-
+    * Simple NN for generation of the policy
+    * or RL with whole state -> policy table
 
 ## Info for the future:
 

@@ -2,7 +2,6 @@
 
 module Evaluator where
 
-
 import Data.Aeson
 
 import Data.Aeson.Encode.Pretty      (encodePretty)
@@ -36,7 +35,7 @@ import Genetic.Selection
 -- gen 383, off !! 0
 
 resultsFile n = concat [ "/home/rewrite/Documents/Project-Repos/hfo-genetic-server/results/"
---                     , "06_08_v" ++ show 1 ++ "/"
+--                     , "1off-3actions-newCOMUMethods-18-08/"
 --                     , "json-data/"
                      , "results" ++ show n ++ ".json"
                      ]
@@ -102,39 +101,54 @@ startSingleSimulation defense offense = do
 
 evaluate :: [[OffenseTeam]] -> IO ()
 evaluate offTeams = do
-        let infos       = foldl go [[],[],[],[]] offTeams
-            bestFitness = concat (infos !! 0)   -- best per generation               ~ [Double]
-            meanFitness = concat (infos !! 1)   -- mean per generation               ~ [Double]
-            bestActions = infos !! 2            -- best distribution per generation  ~ [[Shoot, Dribble, Pass7, Pass11]]
-            meanActions = infos !! 3            -- mean distribution per generation  ~ [[Shoot, Dribble, Pass7, Pass11]]
+        let infos           = foldl go [[],[],[],[],[],[]] offTeams
+            bestFitness     = concat (infos !! 0)   -- best per generation               ~ [Double]
+            meanFitness     = concat (infos !! 1)   -- mean per generation               ~ [Double]
+            bestBallActions = infos !! 2            -- best distribution per generation  ~ [[Shoot, Dribble, NoOp]]
+            meanBallActions = infos !! 3            -- mean distribution per generation  ~ [[Shoot, Dribble, NoOp]]
+            bestActions     = infos !! 4            -- best distribution per generation  ~ [[Shoot, Dribble, NoOp]]
+            meanActions     = infos !! 5            -- mean distribution per generation  ~ [[Shoot, Dribble, NoOp]]
 
 
-        writeFile (graphsLogFile ++ "offenseFitness.dat") (unlines $ zipWith (\x y -> show x ++ ' ':(show y)) bestFitness meanFitness)
-        writeFile (graphsLogFile ++ "offenseActDist.dat") (unlines $ map (unwords . map show) meanActions)
+        writeFile (graphsLogFile ++ "offenseFitness.dat")     (unlines $ zipWith (\x y -> show x ++ ' ':(show y)) bestFitness meanFitness)
+        writeFile (graphsLogFile ++ "offenseActDist.dat")     (unlines $ map (unwords . map show) meanActions)
+        writeFile (graphsLogFile ++ "offenseBallActDist.dat") (unlines $ map (unwords . map show) meanBallActions)
 
     where
         go :: [[[Double]]] -> [OffenseTeam] -> [[[Double]]]
-        go [bFit, mFit, bAct, mAct] offs = [ [curBestFitness] : bFit
-                                           , [curMeanFitness] : mFit
-                                           , curBestActions   : bAct
-                                           , curMeanActions   : mAct
-                                           ]
+        go [bFit, mFit, bBAct, mBAct, bAct, mAct] offs = [ [curBestFitness]     : bFit
+                                                         , [curMeanFitness]     : mFit
+                                                         , curBestBallActions   : bBAct
+                                                         , curMeanBallActions   : mBAct
+                                                         , curBestActions       : bAct
+                                                         , curMeanActions       : mAct
+                                                         ]
             where
                 curBestFitness :: Double
                 curBestFitness = fromIntegral . classify $ sortedOffs !! 0
 
+                curBestBallActions :: [Double]
+                curBestBallActions =  getBallActions $ sortedOffs !! 0
+
                 curBestActions :: [Double]
-                curBestActions =  getBallActions $ sortedOffs !! 0
+                curBestActions     =  getActions     $ sortedOffs !! 0
 
                 curMeanFitness :: Double
                 curMeanFitness = (fromIntegral $ sum (map classify sortedOffs)) / teamCount
 
+                curMeanBallActions :: [Double]
+                curMeanBallActions = zipWith (flip (/)) (replicate 4 teamCount)
+                                   $ foldl (zipWith (+)) [0,0,0,0] (map getBallActions sortedOffs)
+
                 curMeanActions :: [Double]
-                curMeanActions = zipWith (flip (/)) (replicate 4 teamCount)
-                               $ foldl (zipWith (+)) [0,0,0,0] (map getBallActions sortedOffs)
+                curMeanActions = zipWith (flip (/)) (replicate 3 teamCount)
+                               $ foldl (zipWith (+)) [0,0,0] (map getActions sortedOffs)
 
                 getBallActions :: OffenseTeam -> [Double]
                 getBallActions = map (fromIntegral . snd) . ballActionDist . offBallActionDist . op1
+
+                getActions :: OffenseTeam -> [Double]
+                getActions = map (fromIntegral . snd) . actionDist . offActionDist . op1
 
                 sortedOffs :: [OffenseTeam]
                 sortedOffs = take 14 $ sortByDescFitness offs  -- take 14 because we don't want the random generated individuals to influence the results

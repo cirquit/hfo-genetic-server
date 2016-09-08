@@ -104,7 +104,7 @@ def getGoalOpeningAngle(state, goalOpeningAngle):
     ballPossession = state[5]
 
     if (ballPossession == 1):
-        newGOA = state[8]
+        newGOA = toAngleHF(state[8])
         return max(newGOA, goalOpeningAngle);
 
     return goalOpeningAngle

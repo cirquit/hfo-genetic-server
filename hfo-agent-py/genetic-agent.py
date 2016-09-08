@@ -115,7 +115,7 @@ def main():
         xPos = -1
 
         # reset maximum goal opening
-        goalOpeningAngle = 0
+        goalOpeningAngle = 0.0
 
         # Main game loop
         state = IN_GAME
