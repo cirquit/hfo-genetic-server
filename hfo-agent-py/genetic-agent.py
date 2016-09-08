@@ -25,8 +25,7 @@ from coloredoutput import info, warn
 from common        import stateToString, actionToString, getMaxXPos, getGoalOpeningAngle
 from agentaction   import getAction, toAngleHF, toAngleLF
 from jsonparser    import parseJSON, updateJSON, writeJSON, getActionDistribution
-
-
+from hfolstm       import *
 
 def runParser():
     '''
@@ -77,7 +76,7 @@ def main():
     playerNumber = options.playerNumber # Int
     isOffense    = options.isOffense    # Bool
 
-    isGoalie     = (not isOffense) and playerNumber == 0 # Bool
+    isGoalie     = (not isOffense) and (playerNumber == 0) # Bool
 
     random.seed(seed)
 
@@ -85,31 +84,36 @@ def main():
     hfo = HFOEnvironment()
 
     # Connect to the server with the specified feature set
-    # hfo.connectToServer(HIGH_LEVEL_FEATURE_SET, formationsPath, 6000, "localhost", teamname, isGoalie)
     hfo.connectToServer(HIGH_LEVEL_FEATURE_SET, formationsPath, 6000, "localhost", teamname, isGoalie)
 
     # check if we have the same amount of offense as defense teams
     offTeamCount = len(jsonData["offenseTeams"])
-#    assert offTeamCount == len(jsonData["defenseTeams"])
+    # assert offTeamCount == len(jsonData["defenseTeams"])
 
     currentTeam = -1
 
-#   added for fitness evaluation, will be stored for every episode in the json
+    # added for fitness evaluation, will be stored for every episode in the json
     xPos  = -1
 
-#   added for fitness evaluation, will be stored for every episode in the json
+    # added for fitness evaluation, will be stored for every episode in the json
     goalOpeningAngle = 0
 
     for currentEpisode in xrange(offTeamCount * episodes):
 
         # switch to next team if the current team played all episodes
-        # reset the maximum X-Position
+        # reset the maximum x-position
         if (currentEpisode % episodes) == 0:
             currentTeam = currentTeam + 1
 
+        # get the current encoded factors for the weight initialization for this player
+        player_encoding = get_rnn_encoding(jsonData, currentTeam, isOffense, playerNumber)
+        player_model    = None
+
         # action distribution of the player I represent
-        # playerDist :: ActionJSON (defined in jsonparser.py)
-        playerDist = getActionDistribution(jsonData, currentTeam, isOffense, playerNumber)
+        if currentEpisode == 0:
+            player_model = create_model_from_data(player_encoding)
+        else:
+            player_model = update_model_from_data(player_model, player_encoding)
 
         # reset maximum x-position
         xPos = -1
@@ -121,7 +125,7 @@ def main():
         state = IN_GAME
         while state == IN_GAME:
             state  = hfo.getState()
-            action = getAction(state, isOffense, playerDist)
+            action = get_action(player_model, state)
             action.execute(env = hfo, state = state)
             # xPos = getMaxXPos(state, xPos)
             goalOpeningAngle = getGoalOpeningAngle(state, goalOpeningAngle)

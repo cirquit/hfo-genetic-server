@@ -17,28 +17,9 @@ def parseJSON(filepath):
     return data
 
 
-
-def getActionDistribution(jsonData, teamIndex, isOffense, playerNumber):
+def get_rnn_encoding(jsonData, teamIndex, isOffense, playerNumber):
     '''
-    if the player is offense - both actions and ballactions are being concatinated to a big dict
-
-    the returning dict can be accessed as follows
-
-    actionindex for defense:
-        result[0-15]                       returns the actiondistribution for the 16 separations of the field
-        result[0]["actionDist"][0-3]       for every action possible (currently MOVE, INTERCEPT, CATCH, NOOP)
-
-    actionindex for offense:
-
-        result[0-15]                       returns the actiondistribution for the 16 separations of the field
-        result[0]["actionDist"][0-3]       for every action possible (currently MOVE, INTERCEPT, CATCH, NOOP)
-
-        result[16-31]                      returns the ballActionDistribution for the 16 separations of the field
-        result[16]["ballActionDist"][0-3]  for every ballAction possible (currently SHOOT, DRIBBLE, PASS, PASS)
-
-    getActionDistribution ::  JSON -> Int      -> Bool   -> [0-3]         -> ActionJSON
     '''
-
     if isOffense:
 
         player = ""
@@ -51,8 +32,7 @@ def getActionDistribution(jsonData, teamIndex, isOffense, playerNumber):
         else:
             player = "op4"
 
-#        return jsonData["offenseTeams"][teamIndex][player]["offActionDist"] + jsonData["offenseTeams"][teamIndex][player]["offBallActionDist"]
-        return jsonData["offenseTeams"][teamIndex][player]["offActionDist"]["actionDist"] + jsonData["offenseTeams"][teamIndex][player]["offBallActionDist"]["ballActionDist"]
+        return jsonData["offenseTeams"][teamIndex][player]["rnnEncoding"]
 
     else:
 
@@ -66,10 +46,7 @@ def getActionDistribution(jsonData, teamIndex, isOffense, playerNumber):
         else:
             player = "dp4"
 
-#        return jsonData["defenseTeams"][teamIndex][player]["defActionDist"]
-        return jsonData["defenseTeams"][teamIndex][player]["defActionDist"]["actionDist"]
-
-
+        return jsonData["defenseTeams"][teamIndex][player]["rnnEncoding"]
 
 
 def updateJSON(jsonData, state, teamIndex, additionalFitness):
@@ -99,7 +76,6 @@ def writeJSON(jsonData, filepath):
 
     deletes everything beforehand
     '''
-
 
     with open(filepath, 'w') as file:
         json.dump(jsonData, file)

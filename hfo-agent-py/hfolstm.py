@@ -1,44 +1,110 @@
 '''
-example of my lstm-based nn for value-function(state -> action) mapping in HFO
-encoded with DCT, decoded with IDCT
+    example of my lstm-based neural net for a value-function(state -> action) mapping in HFO
+    weights are encoded with DCT to lower the chromosome size for the GA (http://people.idsia.ch/~tino/papers/koutnik.gecco10.pdf)
 '''
 
-import numpy as np
-
+import numpy  as np
+import random
 
 from keras.models  import Sequential
 from keras.layers  import LSTM, Dense
 from keras         import backend     as K
 from scipy.fftpack import dct
 
-def create_model():
+from math          import acos
+from hfo           import *
+from action        import *
+from common        import *
+
+'''
+    we made the configuration of the rnn global so everything is bound in one single module if
+    one wishes to make changes
+'''
+
+def_i_lstm  = 8  # how big is the feature space
+def_o_lstm  = 12
+def_o_dense = 5  # we choose from 5 actions
+
+def create_model_from_data(factors, i_lstm = def_i_lstm, o_lstm = def_o_lstm, o_dense = def_o_dense):
     '''
-        Simple model to approximate a value function
+        main generation function that's called in genetic-agent to generate the model
+        based on the encoding
 
-        state-vector consists of:
-            * current x-pos
-            * current y-pos
-            * ball x-pos
-            * ball y-pos
-            * goal opening angle (between goalie and goalpost)
+        return a keras model
+    '''
 
-        action-vector:
-            * Move
-            * Shoot
-            * Dribble
-            * NoOp
+    model = create_model(i_lstm = i_lstm, o_lstm = o_lstm, o_dense = o_dense)
+    model = update_model_from_data(model, factors, i_lstm = i_lstm, o_lstm = o_lstm, o_dense = o_dense)
+    return model
 
-        lstm layer has 864 weights
-        dense layer has 52 weights
-        softmax at the end to get a probability (0-1) for given action
+
+def update_model_from_data(model, factors, i_lstm = def_i_lstm, o_lstm = def_o_lstm, o_dense = def_o_dense):
+    '''
+        main updating function that's called in genetic-agent to update the model with new
+        factors when a new player comes into play
+
+        return a keras model
+    '''
+    weight_size = calculate_weightsize(i_lstm = i_lstm, o_lstm = o_lstm, o_dense = o_dense)
+    weights     = create_weights(factors, n = weight_size)
+    model       = fill_rnnmodel(model, weights, i_lstm = i_lstm, o_lstm = o_lstm, o_dense = o_dense)
+
+    return model
+
+def get_action(model, state):
+    '''
+        Uses the model and gamestate to predict the next action
+        returns an Action object (action.py)
+    '''
+
+    xpos                = state[0]
+    ypos                = state[1]
+    orient              = state[2]
+    ballProximity       = state[3]
+    ballAngle           = state[4]
+    goalCenterProximity = state[6]
+    goalCenterAngle     = state[7]
+    goalOpeningAngle    = state[8]
+
+    # creating custom state to test the implementation
+    custom_state = [xpos, ypos, orient, ballProximity, ballAngle, goalCenterProximity, goalCenterAngle, goalOpeningAngle]
+
+    # reshaping to the form lstms want to
+    reshaped_input = gamestate_to_input(custom_state)
+
+    # get a prediction
+    prediction = model.predict(reshaped_input)
+
+    # fix floating point error
+    last_prediction = 1 - (prediction[0][0] + prediction[0][1] + prediction[0][2] + prediction[0][3])
+
+    a1 = (Action(MOVE),      prediction[0][0])
+    a2 = (Action(INTERCEPT), prediction[0][1])
+    a3 = (Action(CATCH),     prediction[0][2])
+    a4 = (Action(SHOOT),     prediction[0][3])
+    a5 = (Action(DRIBBLE),   last_prediction)
+
+    def choose_from(actions):
+        r = random.uniform(0,1)
+        for (action, prob) in actions:
+            if r <= prob:
+                return action
+            else:
+                r = r - prob
+        raise Exception("None of the actions were used - r: " + str(r))
+
+    return choose_from([a1,a2,a3,a4,a5])
+
+
+
+def create_model(i_lstm = def_i_lstm, o_lstm = def_o_lstm, o_dense = def_o_dense):
+    '''
+        Simple model to approximate a value function, using a lstm and dense layer
+        Softmax at the end to get a probability (0-1) for given action
     '''
     model = Sequential()
-    model.add(LSTM(output_dim = 12, input_dim = 5, input_length = 1))
-#   model.add(LSTM(output_dim = 3, input_dim = 1, input_length = 1))
-
-#    model.add(Dense(output_dim = 4, activation = "softmax"))
-#    model.add(LSTM(output_dim = 3, input_dim = 1, input_length = 2))
-    model.add(Dense(output_dim = 4, activation = "softmax"))
+    model.add(LSTM(output_dim = o_lstm, input_dim = i_lstm, input_length = 1))
+    model.add(Dense(output_dim = o_dense, activation = "softmax"))
 
     return model
 
@@ -54,7 +120,7 @@ def concat_list(l):
     '''
     return [item for sublist in l for item in sublist]
 
-def fill_rnnmodel(model, weights, i_lstm, o_lstm, o_dense):
+def fill_rnnmodel(model, weights, i_lstm = def_i_lstm, o_lstm = def_o_lstm, o_dense = def_o_dense):
     '''
         model   = a model that consists of an lstm and dense layer
         weights = a list of weights that the model will be filled
@@ -80,6 +146,8 @@ def fill_rnnmodel(model, weights, i_lstm, o_lstm, o_dense):
 
     # globals
     result_list = []
+    # input of the dense layer is the same as the output of the lstm layer
+    i_dense     = o_lstm
 
     def lstm_complete():
         return (len(result_list) >= 12)
@@ -194,7 +262,7 @@ def fill_rnnmodel(model, weights, i_lstm, o_lstm, o_dense):
 
             inner_lists = []
             # inner lists for arr1
-            for j in xrange(arr1_legth):
+            for j in xrange(arr1_length):
 
                 # slice new weights
                 cur_list = weights[:arr1_inner_length]
@@ -219,7 +287,7 @@ def fill_rnnmodel(model, weights, i_lstm, o_lstm, o_dense):
     assert len(weights) == 0, "After the numpy array is formed, all the weights should've been used, but there are " + str(len(weights)) + " left"
 
     # set new weights
-    model.set_weights(np.array(result_list, dtype="float32"))
+    model.set_weights(result_list)
 
     return model
 
@@ -251,3 +319,12 @@ def create_weights(factors, n):
         returns a list of floating point values converted with scipy.fftpack.dct
     '''
     return dct(factors, n=n).tolist()
+
+
+def gamestate_to_input(state):
+    '''
+        state transformer for the lstm format: [sample, timesteps, features]
+
+        TODO: Maybe we can pool the state information and increase the timesteps...
+    '''
+    return np.reshape(state, (1, 1, len(state)))

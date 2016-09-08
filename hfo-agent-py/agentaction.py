@@ -6,6 +6,8 @@ from math import acos
 from hfo import *
 from common import actionToString, toAngleHF, toAngleLF
 
+import action
+
 def getSubfieldIndex(state):
     '''
     returns the index of the current subfield the player is on (indexing from top-left to bottom-right)
