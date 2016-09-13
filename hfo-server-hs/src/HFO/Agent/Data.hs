@@ -2,13 +2,14 @@
 
 module HFO.Agent.Data where
 
-import Data.Aeson
-import Data.Aeson.Utils
-import Data.Aeson.Types
-import qualified Data.Text as T
-import GHC.Exts
+import           Data.Aeson
+import           Data.Aeson.Utils
+import           Data.Aeson.Types
+import qualified Data.Text        as T
+import qualified Data.Vector      as V
+import           GHC.Exts
+import           HFO.Agent.Actions
 
-import HFO.Agent.Actions
 
 -- | All the possible states that our server can have
 --
@@ -92,44 +93,40 @@ toMState _                      = Nothing
 --
 -- !! If this order changes we have to update the python code too !!
 
-data Defense = Defense { defActionDist :: ActionDist }
+data Defense = Defense { defEncoding :: [Double] }
     deriving (Show, Eq)
 
 instance ToJSON Defense where
 
-    toJSON (Defense defActionDist) = object [
-        "defActionDist" .= defActionDist
+    toJSON (Defense defEncoding) = object [
+        "defEncoding" .= defEncoding
       ]
 
 instance FromJSON Defense where
 
     parseJSON (Object o) = do
-        defActionDist   <- o .: "defActionDist"
-        return $ Defense defActionDist
+        defEncoding   <- o .: "defEncoding"
+        return $ Defense defEncoding
 
 -- | Wrapper for offense action distribution
 -- 
 --   *) Same order of actionDists to segments of the field as in Defense
 --   *) We have two distributions, because we either have the ball, or not
 --   
-data Offense = Offense { offActionDist     :: ActionDist
-                       , offBallActionDist :: BallActionDist
-                       }
+data Offense = Offense { offEncoding :: [Double] }
     deriving (Show, Eq)
 
 instance ToJSON Offense where
 
-    toJSON (Offense offActionDist offBallActionDist) = object [
-        "offActionDist"     .= offActionDist
-      , "offBallActionDist" .= offBallActionDist
+    toJSON (Offense offEncoding) = object [
+        "offEncoding" .= offEncoding
       ]
 
 instance FromJSON Offense where
 
     parseJSON (Object o) =  do 
-        offActionDist      <- o .: "offActionDist"
-        offBallActionsDist <- o .: "offBallActionDist"
-        return $ Offense offActionDist offBallActionsDist
+        offEncoding      <- o .: "offEncoding"
+        return $ Offense offEncoding
 
 
 -- | Wrapper for Teams
@@ -231,49 +228,49 @@ instance FromJSON SerializedTeams where
 -- | Defaults
 --
 -- (testing purposes only)
-defaultDefense :: Defense
-defaultDefense = Defense { defActionDist = {- take 16 (repeat -} seg01 }
-    where
-        seg01 :: ActionDist
-        seg01 = ActionDist { actionDist       = [(Move, 50), (Intercept, 20), (NoOp, 30)]
-                           , actionGenerator  = [0, 50, 70, 100]
-                           }
+-- defaultDefense :: Defense
+-- defaultDefense = Defense { defActionDist = {- take 16 (repeat -} seg01 }
+--     where
+--         seg01 :: ActionDist
+--         seg01 = ActionDist { actionDist       = [(Move, 50), (Intercept, 20), (NoOp, 30)]
+--                            , actionGenerator  = [0, 50, 70, 100]
+--                            }
 
 -- (testing purposes only)
-defaultOffense :: Offense
-defaultOffense = Offense { offActionDist     = {- take 16 (repeat -} seg01
-                         , offBallActionDist = {- take 16 (repeat -} seg01Ball
-                         }
-    where
-        seg01 :: ActionDist
-        seg01 = ActionDist { actionDist       = [(Move, 50), (Intercept, 20), (NoOp, 30)]
-                           , actionGenerator  = [0, 50, 70, 100]
-                           }
-        seg01Ball :: BallActionDist
-        seg01Ball = BallActionDist { ballActionDist      = [(Shoot,50), (Dribble,10), (Pass 7,10), (Pass 11,10)]
-                                   , ballActionGenerator = [0,50,60,70,80,90,100]
-                                   }
+-- defaultOffense :: Offense
+-- defaultOffense = Offense { offActionDist     = {- take 16 (repeat -} seg01
+--                          , offBallActionDist = {- take 16 (repeat -} seg01Ball
+--                          }
+--     where
+--         seg01 :: ActionDist
+--         seg01 = ActionDist { actionDist       = [(Move, 50), (Intercept, 20), (NoOp, 30)]
+--                            , actionGenerator  = [0, 50, 70, 100]
+--                            }
+--         seg01Ball :: BallActionDist
+--         seg01Ball = BallActionDist { ballActionDist      = [(Shoot,50), (Dribble,10), (Pass 7,10), (Pass 11,10)]
+--                                    , ballActionGenerator = [0,50,60,70,80,90,100]
+--                                    }
 
 -- (testing purposes only)
-defaultDefenseTeam :: DefenseTeam
-defaultDefenseTeam  = DefenseTeam { goalie     = defaultDefense
-                                  , dp2        = defaultDefense
-                                  , dp3        = defaultDefense
-                                  , dp4        = defaultDefense
-                                  , defFitness = ([], [])
-                                  }
+-- defaultDefenseTeam :: DefenseTeam
+-- defaultDefenseTeam  = DefenseTeam { goalie     = defaultDefense
+--                                   , dp2        = defaultDefense
+--                                   , dp3        = defaultDefense
+--                                   , dp4        = defaultDefense
+--                                   , defFitness = ([], [])
+--                                   }
 
 -- (testing purposes only)
-defaultOffenseTeam ::OffenseTeam
-defaultOffenseTeam = OffenseTeam { op1        = defaultOffense
-                                 , op2        = defaultOffense
-                                 , op3        = defaultOffense
-                                 , op4        = defaultOffense
-                                 , offFitness = ([], [])
-                                 }
+-- defaultOffenseTeam ::OffenseTeam
+-- defaultOffenseTeam = OffenseTeam { op1        = defaultOffense
+--                                  , op2        = defaultOffense
+--                                  , op3        = defaultOffense
+--                                  , op4        = defaultOffense
+--                                  , offFitness = ([], [])
+--                                  }
 
 -- (testing purposes only)
-defaultTeams :: SerializedTeams
-defaultTeams = SerializedTeams { defenseTeams = [defaultDefenseTeam]
-                               , offenseTeams = [defaultOffenseTeam]
-                               }
+-- defaultTeams :: SerializedTeams
+-- defaultTeams = SerializedTeams { defenseTeams = [defaultDefenseTeam]
+--                                , offenseTeams = [defaultOffenseTeam]
+--                                }

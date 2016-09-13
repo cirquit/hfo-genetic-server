@@ -32,7 +32,7 @@ def get_rnn_encoding(jsonData, teamIndex, isOffense, playerNumber):
         else:
             player = "op4"
 
-        return jsonData["offenseTeams"][teamIndex][player]["rnnEncoding"]
+        return jsonData["offenseTeams"][teamIndex][player]["offEncoding"]
 
     else:
 
@@ -46,7 +46,7 @@ def get_rnn_encoding(jsonData, teamIndex, isOffense, playerNumber):
         else:
             player = "dp4"
 
-        return jsonData["defenseTeams"][teamIndex][player]["rnnEncoding"]
+        return jsonData["defenseTeams"][teamIndex][player]["defEncoding"]
 
 
 def updateJSON(jsonData, state, teamIndex, additionalFitness):
