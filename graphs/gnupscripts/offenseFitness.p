@@ -1,7 +1,7 @@
 set term pngcairo size 1366,768 enhanced font "Verdana"
 set output "current/best-mean-fitness-offense.png"
 
-set title "Max Fitness, pop: 50, gen: 50, episodes: 10, selection: 35%, mutation: 50%, mutationFactor: 20, single off player"
+set title "Mean-Max Fitness, pop: 50, gen: 50, episodes: 10, selection: 25%, mutation: 1%, single off player, RNN with 9/12/5"
 set key outside
 set xrange [1:50]
 set xlabel "Generation"

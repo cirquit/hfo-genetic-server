@@ -98,65 +98,35 @@ startSingleSimulation defense offense = do
     uncurry (\[x] [y] -> (x,y)) <$> readPopulation
 
 
-{- 
+
 evaluate :: [[OffenseTeam]] -> IO ()
 evaluate offTeams = do
-        let infos           = foldl go [[],[],[],[],[],[]] offTeams
+        let infos           = foldl go [[],[]] offTeams
             bestFitness     = concat (infos !! 0)   -- best per generation               ~ [Double]
             meanFitness     = concat (infos !! 1)   -- mean per generation               ~ [Double]
-            bestBallActions = infos !! 2            -- best distribution per generation  ~ [[Shoot, Dribble, NoOp]]
-            meanBallActions = infos !! 3            -- mean distribution per generation  ~ [[Shoot, Dribble, NoOp]]
-            bestActions     = infos !! 4            -- best distribution per generation  ~ [[Shoot, Dribble, NoOp]]
-            meanActions     = infos !! 5            -- mean distribution per generation  ~ [[Shoot, Dribble, NoOp]]
 
 
         writeFile (graphsLogFile ++ "offenseFitness.dat")     (unlines $ zipWith (\x y -> show x ++ ' ':(show y)) bestFitness meanFitness)
-        writeFile (graphsLogFile ++ "offenseActDist.dat")     (unlines $ map (unwords . map show) meanActions)
-        writeFile (graphsLogFile ++ "offenseBallActDist.dat") (unlines $ map (unwords . map show) meanBallActions)
 
     where
+
         go :: [[[Double]]] -> [OffenseTeam] -> [[[Double]]]
-        go [bFit, mFit, bBAct, mBAct, bAct, mAct] offs = [ [curBestFitness]     : bFit
-                                                         , [curMeanFitness]     : mFit
-                                                         , curBestBallActions   : bBAct
-                                                         , curMeanBallActions   : mBAct
-                                                         , curBestActions       : bAct
-                                                         , curMeanActions       : mAct
-                                                         ]
+        go [bFit, mFit] offs = [ [curBestFitness] : bFit
+                               , [curMeanFitness] : mFit
+                               ]
             where
                 curBestFitness :: Double
                 curBestFitness = fromIntegral . classify $ sortedOffs !! 0
 
-                curBestBallActions :: [Double]
-                curBestBallActions =  getBallActions $ sortedOffs !! 0
-
-                curBestActions :: [Double]
-                curBestActions     =  getActions     $ sortedOffs !! 0
-
                 curMeanFitness :: Double
                 curMeanFitness = (fromIntegral $ sum (map classify sortedOffs)) / teamCount
 
-                curMeanBallActions :: [Double]
-                curMeanBallActions = zipWith (flip (/)) (replicate 4 teamCount)
-                                   $ foldl (zipWith (+)) [0,0,0,0] (map getBallActions sortedOffs)
-
-                curMeanActions :: [Double]
-                curMeanActions = zipWith (flip (/)) (replicate 3 teamCount)
-                               $ foldl (zipWith (+)) [0,0,0] (map getActions sortedOffs)
-
-                getBallActions :: OffenseTeam -> [Double]
-                getBallActions = map (fromIntegral . snd) . ballActionDist . offBallActionDist . op1
-
-                getActions :: OffenseTeam -> [Double]
-                getActions = map (fromIntegral . snd) . actionDist . offActionDist . op1
-
                 sortedOffs :: [OffenseTeam]
-                sortedOffs = take 14 $ sortByDescFitness offs  -- take 14 because we don't want the random generated individuals to influence the results
+                sortedOffs = take 12 $ sortByDescFitness offs  -- take 14 because we don't want the random generated individuals to influence the results
 
                 teamCount :: Num a => a
-                teamCount = genericLength $ take 14 offs
+                teamCount = genericLength $ take 12 offs
 
--}
 
 {-
 -- get the distribution of all the actions for every of the 16th fields

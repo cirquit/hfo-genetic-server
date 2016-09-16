@@ -21,11 +21,11 @@ from common        import *
     one wishes to make changes
 '''
 
-def_i_lstm  = 8  # how big is the feature space
+def_i_lstm  = 9  # how big is the feature space
 def_o_lstm  = 12
 def_o_dense = 5  # we choose from 5 actions
 
-def create_model_from_data(factors, i_lstm = def_i_lstm, o_lstm = def_o_lstm, o_dense = def_o_dense):
+def createModelFromData(factors, i_lstm = def_i_lstm, o_lstm = def_o_lstm, o_dense = def_o_dense):
     '''
         main generation function that's called in genetic-agent to generate the model
         based on the encoding
@@ -33,25 +33,25 @@ def create_model_from_data(factors, i_lstm = def_i_lstm, o_lstm = def_o_lstm, o_
         return a keras model
     '''
 
-    model = create_model(i_lstm = i_lstm, o_lstm = o_lstm, o_dense = o_dense)
-    model = update_model_from_data(model, factors, i_lstm = i_lstm, o_lstm = o_lstm, o_dense = o_dense)
+    model = createModel(i_lstm = i_lstm, o_lstm = o_lstm, o_dense = o_dense)
+    model = updateModelFromData(model, factors, i_lstm = i_lstm, o_lstm = o_lstm, o_dense = o_dense)
     return model
 
 
-def update_model_from_data(model, factors, i_lstm = def_i_lstm, o_lstm = def_o_lstm, o_dense = def_o_dense):
+def updateModelFromData(model, factors, i_lstm = def_i_lstm, o_lstm = def_o_lstm, o_dense = def_o_dense):
     '''
         main updating function that's called in genetic-agent to update the model with new
         factors when a new player comes into play
 
         return a keras model
     '''
-    weight_size = calculate_weightsize(i_lstm = i_lstm, o_lstm = o_lstm, o_dense = o_dense)
-    weights     = create_weights(factors, n = weight_size)
-    model       = fill_rnnmodel(model, weights, i_lstm = i_lstm, o_lstm = o_lstm, o_dense = o_dense)
+    weight_size = calculateWeightsize(i_lstm = i_lstm, o_lstm = o_lstm, o_dense = o_dense)
+    weights     = createWeights(factors, n = weight_size)
+    model       = fillRnnmodel(model, weights, i_lstm = i_lstm, o_lstm = o_lstm, o_dense = o_dense)
 
     return model
 
-def get_action(model, state):
+def getAction(model, state):
     '''
         Uses the model and gamestate to predict the next action
         returns an Action object (action.py)
@@ -62,15 +62,16 @@ def get_action(model, state):
     orient              = state[2]
     ballProximity       = state[3]
     ballAngle           = state[4]
+    ballKickable        = state[5]
     goalCenterProximity = state[6]
     goalCenterAngle     = state[7]
     goalOpeningAngle    = state[8]
 
     # creating custom state to test the implementation
-    custom_state = [xpos, ypos, orient, ballProximity, ballAngle, goalCenterProximity, goalCenterAngle, goalOpeningAngle]
+    custom_state = [xpos, ypos, orient, ballProximity, ballAngle, ballKickable, goalCenterProximity, goalCenterAngle, goalOpeningAngle]
 
     # reshaping to the form lstms want to
-    reshaped_input = gamestate_to_input(custom_state)
+    reshaped_input = gamestateToInput(custom_state)
 
     # get a prediction
     prediction = model.predict(reshaped_input)
@@ -80,11 +81,11 @@ def get_action(model, state):
 
     a1 = (Action(MOVE),      prediction[0][0])
     a2 = (Action(INTERCEPT), prediction[0][1])
-    a3 = (Action(CATCH),     prediction[0][2])
+    a3 = (Action(NOOP),      prediction[0][2])
     a4 = (Action(SHOOT),     prediction[0][3])
     a5 = (Action(DRIBBLE),   last_prediction)
 
-    def choose_from(actions):
+    def chooseFrom(actions):
         r = random.uniform(0,1)
         for (action, prob) in actions:
             if r <= prob:
@@ -93,11 +94,11 @@ def get_action(model, state):
                 r = r - prob
         raise Exception("None of the actions were used - r: " + str(r))
 
-    return choose_from([a1,a2,a3,a4,a5])
+    return chooseFrom([a1,a2,a3,a4,a5])
 
 
 
-def create_model(i_lstm = def_i_lstm, o_lstm = def_o_lstm, o_dense = def_o_dense):
+def createModel(i_lstm = def_i_lstm, o_lstm = def_o_lstm, o_dense = def_o_dense):
     '''
         Simple model to approximate a value function, using a lstm and dense layer
         Softmax at the end to get a probability (0-1) for given action
@@ -108,7 +109,7 @@ def create_model(i_lstm = def_i_lstm, o_lstm = def_o_lstm, o_dense = def_o_dense
 
     return model
 
-def concat_list(l):
+def concatList(l):
     '''
         concat from Haskell
 
@@ -120,7 +121,7 @@ def concat_list(l):
     '''
     return [item for sublist in l for item in sublist]
 
-def fill_rnnmodel(model, weights, i_lstm = def_i_lstm, o_lstm = def_o_lstm, o_dense = def_o_dense):
+def fillRnnmodel(model, weights, i_lstm = def_i_lstm, o_lstm = def_o_lstm, o_dense = def_o_dense):
     '''
         model   = a model that consists of an lstm and dense layer
         weights = a list of weights that the model will be filled
@@ -141,7 +142,7 @@ def fill_rnnmodel(model, weights, i_lstm = def_i_lstm, o_lstm = def_o_lstm, o_de
     assert isinstance(o_dense, int),  "o_dense should be an int"
 
     # assert that the weight size matches the weightlist length
-    weight_size = calculate_weightsize(i_lstm = i_lstm, o_lstm = o_lstm, o_dense = o_dense)
+    weight_size = calculateWeightsize(i_lstm = i_lstm, o_lstm = o_lstm, o_dense = o_dense)
     assert weight_size == len(weights), "expected " + str(weight_size) + " weights, got " + str(len(weights))
 
     # globals
@@ -292,7 +293,7 @@ def fill_rnnmodel(model, weights, i_lstm = def_i_lstm, o_lstm = def_o_lstm, o_de
     return model
 
 
-def calculate_weightsize(i_lstm, o_lstm, o_dense):
+def calculateWeightsize(i_lstm, o_lstm, o_dense):
     '''
         calculates how many weights one should create if we have the following model:
 
@@ -311,7 +312,7 @@ def calculate_weightsize(i_lstm, o_lstm, o_dense):
 
     return weight_size
 
-def create_weights(factors, n):
+def createWeights(factors, n):
     '''
         factors = a list of numbers (nonempty)
         n       = length of the resulting weights (>=1)
@@ -321,7 +322,7 @@ def create_weights(factors, n):
     return dct(factors, n=n).tolist()
 
 
-def gamestate_to_input(state):
+def gamestateToInput(state):
     '''
         state transformer for the lstm format: [sample, timesteps, features]
 

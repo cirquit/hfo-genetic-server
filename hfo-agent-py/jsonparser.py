@@ -17,8 +17,9 @@ def parseJSON(filepath):
     return data
 
 
-def get_rnn_encoding(jsonData, teamIndex, isOffense, playerNumber):
+def getRnnEncoding(jsonData, teamIndex, isOffense, playerNumber):
     '''
+        A nicer interface to get the encoding for a specific player
     '''
     if isOffense:
 

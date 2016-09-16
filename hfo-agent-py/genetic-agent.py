@@ -24,7 +24,7 @@ from hfo import *
 from coloredoutput import info, warn
 from common        import stateToString, actionToString, getMaxXPos, getGoalOpeningAngle
 from agentaction   import getAction, toAngleHF, toAngleLF
-from jsonparser    import parseJSON, updateJSON, writeJSON, getActionDistribution
+from jsonparser    import parseJSON, updateJSON, writeJSON, getRnnEncoding
 from hfolstm       import *
 
 def runParser():
@@ -98,6 +98,8 @@ def main():
     # added for fitness evaluation, will be stored for every episode in the json
     goalOpeningAngle = 0
 
+    playerModel    = None
+
     for currentEpisode in xrange(offTeamCount * episodes):
 
         # switch to next team if the current team played all episodes
@@ -106,14 +108,13 @@ def main():
             currentTeam = currentTeam + 1
 
         # get the current encoded factors for the weight initialization for this player
-        player_encoding = get_rnn_encoding(jsonData, currentTeam, isOffense, playerNumber)
-        player_model    = None
+        playerEncoding = getRnnEncoding(jsonData, currentTeam, isOffense, playerNumber)
 
         # action distribution of the player I represent
         if currentEpisode == 0:
-            player_model = create_model_from_data(player_encoding)
+            playerModel = createModelFromData(playerEncoding)
         else:
-            player_model = update_model_from_data(player_model, player_encoding)
+            playerModel = updateModelFromData(playerModel, playerEncoding)
 
         # reset maximum x-position
         xPos = -1
@@ -125,7 +126,7 @@ def main():
         state = IN_GAME
         while state == IN_GAME:
             state  = hfo.getState()
-            action = get_action(player_model, state)
+            action = getAction(playerModel, state)
             action.execute(env = hfo, state = state)
             # xPos = getMaxXPos(state, xPos)
             goalOpeningAngle = getGoalOpeningAngle(state, goalOpeningAngle)
