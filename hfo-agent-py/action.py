@@ -24,14 +24,14 @@ class Action(object):
 
         ballPossession = True if state[5] == 1 else False
 
-        if self.actionenum == MOVE:                           env.act(MOVE); 
-        elif (self.actionenum == INTERCEPT) & ballPossession: env.act(INTERCEPT)
-        elif self.actionenum == CATCH:                        env.act(CATCH);
-        elif self.actionenum == NOOP:                         env.act(NOOP);
-        elif (self.actionenum == SHOOT)     & ballPossession: env.act(SHOOT)
-        elif self.actionenum == DRIBBLE:                      env.act(DRIBBLE);
-        elif (self.actionenum == PASS)      & ballPossession: env.act(PASS, self.arguments[0])
-        elif self.actionenum == MOVE_TO:
+        if    self.actionenum == MOVE:                        print("Chose: {0}").format("MOVE"); env.act(MOVE); 
+        elif (self.actionenum == INTERCEPT) & ballPossession: print("Chose: {0}").format("INTERCEPT"); env.act(INTERCEPT);
+        elif  self.actionenum == CATCH:                       print("Chose: {0}").format("CATCH"); env.act(CATCH);
+        elif  self.actionenum == NOOP:                        print("Chose: {0}").format("NOOP"); env.act(NOOP);
+        elif (self.actionenum == SHOOT)     & ballPossession: print("Chose: {0}").format("SHOOT"); env.act(SHOOT)
+        elif  self.actionenum == DRIBBLE:                     print("Chose: {0}").format("DRIBBLE"); env.act(DRIBBLE);
+        elif (self.actionenum == PASS)      & ballPossession: print("Chose: {0}").format("PASS"); env.act(PASS, self.arguments[0])
+        elif  self.actionenum == MOVE_TO:
              x   = self.arguments[0]
              y   = self.arguments[1]
              xBs = self.arguments[2]

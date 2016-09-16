@@ -122,10 +122,10 @@ evaluate offTeams = do
                 curMeanFitness = (fromIntegral $ sum (map classify sortedOffs)) / teamCount
 
                 sortedOffs :: [OffenseTeam]
-                sortedOffs = take 12 $ sortByDescFitness offs  -- take 14 because we don't want the random generated individuals to influence the results
+                sortedOffs = take teamCount $ sortByDescFitness offs 
 
                 teamCount :: Num a => a
-                teamCount = genericLength $ take 12 offs
+                teamCount = 12   -- take 12 (25% selection * 50 individuals) because we don't want the random generated individuals to influence the results
 
 
 {-
