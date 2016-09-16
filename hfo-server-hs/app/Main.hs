@@ -46,25 +46,22 @@ agentConf = defaultAgent { episodes = teamEpisodes }
 -- | Genetic algorithms parameters
 --
 generations :: Int
-generations    = 50 -- how many times does the GA loop (Simulation -> Selection -> Crossover -> Mutation)
+generations    = 50  -- how many times does the GA loop (Simulation -> Selection -> Crossover -> Mutation)
 
 popSize :: Int
-popSize        = 50 -- population size (for offense as well as defense teams)
+popSize        = 50  -- population size (for offense as well as defense teams)
 
 teamEpisodes :: Int
 teamEpisodes   = 10  -- amount of trials for every team
 
 alpha :: Double
-alpha = 0.35   -- % of best individuals will be selected - [0.0, 0.5] (if its >= 0.5 then we won't have any inherently new individuals)
+alpha = 0.25   -- % of best individuals will be selected - [0.0, 0.5] (if its >= 0.5 then we won't have any inherently new individuals)
 
 beta  :: Double
-beta  = 0.5    -- % of individuals that will be mutated  - [0.0, 1.0]
+beta  = 0.01   -- % of individuals that will be mutated  - [0.0, 1.0]
 
-delta :: Int
-delta = 20     -- by how many units will the distribution of actions be changed - [0,100]
-
-lambda :: Double
-lambda = 0.5   -- % of fieldseparations will be mutated  - [0.0, 1.0]
+phi :: Double
+phi = 2        -- (-phi, +phi) sample space for coefficients
 
 -- | Path to save all the intermediate results so we can easily start from the last population
 --   if the simulation "broke"
@@ -79,13 +76,14 @@ main :: IO ()
 main = do
 
 --  start with a seed
-    let g = mkStdGen 31415926
+    let g0 = mkStdGen 31415926
+        g1 = mkStdGen 27182818
 
         defPopulation :: [DefenseTeam]
-        defPopulation = flip evalRand g $ genIndividuals 0 -- popSize
+        defPopulation = flip evalRand g0 $ genIndividuals 0       phi
 
         offPopulation :: [OffenseTeam]
-        offPopulation = flip evalRand g $ genIndividuals popSize
+        offPopulation = flip evalRand g1 $ genIndividuals popSize phi
 
 --    (defPopulation, offPopulation) <- readPopulationFrom (intermediateResultsPath 21)
 
@@ -104,7 +102,6 @@ runGA defense offense gen = do
     let savePath = intermediateResultsPath gen :: FilePath
     writePrettyPopulationTo savePath defenseTeams offenseTeams
 
-
  -- Selection of alpha % best individuals
     let defSelected = select alpha defenseTeams
         offSelected = select alpha offenseTeams
@@ -113,14 +110,14 @@ runGA defense offense gen = do
     defChildren <- crossover defSelected
     offChildren <- crossover offSelected
 
---  Mutation of beta % children by delta units
-    defMutated  <- mutate beta delta lambda defChildren
-    offMutated  <- mutate beta delta lambda offChildren
+--  Mutation of beta % children
+    defMutated  <- mutate beta phi defChildren
+    offMutated  <- mutate beta phi offChildren
 
 --  Repopulation with new individuals - these should amount to popSize - (popSize * alpha * 2)
 --  because of parents (popSize * alpha) and children (popSize * alpha)
-    newDefense <- repopulate popSize (defSelected ++ defMutated)
-    newOffense <- repopulate popSize (offSelected ++ offMutated)
+    newDefense <- repopulate popSize (defSelected ++ defMutated) phi
+    newOffense <- repopulate popSize (offSelected ++ offMutated) phi
 
     runGA newDefense newOffense (gen - 1)
 

@@ -1,8 +1,7 @@
-{-# LANGUAGE BangPatterns #-}
+{-# LANGUAGE BangPatterns, ScopedTypeVariables #-}
 
 module Genetic.Crossover
     ( Crossover(..)
-    , normalizeDist
     ) where
 
 import System.Random
@@ -11,7 +10,7 @@ import Control.Monad
 import Genetic.Selection
 
 import HFO.Agent
-import Genetic.Allele (generateDistributionFrom)
+import Genetic.Allele
 
 import System.Random.Shuffle (shuffleM)
 
@@ -67,99 +66,23 @@ class Crossover a where
     crossoverBetween :: MonadRandom r => [a] -> [a] -> r [a]
     crossoverBetween a b = zipWithM (\x y -> fst <$> crossoverI x y) a b
 
-
-instance Crossover ActionDist where
-
---  uniformCO :: MonadRandom r => ActionDist -> ActionDist -> r (ActionDist, ActionDist)
-    uniformCO (ActionDist distA genA) (ActionDist distB genB) = do
-
--- | OLD crossover with generator
---   calculate the average of the probabilities using the generator lists
-        --let genAB = zipWith (\x y -> (x+y) `div` 2) genA genB
-        --    dist  = generateDistributionFrom genAB
-
-        --    actions = map fst distA    :: [Action]
-        --    distAB  = zip actions dist :: [(Action, Int)]
-
-        --    -- only one child with the current implementation
-        --    result = ActionDist distAB genAB
-
-        --return (result, result)
-
--- | NEW crossover without using the generator
---
-        let dist       = zipWith (\(_,x) (_,y) -> x + y) distA distB
-
-        --  normalize the distribution
-            normDistAB = normalizeDist dist
-
-            actions = map fst distA          :: [Action]
-            distAB  = zip actions normDistAB :: [(Action, Int)]
-
-        --  we don't have any generator so it stays empty, if we use this method mutation has to be adjusted
-            result  = ActionDist distAB []
-
-        return (result, result)
-
-
-instance Crossover BallActionDist where
-
--- uniformCO :: MonadRandom r => BallActionDist -> BallActionDist -> r (BallActionDist, BallActionDist)
-   uniformCO (BallActionDist distA genA) (BallActionDist distB genB) = do
-
--- | OLD crossover with generator
---   calculate the average of the probabilities using the generator lists
-
-        --let genAB = zipWith (\x y -> (x+y) `div` 2) genA genB
-        --    dist  = generateDistributionFrom genAB
-
-        --    actions = map fst distA   :: [BallAction]
-        --    distAB = zip actions dist :: [(BallAction, Int)]
-
-        --    -- only one child with the current implementation
-        --    result = BallActionDist distAB genAB
-
-        --return (result, result)
-
--- | NEW crossover without using the generator
---
-        let dist       = zipWith (\(_,x) (_,y) -> x + y) distA distB
-
-        --  normalize the distribution
-            normDistAB = normalizeDist dist
-
-            actions = map fst distA          :: [BallAction]
-            distAB  = zip actions normDistAB :: [(BallAction, Int)]
-
-        --  we don't have any generator so it stays empty, if we use this method mutation has to be adjusted
-            result  = BallActionDist distAB []
-
-        return (result, result)
-
 instance Crossover Defense where
 
 --  uniformCO :: MonadRandom r => Defense -> Defense -> r (Defense, Defense)
-    uniformCO (Defense actionDistA) (Defense actionDistB) = do
+    uniformCO (Defense coeffsA) (Defense coeffsB) = do
 
-            actionDistAB <- {- crossoverBetween -} fst <$> crossoverI actionDistA actionDistB
+            (coeffsC, coeffsD) <- unzipWithM' switch $ zip coeffsA coeffsB
 
-            -- only one child with the current implementation (maybe TODO)
-            let result = Defense actionDistAB
-
-            return (result, result)
+            return (Defense coeffsC, Defense coeffsD)
 
 instance Crossover Offense where
 
 --  uniformCO :: MonadRandom r => Offense -> Offense -> r (Offense, Offense)
-    uniformCO (Offense actionDistA ballActionDistA) (Offense actionDistB ballActionDistB) = do
+    uniformCO (Offense coeffsA) (Offense coeffsB) = do
 
-            actionDistAB     <- {- crossoverBetween -} fst <$> crossoverI actionDistA     actionDistB
-            ballActionDistAB <- {- crossoverBetween -} fst <$> crossoverI ballActionDistA ballActionDistB
+            (coeffsC, coeffsD) <- unzipWithM' switch $ zip coeffsA coeffsB
 
-            -- only one child with the current implementation (maybe TODO)
-            let result = Offense actionDistAB ballActionDistAB
-
-            return (result, result)
+            return (Offense coeffsC, Offense coeffsD)
 
 
 instance Crossover DefenseTeam where
@@ -210,31 +133,11 @@ unzipWithM f = foldM go ([], [])
 
 -- | Strict unzipWithM (fold left without reversing the list)
 --
-unzipWithM' :: Monad m => ((a,b) -> m (c,d)) -> [(a,b)] -> m ([c], [d])
+unzipWithM' :: forall a b c d m . Monad m => ((a,b) -> m (c,d)) -> [(a,b)] -> m ([c],[d])
 unzipWithM' f = go ([],[])
     where
-
+        go :: Monad m => ([c],[d]) -> [(a,b)] -> m ([c], [d])
         go (xs, ys) []            = return (xs,ys)
         go (xs, ys) ((a,b) : abs) = do
             !(!x,!y) <- f (a,b)
             go (xs ++ [x], ys ++ [y]) abs
-
-
--- Kinda hacky way to ensure the 100-sum-rule 
---
--- Normalize the probabilities except for the last one
--- The last one will be computed by 100 - (sum of other probabilities)
--- 
--- That way we don't get any floating point errors
---
-normalizeDist :: [Int] -> [Int]
-normalizeDist dist = resDist ++ [rest]
-    where
-
-        rest    = 100 - (sum resDist) :: Int
-
-        resDist = init fullNormDist :: [Int]
-
-        fullNormDist = map (floor . (* 100) . (\x -> fromIntegral x / distSum)) dist :: [Int]
-
-        distSum = fromIntegral (sum dist) :: Double

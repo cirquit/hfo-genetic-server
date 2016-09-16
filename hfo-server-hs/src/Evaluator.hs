@@ -98,7 +98,7 @@ startSingleSimulation defense offense = do
     uncurry (\[x] [y] -> (x,y)) <$> readPopulation
 
 
-
+{- 
 evaluate :: [[OffenseTeam]] -> IO ()
 evaluate offTeams = do
         let infos           = foldl go [[],[],[],[],[],[]] offTeams
@@ -156,7 +156,7 @@ evaluate offTeams = do
                 teamCount :: Num a => a
                 teamCount = genericLength $ take 14 offs
 
-
+-}
 
 {-
 -- get the distribution of all the actions for every of the 16th fields

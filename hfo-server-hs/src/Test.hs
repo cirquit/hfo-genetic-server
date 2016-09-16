@@ -17,50 +17,27 @@ import HFO
 import HFO.ToFlags
 
 
--- | Arbitrary Instances for (every) possible data type
---
---   These don't have a MonadRandom instance so one has to use the QuickCheck functions for that
---
---
-instance Arbitrary Action where
+-- | Global config for tests
 
---  arbitrary :: Gen Action
-    arbitrary = elements =<< fst <$> genTestActions
-
-instance Arbitrary BallAction where
-
---  arbitrary :: Gen BallAction
-    arbitrary = elements =<< fst <$> genTestBallActions
+-- Creation bounds for the coefficients (-phi, phi)
+phi :: Double
+phi = 2 
 
 instance Arbitrary HFOState where
 
 --  arbitrary :: Gen HFOState
     arbitrary = elements [minBound .. maxBound]
 
-instance Arbitrary ActionDist where
-
--- arbitrary :: Gen ActionDist
-   arbitrary = do
-        (actions, actionsLen) <- genTestActions
-        uncurry (ActionDist . zip actions) <$> genTestDistribution actionsLen
-
-instance Arbitrary BallActionDist where
-
--- arbitrary :: Gen BallActionDist
-    arbitrary = do
-        (ballActions, ballActionsLen) <- genTestBallActions
-        uncurry (BallActionDist . zip ballActions) <$> genTestDistribution ballActionsLen
-
 instance Arbitrary Defense where
 
 --  arbitrary :: Gen Defense
-    arbitrary = Defense <$> {- replicateM 16 -} arbitrary
+    arbitrary = Defense . take 20 <$> (listOf $ choose (-phi, phi)) -- limit to length 20 for faster tests
 
 instance Arbitrary Offense where
 
 --  arbitrary :: Gen Offense
-    arbitrary = Offense <$> {- replicateM 16 -} arbitrary <*> {- replicateM 16 -} arbitrary
-
+    arbitrary = Offense . take 20 <$> (listOf $ choose (-phi, phi)) -- limit to length 20 for faster tests
+ 
 instance Arbitrary OffenseTeam where
 
 --  arbitrary :: Gen OffenseTeam
@@ -86,30 +63,6 @@ instance Arbitrary SerializedTeams where
 --  arbitrary :: Gen SerializedTeams
     arbitrary = SerializedTeams <$> (take 5 <$> listOf arbitrary) -- limit to 5 so the tests dont take too long
                                 <*> (take 5 <$> listOf arbitrary)
-
-genTestActions :: Gen ([Action], Int)
-genTestActions = do
---    let boundsLength = 0.4
---
---    xBs <- roundTo 4 <$> choose (-boundsLength, boundsLength)
---    yBs <- roundTo 4 <$> choose (-boundsLength, boundsLength)
---    x   <- roundTo 4 <$> choose (-1.0, 1.0)
---    y   <- roundTo 4 <$> choose (-1.0, 1.0)
-
-    let res = [Move, Intercept, NoOp] -- , MoveTo (x,y) (xBs,yBs)]
-    return (res, length res)
-
-genTestBallActions :: Gen ([BallAction], Int)
-genTestBallActions = do
---    p <- head . filter (/= 10) <$> infiniteListOf (choose (7,11))
-    let res = [Shoot, Dribble, Pass 7, Pass 8, Pass 9, Pass 11]
-    return (res, length res) 
-
-genTestDistribution :: Int -> Gen ([Int], [Int])
-genTestDistribution n = do
-    rs <- sort . (0:) . (100:) . take (n-1) <$> infiniteListOf (choose (0,100))
-    return $ (generateDistributionFrom rs, rs)
-
 -- | All the Properties
 --
 --
@@ -136,110 +89,82 @@ flagDefenseAgent =
     in toFlags_ agent == (["--team","base_right","--episodes","4","--seed","456","--playerNumber", "3"])
 
 
--- | test if the distribution always amounts summed to 100
+-- | Allele bounds check
 --
-actionDistOffenseGeneration     :: Offense -> Bool
-actionDistOffenseGeneration     Offense{..} = {- all -} actionDistSumRule     offActionDist
+creationBounds :: [Double] -> Bool
+creationBounds = all (\x -> x <= phi && x >= (-phi))
 
-ballActionDistOffenseGeneration :: Offense -> Bool
-ballActionDistOffenseGeneration Offense{..} = {- all -} ballActionDistSumRule offBallActionDist
+offenseBounds :: Offense -> Bool
+offenseBounds Offense{..} = creationBounds offEncoding
 
-actionDistDefenseGeneration     :: Defense -> Bool
-actionDistDefenseGeneration     Defense{..} = {- all -} actionDistSumRule     defActionDist
+defenseBounds :: Defense -> Bool
+defenseBounds Defense{..} = creationBounds defEncoding
 
-actionDistSumRule     :: ActionDist -> Bool
-actionDistSumRule         ActionDist{..} = foldr ((+) . snd) 0 actionDist == 100
-
-ballActionDistSumRule :: BallActionDist -> Bool
-ballActionDistSumRule BallActionDist{..} = foldr ((+) . snd) 0 ballActionDist == 100
-
-actionDistPosRule :: ActionDist -> Bool
-actionDistPosRule         ActionDist{..} = all (>= 0) (map snd actionDist)
-
-ballActionDistPosRule :: BallActionDist -> Bool
-ballActionDistPosRule BallActionDist{..} = all (>= 0) (map snd ballActionDist)
-
-
-
--- | check if the mutation violates the distribution sum rule
+-- | Check for bounds and length violation
 --
-mutationOffenseDist :: Offense -> Property
-mutationOffenseDist offense = monadicIO $ do
-    let delta  = 15
-        lambda = 0.5
-    mutated <- run $ mutateI delta lambda offense 
-    assert (actionDistOffenseGeneration mutated
-        &&  ballActionDistOffenseGeneration mutated)
+--  Rule #1: forall element in offense: x <= phi && x >= -phi
+--  Rule #2: length after mutation stays the same
+mutationOffense :: Offense -> Property
+mutationOffense offense = monadicIO $ do
+     let beta      = 0.1
+         offLength = length $ offEncoding offense
+     mutated <- run $ mutateI beta phi offense 
+     let mutLength = length $ offEncoding mutated
+     assert $  offenseBounds mutated
+            && offLength == mutLength
 
-mutationDefenseDist :: Defense -> Property
-mutationDefenseDist defense = monadicIO $ do
-    let delta  = 15
-        lambda = 0.5
-    mutated <- run $ mutateI delta lambda defense
-    assert (actionDistDefenseGeneration mutated)
+-- | Check for bounds and length violation
+--
+--  Rule #1: forall element in offense: x <= phi && x >= -phi
+--  Rule #2: length after mutation stays the same
+mutationDefense :: Defense -> Property
+mutationDefense defense = monadicIO $ do
+     let beta      = 0.1
+         defLength = length $ defEncoding defense
 
-mutationActionDistPos :: ActionDist -> Property
-mutationActionDistPos actionDist = monadicIO $ do
-    let delta = 15
-        lambda = 0
-    mutated <- run $ mutateI delta lambda actionDist
-    assert (actionDistPosRule mutated)
+     mutated <- run $ mutateI beta phi defense
 
-mutationBallActionDistPos :: BallActionDist -> Property
-mutationBallActionDistPos actionDist = monadicIO $ do
-    let delta = 15
-        lambda = 0
-    mutated <- run $ mutateI delta lambda actionDist
-    assert (ballActionDistPosRule mutated)
+     let mutLength = length $ defEncoding mutated
 
--- | check if crossover violates the distribution sum rule
+     assert $  defenseBounds mutated
+            && defLength == mutLength
 
-crossoverActionDist :: ActionDist -> ActionDist -> Property
-crossoverActionDist adistA adistB = monadicIO $ do
-    (child, _) <- run $ crossoverI adistA adistB
-    assert (actionDistSumRule child)
-
-crossoverBallActionDist :: BallActionDist -> BallActionDist -> Property
-crossoverBallActionDist adistA adistB = monadicIO $ do
-    (child, _) <- run $ crossoverI adistA adistB
-    assert (ballActionDistSumRule child)
-
-crossoverDefense :: Defense -> Defense -> Property
-crossoverDefense defA defB = monadicIO $ do
-    (child, _) <- run $ crossoverI defA defB
-    assert (actionDistDefenseGeneration child)
-
+-- | Check for bounds and length violation
+--
+--  Rule #1: forall element in offense: x <= phi && x >= -phi
+--  Rule #2: length after crossover is the minimum of the parents length
 crossoverOffense :: Offense -> Offense -> Property
 crossoverOffense offA offB = monadicIO $ do
-    (child, _) <- run $ crossoverI offA offB
-    assert (actionDistOffenseGeneration child)
+    let offALength = length $ offEncoding offA
+        offBLength = length $ offEncoding offB
+        minLength  = min offALength offBLength
 
-crossoverActionDistPos :: ActionDist -> ActionDist -> Property
-crossoverActionDistPos aDistA aDistB = monadicIO $ do
-    (child, _) <- run $ crossoverI aDistA aDistB
-    assert (actionDistPosRule child)
+    (childA, childB) <- run $ crossoverI offA offB
 
-crossoverBallActionDistPos :: BallActionDist -> BallActionDist -> Property
-crossoverBallActionDistPos aDistA aDistB = monadicIO $ do
-    (child, _) <- run $ crossoverI aDistA aDistB
-    assert (ballActionDistPosRule child)
+    assert $ offenseBounds childA
+          && offenseBounds childB
+          && length (offEncoding childA) == minLength
+          && length (offEncoding childB) == minLength
 
+-- | Check for bounds and length violation
+--
+--  Rule #1: forall element in offense: x <= phi && x >= -phi
+--  Rule #2: length after crossover is the minimum of the parents length
+crossoverDefense :: Defense -> Defense -> Property
+crossoverDefense defA defB = monadicIO $ do
+    let defALength = length $ defEncoding defA
+        defBLength = length $ defEncoding defB
+        minLength  = min defALength defBLength
 
+    (childA, childB) <- run $ crossoverI defA defB
+
+    assert $ defenseBounds childA
+          && defenseBounds childB
+          && length (defEncoding childA) == minLength
+          && length (defEncoding childB) == minLength
 
 -- | json serialization tests
 --
-jsonPropAction :: Action -> Bool
-jsonPropAction       action = eitherDecode (encode action)  == (Right action)
-
-jsonPropBallAction :: BallAction -> Bool
-jsonPropBallAction  baction = eitherDecode (encode baction) == (Right baction)
-
-jsonPropActionDist :: ActionDist -> Bool
-jsonPropActionDist   actionD = eitherDecode (encode actionD)  == (Right actionD)
-
-jsonPropBallActionDist :: BallActionDist -> Bool
-jsonPropBallActionDist bactionD = eitherDecode (encode bactionD) == (Right bactionD)
-
 jsonPropHFOState :: HFOState -> Bool
 jsonPropHFOState      state = eitherDecode (encode state)   == (Right state)
 

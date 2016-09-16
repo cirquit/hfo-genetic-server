@@ -96,12 +96,12 @@ instance Selection DefenseTeam where
 --  
 --  I want to favor the goal-scoring as an avg 0.25(meter) space "win"
 --
---  3) multiplication is only to avoid floating point madnessating point madness
+--  3) multiplication is only to avoid floating point madness
 --
 --  classify :: DefenseTeam -> Int
     classify DefenseTeam{..} =
             let (otherFitness, stateFitness) = defFitness
-                summedotherFitness   = (sum otherFitness)                               / (genericLength otherFitness)
+                summedotherFitness = (sum otherFitness)                                 / (genericLength otherFitness)
                 summedStateFitness = 2 * (foldl' (flip ((+) . fitness)) 0 stateFitness) / (genericLength stateFitness)
             in  round $ (summedotherFitness + summedStateFitness) * 10000
         where
