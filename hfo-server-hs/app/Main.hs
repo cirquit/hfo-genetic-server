@@ -23,6 +23,7 @@ import Genetic.Allele
 import Genetic.Mutation
 import Genetic.Crossover
 import Genetic.Selection
+import Genetic.Permutation
 
 -- | Tweak your startup configuration here
 --

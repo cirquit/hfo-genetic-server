@@ -29,6 +29,7 @@ library
                      , Genetic.Mutation
                      , Genetic.Allele
                      , Genetic.Selection
+                     , Genetic.Permutation
                      , Test
                      , Evaluator
   build-depends:       base           >= 4.7 && < 5

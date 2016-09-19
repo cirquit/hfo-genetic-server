@@ -35,8 +35,8 @@ import Genetic.Selection
 -- gen 383, off !! 0
 
 resultsFile n = concat [ "/home/rewrite/Documents/Project-Repos/hfo-genetic-server/results/"
---                     , "1off-3actions-newCOMUMethods-18-08/"
---                     , "json-data/"
+                     , "neural-evo-1v1/"
+                     , "json-data/"
                      , "results" ++ show n ++ ".json"
                      ]
 
