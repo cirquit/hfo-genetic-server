@@ -69,8 +69,8 @@ instance Selection OffenseTeam where
 --  classify :: OffenseTeam -> Int
     classify OffenseTeam{..} =
             let (otherFitness, stateFitness) = offFitness
-                summedOtherFitness = (sum otherFitness)                                  / (genericLength otherFitness)
-                summedStateFitness = 10 * (foldl' (flip ((+) . fitness)) 0 stateFitness) / (genericLength stateFitness)
+                summedOtherFitness = (sum otherFitness)                                 / (genericLength otherFitness)
+                summedStateFitness = 2 * (foldl' (flip ((+) . fitness)) 0 stateFitness) / (genericLength stateFitness)
             in  round $ (summedOtherFitness + summedStateFitness) * 10000
         where
             fitness :: Maybe HFOState -> Double
