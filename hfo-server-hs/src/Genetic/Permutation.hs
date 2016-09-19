@@ -49,7 +49,7 @@ instance Permutation Defense where
        -- transposing the encoded weights for shuffling on a current weight level only
           transEnc  = transpose encodings   :: [[Double]]
 
-      shuffled  <- mapM shuffleM transEnc   :: MonadRandom r => r [[Double]]
+      shuffled <- mapM shuffleM transEnc    :: MonadRandom r => r [[Double]]
 
        -- transpose again to get the original encoding back
       let orgEncodings = transpose shuffled       :: [[Double]]
@@ -62,6 +62,7 @@ instance Permutation OffenseTeam where
 
 --  permute :: MonadRandom r => [OffenseTeam] -> r [OffenseTeam]
     permute offteams = do
+        -- create player lists corresponding to their position
         let (p1s,p2s,p3s,p4s) = foldl' (\(a,b,c,d) team -> (op1 team : a, op2 team : b, op3 team : c, op4 team : d)) ([],[],[],[]) offteams
 
         -- premute every player internally and return a list of new teams
@@ -71,6 +72,7 @@ instance Permutation DefenseTeam where
 
 --  permute :: MonadRandom r => [DefenseTeam] -> r [DefenseTeam]
     permute defTeams = do
+        -- create player lists corresponding to their position
         let (p1s,p2s,p3s,p4s) = foldl' (\(a,b,c,d) team -> (goalie team : a, dp2 team : b, dp3 team : c, dp4 team : d)) ([],[],[],[]) defTeams
 
         -- premute every player internally and return a list of new teams
