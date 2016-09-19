@@ -104,23 +104,29 @@ runGA defense offense gen = do
     writePrettyPopulationTo savePath defenseTeams offenseTeams
 
  -- Selection of alpha % best individuals
-    let defSelected = select alpha defenseTeams
-        offSelected = select alpha offenseTeams
+    let defSelected = select alpha defenseTeams :: [DefenseTeam]
+        offSelected = select alpha offenseTeams :: [OffenseTeam]
 
 --  Crossover of every selected defense and offense among each other (size is equivalent to the parentlist)
-    defChildren <- crossover defSelected
-    offChildren <- crossover offSelected
+    defChildren <- crossover defSelected :: IO [DefenseTeam]
+    offChildren <- crossover offSelected :: IO [OffenseTeam]
 
 --  Mutation of beta % children
-    defMutated  <- mutate beta phi defChildren
-    offMutated  <- mutate beta phi offChildren
+    defMutated  <- mutate beta phi defChildren :: IO [DefenseTeam]
+    offMutated  <- mutate beta phi offChildren :: IO [OffenseTeam]
 
---  Repopulation with new individuals - these should amount to popSize - (popSize * alpha * 2)
---  because of parents (popSize * alpha) and children (popSize * alpha)
-    newDefense <- repopulate popSize (defSelected ++ defMutated) phi
-    newOffense <- repopulate popSize (offSelected ++ offMutated) phi
+--  Replace children with least fit individuals (starting from last element/least fit individual of the list)
+    let defSorted = sortByDescFitness defenseTeams :: [DefenseTeam]
+        offSorted = sortByDescFitness offenseTeams :: [OffenseTeam]
 
-    runGA newDefense newOffense (gen - 1)
+        defMerged = merge defSorted defMutated :: [DefenseTeam]
+        offMerged = merge offSorted offMutated :: [OffenseTeam]
+
+--  CoSyNE Permutation
+    defPermuted <- permute defMerged :: IO [DefenseTeam]
+    offPermuted <- permute offMerged :: IO [OffenseTeam]
+
+    runGA defPermuted offPermuted (gen - 1)
 
 
 -- | Main entry point for simulation

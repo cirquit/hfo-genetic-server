@@ -7,6 +7,7 @@ import Control.Monad
 import Data.List (sort)
 
 import HFO.Agent
+import Genetic.Selection
 
 -- | This defines the basic representation of an individual
 --
@@ -34,6 +35,13 @@ class Allele a where
         if maxLength >= len
             then (l ++) <$> genIndividuals (maxLength - len) phi
             else return l
+
+-- | merges two lists of individuals (parent population and children)
+--   deletes 
+    merge :: [a] -> [a] -> [a]
+    merge parents children = (take best parents) ++ children
+        where best        = length parents - childLength
+              childLength = length children
 
 -- | Generate a single Offense individual
 --
