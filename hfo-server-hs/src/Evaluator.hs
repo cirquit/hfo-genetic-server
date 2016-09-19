@@ -232,12 +232,12 @@ countFitness team =
             go (a,b,c,d,e,f,g,len) (Just Ingame)             = (a,  b,  c,  d  ,e,  f+1,g,   len + 1)
             go (a,b,c,d,e,f,g,len) _                         = (a,  b,  c,  d  ,e,  f,  g+1, len + 1)
 
-            roundTo :: Double -> Int -> Double
-            roundTo x n = (fromInteger $ round $ x * (10^n)) / (10.0^^n)
 
             to2Percent :: Double -> Double
             to2Percent n = (roundTo ((n / len) * 100) 2)
 
+roundTo :: Double -> Int -> Double
+roundTo x n = (fromInteger $ round $ x * (10^n)) / (10.0^^n)
 -- conduitTest :: 
 
 --readInformationFromTo :: Int -> Int -> IO ()
