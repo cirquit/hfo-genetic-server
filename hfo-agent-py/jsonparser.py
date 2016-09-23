@@ -50,7 +50,7 @@ def getRnnEncoding(jsonData, teamIndex, isOffense, playerNumber):
         return jsonData["defenseTeams"][teamIndex][player]["defEncoding"]
 
 
-def updateJSON(jsonData, state, teamIndex, additionalFitness):
+def updateJSON(jsonData, state, teamIndex): #, additionalFitness):
     '''
     update the json object with all the individuals with the state for the simulation
  
@@ -62,12 +62,12 @@ def updateJSON(jsonData, state, teamIndex, additionalFitness):
     updateJSON :: JSON -> GameState -> Int -> JSON
     '''
 
-    print("Getting goalAngle as number: {0}, as string: {1}").format(additionalFitness, str(additionalFitness))
+    # print("Getting goalAngle as number: {0}, as string: {1}").format(additionalFitness, str(additionalFitness))
 
-    strstate = stateToString(state)
-    jsonData["offenseTeams"][teamIndex]["offStateFitness"].append(strstate)
-    jsonData["offenseTeams"][teamIndex]["offPosFitness"].append(str(additionalFitness)) # we cast the float to string to avoid JSON problems
-#    jsonData["defenseTeams"][teamIndex]["defStateFitness"].append(strstate)
+    stateString = stateToString(state)
+    jsonData["offenseTeams"][teamIndex]["offStateFitness"].append(stateString)
+#    jsonData["offenseTeams"][teamIndex]["offPosFitness"].append(str(additionalFitness)) # we cast the float to string to avoid JSON problems
+#    jsonData["defenseTeams"][teamIndex]["defStateFitness"].append(stateString)
     return jsonData
 
 

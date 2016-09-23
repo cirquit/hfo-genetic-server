@@ -35,8 +35,8 @@ import Genetic.Selection
 -- gen 383, off !! 0
 
 resultsFile n = concat [ "/home/rewrite/Documents/Project-Repos/hfo-genetic-server/results/"
-                     , "neural-evo-1v1/"
-                     , "json-data/"
+--                     , "neural-evo-1v1/"
+--                     , "json-data/"
                      , "results" ++ show n ++ ".json"
                      ]
 
@@ -105,7 +105,7 @@ evaluate offTeams = do
             bestFitness     = concat (infos !! 0)   -- best per generation               ~ [Double]
             meanFitness     = concat (infos !! 1)   -- mean per generation               ~ [Double]
 
-
+        mapM_ print (zipWith (\x y -> show x ++ ' ':(show y)) bestFitness meanFitness)
         writeFile (graphsLogFile ++ "offenseFitness.dat")     (unlines $ zipWith (\x y -> show x ++ ' ':(show y)) bestFitness meanFitness)
 
     where
@@ -125,7 +125,7 @@ evaluate offTeams = do
                 sortedOffs = take teamCount $ sortByDescFitness offs 
 
                 teamCount :: Num a => a
-                teamCount = 12   -- take 12 (25% selection * 50 individuals) because we don't want the random generated individuals to influence the results
+                teamCount = 37 -- - 13 -- 37  we take everything for evaluation execept the children (0.25 * 50 ~= 13)
 
 
 {-

@@ -47,7 +47,7 @@ agentConf = defaultAgent { episodes = teamEpisodes }
 -- | Genetic algorithms parameters
 --
 generations :: Int
-generations    = 50  -- how many times does the GA loop (Simulation -> Selection -> Crossover -> Mutation)
+generations    = 300 -- how many times does the GA loop (Simulation -> Selection -> Crossover -> Mutation)
 
 popSize :: Int
 popSize        = 50  -- population size (for offense as well as defense teams)
@@ -59,10 +59,10 @@ alpha :: Double
 alpha = 0.25   -- % of best individuals will be selected - [0.0, 0.5] (if its >= 0.5 then we won't have any inherently new individuals)
 
 beta  :: Double
-beta  = 0.01   -- % of individuals that will be mutated  - [0.0, 1.0]
+beta  = 0.10   -- % of individuals that will be mutated  - [0.0, 1.0]
 
 phi :: Double
-phi = 2        -- (-phi, +phi) sample space for coefficients
+phi = 3        -- (-phi, +phi) sample space for coefficients
 
 -- | Path to save all the intermediate results so we can easily start from the last population
 --   if the simulation "broke"
@@ -86,7 +86,7 @@ main = do
         offPopulation :: [OffenseTeam]
         offPopulation = flip evalRand g1 $ genIndividuals popSize phi
 
---    (defPopulation, offPopulation) <- readPopulationFrom (intermediateResultsPath 21)
+--    (defPopulation, offPopulation) <- readPopulationFrom (intermediateResultsPath 42)
 
     runGA defPopulation offPopulation generations
 
