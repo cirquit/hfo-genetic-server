@@ -46,12 +46,12 @@ instance Allele Offense where
 --  genIndividual :: MonadRandom r => r a
     genIndividual = do
         (actions, actionsLen)         <- genActions
-        (ballActions, ballActionsLen) <- genBallActions
+--        (ballActions, ballActionsLen) <- genBallActions
 
         let actionsDist     = {- replicateM 16 $ -} uncurry (ActionDist     . zip actions)     <$> genUniformDistributionGen actionsLen
-            ballActionsDist = {- replicateM 16 $ -} uncurry (BallActionDist . zip ballActions) <$> genUniformDistributionGen ballActionsLen
+--            ballActionsDist = {- replicateM 16 $ -} uncurry (BallActionDist . zip ballActions) <$> genUniformDistributionGen ballActionsLen
 
-        Offense <$> actionsDist <*> ballActionsDist
+        Offense <$> actionsDist -- <*> ballActionsDist
 
 -- | Generate a single Defense individual
 --
@@ -100,7 +100,7 @@ genActions = do
 --    x   <- roundTo 4 <$> getRandomR (-1.0, 1.0)
 --    y   <- roundTo 4 <$> getRandomR (-1.0, 1.0)
 
-    let res = [Move, Intercept, NoOp] -- MoveTo (x,y) (xBs, yBs)]
+    let res = [Move, Intercept, Shoot, Dribble, NoOp] -- MoveTo (x,y) (xBs, yBs)]
     return (res, length res)
 
 -- | generates random BallActions
@@ -108,11 +108,11 @@ genActions = do
 --   WARNING!! - We can currently only pass to player 7 and 11 because we have enough NoOp Actions
 --             - For 4 vs 4 we have to change this!
 --
-genBallActions :: MonadRandom r => r ([BallAction], Int)
-genBallActions = do
-    -- p <- head . filter (/= 10) <$> getRandomRs (7,11)
-    let res = [Shoot, Dribble, BNoOp] --, GoalKick]-- Pass 7, Pass 11] --Pass 8, Pass 9, Pass 11]
-    return (res, length res) 
+-- genBallActions :: MonadRandom r => r ([BallAction], Int)
+-- genBallActions = do
+--     -- p <- head . filter (/= 10) <$> getRandomRs (7,11)
+--     let res = [Shoot, Dribble, BNoOp] --, GoalKick]-- Pass 7, Pass 11] --Pass 8, Pass 9, Pass 11]
+--     return (res, length res) 
 
 -- | creates a uniform distribution for 'n' Elements 
 --

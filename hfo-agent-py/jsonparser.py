@@ -52,7 +52,7 @@ def getActionDistribution(jsonData, teamIndex, isOffense, playerNumber):
             player = "op4"
 
 #        return jsonData["offenseTeams"][teamIndex][player]["offActionDist"] + jsonData["offenseTeams"][teamIndex][player]["offBallActionDist"]
-        return jsonData["offenseTeams"][teamIndex][player]["offActionDist"]["actionDist"] + jsonData["offenseTeams"][teamIndex][player]["offBallActionDist"]["ballActionDist"]
+        return jsonData["offenseTeams"][teamIndex][player]["offActionDist"]["actionDist"] # + jsonData["offenseTeams"][teamIndex][player]["offBallActionDist"]["ballActionDist"]
 
     else:
 
@@ -72,7 +72,7 @@ def getActionDistribution(jsonData, teamIndex, isOffense, playerNumber):
 
 
 
-def updateJSON(jsonData, state, teamIndex, additionalFitness):
+def updateJSON(jsonData, state, teamIndex): # , additionalFitness):
     '''
     update the json object with all the individuals with the state for the simulation
  
@@ -84,11 +84,11 @@ def updateJSON(jsonData, state, teamIndex, additionalFitness):
     updateJSON :: JSON -> GameState -> Int -> JSON
     '''
 
-    print("Getting goalAngle as number: {0}, as string: {1}").format(additionalFitness, str(additionalFitness))
+#    print("Getting goalAngle as number: {0}, as string: {1}").format(additionalFitness, str(additionalFitness))
 
     strstate = stateToString(state)
     jsonData["offenseTeams"][teamIndex]["offStateFitness"].append(strstate)
-    jsonData["offenseTeams"][teamIndex]["offPosFitness"].append(str(additionalFitness)) # we cast the float to string to avoid JSON problems
+#    jsonData["offenseTeams"][teamIndex]["offPosFitness"].append(str(additionalFitness)) # we cast the float to string to avoid JSON problems
 #    jsonData["defenseTeams"][teamIndex]["defStateFitness"].append(strstate)
     return jsonData
 

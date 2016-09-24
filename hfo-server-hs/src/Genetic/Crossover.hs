@@ -101,7 +101,7 @@ instance Crossover ActionDist where
 
         return (result, result)
 
-
+{-
 instance Crossover BallActionDist where
 
 -- uniformCO :: MonadRandom r => BallActionDist -> BallActionDist -> r (BallActionDist, BallActionDist)
@@ -135,6 +135,7 @@ instance Crossover BallActionDist where
             result  = BallActionDist distAB []
 
         return (result, result)
+-}
 
 instance Crossover Defense where
 
@@ -151,13 +152,13 @@ instance Crossover Defense where
 instance Crossover Offense where
 
 --  uniformCO :: MonadRandom r => Offense -> Offense -> r (Offense, Offense)
-    uniformCO (Offense actionDistA ballActionDistA) (Offense actionDistB ballActionDistB) = do
+    uniformCO (Offense actionDistA)  {- ballActionDistA -} (Offense actionDistB) {- ballActionDistB -} = do
 
             actionDistAB     <- {- crossoverBetween -} fst <$> crossoverI actionDistA     actionDistB
-            ballActionDistAB <- {- crossoverBetween -} fst <$> crossoverI ballActionDistA ballActionDistB
+--            ballActionDistAB <- {- crossoverBetween -} fst <$> crossoverI ballActionDistA ballActionDistB
 
             -- only one child with the current implementation (maybe TODO)
-            let result = Offense actionDistAB ballActionDistAB
+            let result = Offense actionDistAB -- ballActionDistAB
 
             return (result, result)
 

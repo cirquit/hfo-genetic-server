@@ -100,7 +100,7 @@ instance Mutation ActionDist where
     --  we don't have any generator so it stays empty, if we use this method crossover has to be adjusted
         return $ ActionDist newActionDist []
 
-
+{-
 instance Mutation BallActionDist where
 
 --  mutateI :: MonadRandom r => Int -> Double -> BallActionDist -> r BallActionDist
@@ -133,11 +133,13 @@ instance Mutation BallActionDist where
     --  we don't have any generator so it stays empty, if we use this method crossover has to be adjusted
         return $ BallActionDist newActionDist []
 
+-}
+
 instance Mutation Offense where
 
 --  mutateI :: MonadRandom r => Int -> Double -> Offense -> r Offense
     mutateI delta lambda Offense{..} = Offense <$> {- mutate lambda delta 0 -} mutateI delta 0 offActionDist
-                                               <*> {- mutate lambda delta 0 -} mutateI delta 0 offBallActionDist
+--                                               <*> {- mutate lambda delta 0 -} mutateI delta 0 offBallActionDist
 
 instance Mutation Defense where
 

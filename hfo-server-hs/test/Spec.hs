@@ -18,7 +18,7 @@ main = hspec . modifyMaxSuccess (const 5000) $ do
                 it "offense agent toFlags instance" $ flagOffenseAgent `shouldBe` True
                 it "defense agent toFlags instance" $ flagDefenseAgent `shouldBe` True
                 prop "actionDistribution amounts to 100"     actionDistSumRule
-                prop "ballActionDistribution amounts to 100" ballActionDistSumRule
+--                 prop "ballActionDistribution amounts to 100" ballActionDistSumRule
 
             describe "HFO.Server" $ do
                 it "server toFlags instance" $ do
@@ -66,7 +66,7 @@ main = hspec . modifyMaxSuccess (const 5000) $ do
             describe "HFO.Agent.Data" $ do
                 describe "JSON Encoding / Decoding" $ do
                     prop "Action"          jsonPropAction
-                    prop "BallAction"      jsonPropBallAction
+--                    prop "BallAction"      jsonPropBallAction
                     prop "Offense"         jsonPropOffense
                     prop "Defense"         jsonPropDefense
                     prop "DefenseTeam"     jsonPropDefenseTeam
@@ -79,17 +79,17 @@ main = hspec . modifyMaxSuccess (const 5000) $ do
                 return ()
             describe "Genetic.Crossover" $ do
                 prop "ActionDist crossover does not affect the sum rule of the distribution (sum dist = 100)"     crossoverActionDist
-                prop "BallActionDist crossover does not affect the sum rule of the distribution (sum dist = 100)" crossoverBallActionDist
+--                prop "BallActionDist crossover does not affect the sum rule of the distribution (sum dist = 100)" crossoverBallActionDist
                 prop "Offense crossover does not affect the sum rule of the distribuion (sum dist = 100)"         crossoverOffense
                 prop "Defense crossover does not affect the sum rule of the distribuion (sum dist = 100)"         crossoverDefense
                 prop "ActionDist crossover does not affect (all (>= 0) dist) "                                    crossoverActionDistPos
-                prop "BallActionDist crossover does not affect (all (>= 0) dist)"                                 crossoverBallActionDistPos
+--                prop "BallActionDist crossover does not affect (all (>= 0) dist)"                                 crossoverBallActionDistPos
                 return ()
             describe "Genetic.Mutation"  $ do
                 prop "offense mutations does not affect the sum rule of the distribution (sum dist = 100)" mutationOffenseDist
                 prop "defense mutations does not affect the sum rule of the distribution (sum dist = 100)" mutationDefenseDist
                 prop "ActionDist mutation does not affect (all (>= 0) dist) "                              mutationActionDistPos
-                prop "BallActionDist mutation does not affect (all (>= 0) dist)"                           mutationBallActionDistPos
+--                prop "BallActionDist mutation does not affect (all (>= 0) dist)"                           mutationBallActionDistPos
 
             describe "Genetic.Selection" $ do
                 return ()

@@ -95,7 +95,7 @@ def main():
     currentTeam = -1
 
 #   added for fitness evaluation, will be stored for every episode in the json
-    xPos  = -1
+#    xPos  = -1
 
 #   added for fitness evaluation, will be stored for every episode in the json
     goalOpeningAngle = 0
@@ -112,10 +112,10 @@ def main():
         playerDist = getActionDistribution(jsonData, currentTeam, isOffense, playerNumber)
 
         # reset maximum x-position
-        xPos = -1
+        # xPos = -1
 
         # reset maximum goal opening
-        goalOpeningAngle = 0.0
+        # goalOpeningAngle = 0.0
 
         # Main game loop
         state = IN_GAME
@@ -124,11 +124,11 @@ def main():
             action = getAction(state, isOffense, playerDist)
             action.execute(env = hfo, state = state)
             # xPos = getMaxXPos(state, xPos)
-            goalOpeningAngle = getGoalOpeningAngle(state, goalOpeningAngle)
+            # goalOpeningAngle = getGoalOpeningAngle(state, goalOpeningAngle)
             state  = hfo.step()
 
         # Goalie logs every result in the json object
-        jsonData = updateJSON(jsonData, state, currentTeam, goalOpeningAngle)
+        jsonData = updateJSON(jsonData, state, currentTeam) # , goalOpeningAngle)
 
     # when we are done with every team, write the updated json object to the log
     myLogPath = getMyLogPath(isOffense, playerNumber)

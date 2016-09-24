@@ -46,13 +46,13 @@ agentConf = defaultAgent { episodes = teamEpisodes }
 -- | Genetic algorithms parameters
 --
 generations :: Int
-generations    = 50 -- how many times does the GA loop (Simulation -> Selection -> Crossover -> Mutation)
+generations    = 100 -- how many times does the GA loop (Simulation -> Selection -> Crossover -> Mutation)
 
 popSize :: Int
 popSize        = 50 -- population size (for offense as well as defense teams)
 
 teamEpisodes :: Int
-teamEpisodes   = 10  -- amount of trials for every team
+teamEpisodes   = 25  -- amount of trials for every team
 
 alpha :: Double
 alpha = 0.35   -- % of best individuals will be selected - [0.0, 0.5] (if its >= 0.5 then we won't have any inherently new individuals)
@@ -79,7 +79,7 @@ main :: IO ()
 main = do
 
 --  start with a seed
-    let g = mkStdGen 31415926
+    let g  = mkStdGen 31415926
 
         defPopulation :: [DefenseTeam]
         defPopulation = flip evalRand g $ genIndividuals 0 -- popSize

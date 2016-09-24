@@ -113,23 +113,23 @@ instance FromJSON Defense where
 --   *) We have two distributions, because we either have the ball, or not
 --   
 data Offense = Offense { offActionDist     :: ActionDist
-                       , offBallActionDist :: BallActionDist
+--                       , offBallActionDist :: BallActionDist
                        }
     deriving (Show, Eq)
 
 instance ToJSON Offense where
 
-    toJSON (Offense offActionDist offBallActionDist) = object [
+    toJSON (Offense offActionDist)  {- offBallActionDist) -} = object [
         "offActionDist"     .= offActionDist
-      , "offBallActionDist" .= offBallActionDist
+--      , "offBallActionDist" .= offBallActionDist
       ]
 
 instance FromJSON Offense where
 
     parseJSON (Object o) =  do 
         offActionDist      <- o .: "offActionDist"
-        offBallActionsDist <- o .: "offBallActionDist"
-        return $ Offense offActionDist offBallActionsDist
+--        offBallActionsDist <- o .: "offBallActionDist"
+        return $ Offense offActionDist -- offBallActionsDist
 
 
 -- | Wrapper for Teams
@@ -228,6 +228,8 @@ instance FromJSON SerializedTeams where
         offenseTeams <- o .: "offenseTeams"
         return $ SerializedTeams defenseTeams offenseTeams
 
+{-
+
 -- | Defaults
 --
 -- (testing purposes only)
@@ -277,3 +279,4 @@ defaultTeams :: SerializedTeams
 defaultTeams = SerializedTeams { defenseTeams = [defaultDefenseTeam]
                                , offenseTeams = [defaultOffenseTeam]
                                }
+-}

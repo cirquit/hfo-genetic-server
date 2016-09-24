@@ -3,7 +3,7 @@
 module HFO.Agent.Conf where
 
 import HFO.ToFlags              (ToFlags(..))
-import HFO.Agent.Data           (Offense(..), Defense(..), defaultOffense)
+import HFO.Agent.Data           (Offense(..), Defense(..)) -- , defaultOffense)
 
 -- | Top level agent configuration
 --

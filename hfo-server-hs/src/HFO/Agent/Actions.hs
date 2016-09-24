@@ -16,7 +16,8 @@ import qualified Data.Vector as V
 -- 
 data Action  = Move                                    -- high level move based on strategy (whatever this might be - TODO)
              | Intercept                               -- intercept the ball
---             | Catch                                   -- goalie only  (this may be a little bit ugly)
+             | Shoot
+             | Dribble
              | NoOp                                    -- no operation
 --             | MoveTo (Double,Double)                  -- (x,y) (xBounds, yBounds) x € [-1,1], y € [-1,1]
 --             | Dash Int Int                          -- power in [0,100], direction in [-180,180]
@@ -49,13 +50,15 @@ instance FromJSON Action where
 toActionText :: Action -> Text
 toActionText Move         = "MOVE"
 toActionText Intercept    = "INTERCEPT"
--- toActionText Catch        = "CATCH"
+toActionText Shoot        = "SHOOT"
+toActionText Dribble      = "DRIBBLE"
 toActionText NoOp         = "NOOP"
--- toActionText (MoveTo _ _) = "MOVE_TO"
 
 toMAction :: Text -> V.Vector Value -> Maybe Action
 toMAction "MOVE"      _ = Just Move
 toMAction "INTERCEPT" _ = Just Intercept
+toMAction "SHOOT"     _ = Just Shoot
+toMAction "DRIBBLE"   _ = Just Dribble
 -- toMAction "CATCH"     _ = Just Catch
 toMAction "NOOP"      _ = Just NoOp
 -- toMAction "MOVE_TO"    l = let (Number mx : Number my : Number mxBy : Number myBs : _) = V.toList l
@@ -69,7 +72,7 @@ toDouble (Right i) = fromInteger i
 
 
 
-
+{-
 -- | All possible actions for an agent WITH the possesion of the ball
 --
 data BallAction  = Shoot                  -- shoot in (possibly in looking direction)
@@ -80,7 +83,7 @@ data BallAction  = Shoot                  -- shoot in (possibly in looking direc
 --                 | Kick   Int Int       -- power in [0,100], direction in [-180, 180]
 --                 | KickTo Int Int Int   -- x in [-1,1], y in [-1,1], power in [0,3]
 --                 | DribbleTo Int Int    -- x in [-1,1], y in [-1,1]
-    deriving (Eq, Show)
+--    deriving (Eq, Show)
 
 instance ToJSON BallAction where
 
@@ -120,7 +123,7 @@ toMBallAction "NOOP"     _       = Just BNoOp
 -- toMBallAction "GOALKICK" _       = Just GoalKick
 toMBallAction _          _       = Nothing
 
-
+-}
 
 
 -- | Wrapper for an action distribution
@@ -152,7 +155,7 @@ instance FromJSON ActionDist where
         return $ ActionDist actionDist actionGenerator
 
 
-
+{-
 -- | Wrapper for an action distribution
 --
 --   The following should always be True:
@@ -183,3 +186,4 @@ instance FromJSON BallActionDist where
         ballActionGenerator <- o .: "ballActionGenerator"
         return $ BallActionDist ballActionDist ballActionGenerator
 
+-}

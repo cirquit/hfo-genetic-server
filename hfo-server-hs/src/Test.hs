@@ -27,10 +27,10 @@ instance Arbitrary Action where
 --  arbitrary :: Gen Action
     arbitrary = elements =<< fst <$> genTestActions
 
-instance Arbitrary BallAction where
-
---  arbitrary :: Gen BallAction
-    arbitrary = elements =<< fst <$> genTestBallActions
+-- instance Arbitrary BallAction where
+-- 
+-- --  arbitrary :: Gen BallAction
+--     arbitrary = elements =<< fst <$> genTestBallActions
 
 instance Arbitrary HFOState where
 
@@ -44,12 +44,12 @@ instance Arbitrary ActionDist where
         (actions, actionsLen) <- genTestActions
         uncurry (ActionDist . zip actions) <$> genTestDistribution actionsLen
 
-instance Arbitrary BallActionDist where
+--instance Arbitrary BallActionDist where
 
--- arbitrary :: Gen BallActionDist
-    arbitrary = do
-        (ballActions, ballActionsLen) <- genTestBallActions
-        uncurry (BallActionDist . zip ballActions) <$> genTestDistribution ballActionsLen
+---- arbitrary :: Gen BallActionDist
+--    arbitrary = do
+--        (ballActions, ballActionsLen) <- genTestBallActions
+--        uncurry (BallActionDist . zip ballActions) <$> genTestDistribution ballActionsLen
 
 instance Arbitrary Defense where
 
@@ -59,7 +59,7 @@ instance Arbitrary Defense where
 instance Arbitrary Offense where
 
 --  arbitrary :: Gen Offense
-    arbitrary = Offense <$> {- replicateM 16 -} arbitrary <*> {- replicateM 16 -} arbitrary
+    arbitrary = Offense <$> {- replicateM 16 -} arbitrary -- <*> {- replicateM 16 -} arbitrary
 
 instance Arbitrary OffenseTeam where
 
@@ -96,14 +96,14 @@ genTestActions = do
 --    x   <- roundTo 4 <$> choose (-1.0, 1.0)
 --    y   <- roundTo 4 <$> choose (-1.0, 1.0)
 
-    let res = [Move, Intercept, NoOp] -- , MoveTo (x,y) (xBs,yBs)]
+    let res = [Move, Intercept, Shoot, Dribble, NoOp] -- , MoveTo (x,y) (xBs,yBs)]
     return (res, length res)
 
-genTestBallActions :: Gen ([BallAction], Int)
-genTestBallActions = do
---    p <- head . filter (/= 10) <$> infiniteListOf (choose (7,11))
-    let res = [Shoot, Dribble, Pass 7, Pass 8, Pass 9, Pass 11]
-    return (res, length res) 
+-- genTestBallActions :: Gen ([BallAction], Int)
+-- genTestBallActions = do
+-- --    p <- head . filter (/= 10) <$> infiniteListOf (choose (7,11))
+--     let res = [Shoot, Dribble, Pass 7, Pass 8, Pass 9, Pass 11]
+--     return (res, length res) 
 
 genTestDistribution :: Int -> Gen ([Int], [Int])
 genTestDistribution n = do
@@ -141,8 +141,8 @@ flagDefenseAgent =
 actionDistOffenseGeneration     :: Offense -> Bool
 actionDistOffenseGeneration     Offense{..} = {- all -} actionDistSumRule     offActionDist
 
-ballActionDistOffenseGeneration :: Offense -> Bool
-ballActionDistOffenseGeneration Offense{..} = {- all -} ballActionDistSumRule offBallActionDist
+-- ballActionDistOffenseGeneration :: Offense -> Bool
+-- ballActionDistOffenseGeneration Offense{..} = {- all -} ballActionDistSumRule offBallActionDist
 
 actionDistDefenseGeneration     :: Defense -> Bool
 actionDistDefenseGeneration     Defense{..} = {- all -} actionDistSumRule     defActionDist
@@ -150,14 +150,14 @@ actionDistDefenseGeneration     Defense{..} = {- all -} actionDistSumRule     de
 actionDistSumRule     :: ActionDist -> Bool
 actionDistSumRule         ActionDist{..} = foldr ((+) . snd) 0 actionDist == 100
 
-ballActionDistSumRule :: BallActionDist -> Bool
-ballActionDistSumRule BallActionDist{..} = foldr ((+) . snd) 0 ballActionDist == 100
+-- ballActionDistSumRule :: BallActionDist -> Bool
+-- ballActionDistSumRule BallActionDist{..} = foldr ((+) . snd) 0 ballActionDist == 100
 
 actionDistPosRule :: ActionDist -> Bool
 actionDistPosRule         ActionDist{..} = all (>= 0) (map snd actionDist)
 
-ballActionDistPosRule :: BallActionDist -> Bool
-ballActionDistPosRule BallActionDist{..} = all (>= 0) (map snd ballActionDist)
+-- ballActionDistPosRule :: BallActionDist -> Bool
+-- ballActionDistPosRule BallActionDist{..} = all (>= 0) (map snd ballActionDist)
 
 
 
@@ -168,8 +168,8 @@ mutationOffenseDist offense = monadicIO $ do
     let delta  = 15
         lambda = 0.5
     mutated <- run $ mutateI delta lambda offense 
-    assert (actionDistOffenseGeneration mutated
-        &&  ballActionDistOffenseGeneration mutated)
+    assert (actionDistOffenseGeneration mutated)
+--        &&  ballActionDistOffenseGeneration mutated)
 
 mutationDefenseDist :: Defense -> Property
 mutationDefenseDist defense = monadicIO $ do
@@ -185,12 +185,12 @@ mutationActionDistPos actionDist = monadicIO $ do
     mutated <- run $ mutateI delta lambda actionDist
     assert (actionDistPosRule mutated)
 
-mutationBallActionDistPos :: BallActionDist -> Property
-mutationBallActionDistPos actionDist = monadicIO $ do
-    let delta = 15
-        lambda = 0
-    mutated <- run $ mutateI delta lambda actionDist
-    assert (ballActionDistPosRule mutated)
+-- mutationBallActionDistPos :: BallActionDist -> Property
+-- mutationBallActionDistPos actionDist = monadicIO $ do
+--     let delta = 15
+--         lambda = 0
+--     mutated <- run $ mutateI delta lambda actionDist
+--     assert (ballActionDistPosRule mutated)
 
 -- | check if crossover violates the distribution sum rule
 
@@ -199,10 +199,10 @@ crossoverActionDist adistA adistB = monadicIO $ do
     (child, _) <- run $ crossoverI adistA adistB
     assert (actionDistSumRule child)
 
-crossoverBallActionDist :: BallActionDist -> BallActionDist -> Property
-crossoverBallActionDist adistA adistB = monadicIO $ do
-    (child, _) <- run $ crossoverI adistA adistB
-    assert (ballActionDistSumRule child)
+-- crossoverBallActionDist :: BallActionDist -> BallActionDist -> Property
+-- crossoverBallActionDist adistA adistB = monadicIO $ do
+--     (child, _) <- run $ crossoverI adistA adistB
+--     assert (ballActionDistSumRule child)
 
 crossoverDefense :: Defense -> Defense -> Property
 crossoverDefense defA defB = monadicIO $ do
@@ -219,10 +219,10 @@ crossoverActionDistPos aDistA aDistB = monadicIO $ do
     (child, _) <- run $ crossoverI aDistA aDistB
     assert (actionDistPosRule child)
 
-crossoverBallActionDistPos :: BallActionDist -> BallActionDist -> Property
-crossoverBallActionDistPos aDistA aDistB = monadicIO $ do
-    (child, _) <- run $ crossoverI aDistA aDistB
-    assert (ballActionDistPosRule child)
+-- crossoverBallActionDistPos :: BallActionDist -> BallActionDist -> Property
+-- crossoverBallActionDistPos aDistA aDistB = monadicIO $ do
+--     (child, _) <- run $ crossoverI aDistA aDistB
+--     assert (ballActionDistPosRule child)
 
 
 
@@ -231,14 +231,14 @@ crossoverBallActionDistPos aDistA aDistB = monadicIO $ do
 jsonPropAction :: Action -> Bool
 jsonPropAction       action = eitherDecode (encode action)  == (Right action)
 
-jsonPropBallAction :: BallAction -> Bool
-jsonPropBallAction  baction = eitherDecode (encode baction) == (Right baction)
+-- jsonPropBallAction :: BallAction -> Bool
+-- jsonPropBallAction  baction = eitherDecode (encode baction) == (Right baction)
 
 jsonPropActionDist :: ActionDist -> Bool
 jsonPropActionDist   actionD = eitherDecode (encode actionD)  == (Right actionD)
 
-jsonPropBallActionDist :: BallActionDist -> Bool
-jsonPropBallActionDist bactionD = eitherDecode (encode bactionD) == (Right bactionD)
+-- jsonPropBallActionDist :: BallActionDist -> Bool
+-- jsonPropBallActionDist bactionD = eitherDecode (encode bactionD) == (Right bactionD)
 
 jsonPropHFOState :: HFOState -> Bool
 jsonPropHFOState      state = eitherDecode (encode state)   == (Right state)
