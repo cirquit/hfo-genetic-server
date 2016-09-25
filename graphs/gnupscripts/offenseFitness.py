@@ -23,7 +23,7 @@ fig = plt.figure(figsize=(18,12))
 
 ax1 = fig.add_subplot(111)
 
-ax1.set_title("Best-Mean-Fitness of ActionDist with CO:35%, MU:50%, MU-Rate:20, 10 Episodes only goal fitness")
+ax1.set_title("Best-Mean-Fitness of ActionDist with CO:35%, MU:50%, MU-Rate:20, 25 Episodes only goal fitness")
 ax1.set_xlabel("Generations")
 ax1.set_ylabel("Fitness")
 

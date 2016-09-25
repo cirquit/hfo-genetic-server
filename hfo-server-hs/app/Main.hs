@@ -46,7 +46,7 @@ agentConf = defaultAgent { episodes = teamEpisodes }
 -- | Genetic algorithms parameters
 --
 generations :: Int
-generations    = 100 -- how many times does the GA loop (Simulation -> Selection -> Crossover -> Mutation)
+generations    = 9 -- how many times does the GA loop (Simulation -> Selection -> Crossover -> Mutation)
 
 popSize :: Int
 popSize        = 50 -- population size (for offense as well as defense teams)
@@ -81,13 +81,13 @@ main = do
 --  start with a seed
     let g  = mkStdGen 31415926
 
-        defPopulation :: [DefenseTeam]
-        defPopulation = flip evalRand g $ genIndividuals 0 -- popSize
+--        defPopulation :: [DefenseTeam]
+--        defPopulation = flip evalRand g $ genIndividuals 0 -- popSize
+--
+--        offPopulation :: [OffenseTeam]
+--        offPopulation = flip evalRand g $ genIndividuals popSize
 
-        offPopulation :: [OffenseTeam]
-        offPopulation = flip evalRand g $ genIndividuals popSize
-
---    (defPopulation, offPopulation) <- readPopulationFrom (intermediateResultsPath 21)
+    (defPopulation, offPopulation) <- readPopulationFrom (intermediateResultsPath 10)
 
     runGA defPopulation offPopulation generations
 

@@ -1,7 +1,7 @@
 set term pngcairo size 1366,768 enhanced font "Verdana"
 set output "current/offenseActionDist.png"
 
-set title "mean-max fitness, pop: 50, gen: 50, episodes: 10, selection: 35%, mutation: 50%, mutationFactor: 20, 1v1, actiondistribution"
+set title "mean-max fitness, pop: 50, gen: 50, episodes: 25, selection: 35%, mutation: 50%, mutationFactor: 20, 1v1, actiondistribution"
 set key outside
 set xrange [1:50]
 set xlabel "Generation"
