@@ -7,12 +7,14 @@ import System.Random
 import Control.Monad.Random
 import Data.Aeson
 
+
+import Control.Concurrent            (forkIO, ThreadId(), killThread)
 import Data.Aeson.Encode.Pretty      (encodePretty)
 import qualified Data.Text.IO   as T (appendFile)
 import           Data.Text      as T (pack)
 import           Control.Monad       (when)
 
-import HFO.Server               (ServerConf(..), defaultServer, runServer_, runServer)
+import HFO.Server               (ServerConf(..), defaultServer, runServer_, runServer, serverWatcher)
 import HFO.Agent                (AgentConf(..), defaultAgent, DefenseTeam(..), OffenseTeam(..)
                                 ,runDefenseTeam, runOffenseTeam, waitForProcesses, SerializedTeams(..)
                                 ,sleep, Defense(..))
@@ -29,12 +31,13 @@ import Genetic.Permutation
 --
 --   Half-Field Offense server binary configuration (see HFO.Server.Conf)
 serverConf :: ServerConf
-serverConf = defaultServer { untouchedTime = 50
-                           , trials        = popSize * teamEpisodes
-                           , offenseAgents = 1
-                           , defenseAgents = 0
-                           , offenseNpcs   = 0
-                           , defenseNpcs   = 1
+serverConf = defaultServer { untouchedTime  = 50
+                           , framespertrial = 500
+                           , trials         = popSize * teamEpisodes
+                           , offenseAgents  = 1
+                           , defenseAgents  = 0
+                           , offenseNpcs    = 0
+                           , defenseNpcs    = 1
 --                           , showMonitor   = False
 --                           , standartPace  = True
                            , giveBallToPlayer = 1   -- 1 should give it to the first player...with the number 7
@@ -47,13 +50,13 @@ agentConf = defaultAgent { episodes = teamEpisodes }
 -- | Genetic algorithms parameters
 --
 generations :: Int
-generations    = 300 -- how many times does the GA loop (Simulation -> Selection -> Crossover -> Mutation)
+generations    = 182 -- how many times does the GA loop (Simulation -> Selection -> Crossover -> Mutation)
 
 popSize :: Int
 popSize        = 50  -- population size (for offense as well as defense teams)
 
 teamEpisodes :: Int
-teamEpisodes   = 10  -- amount of trials for every team
+teamEpisodes   = 25  -- amount of trials for every team
 
 alpha :: Double
 alpha = 0.25   -- % of best individuals will be selected - [0.0, 0.5] (if its >= 0.5 then we won't have any inherently new individuals)
@@ -80,13 +83,13 @@ main = do
     let g0 = mkStdGen 31415926
         g1 = mkStdGen 27182818
 
-        defPopulation :: [DefenseTeam]
-        defPopulation = flip evalRand g0 $ genIndividuals 0       phi
+--        defPopulation :: [DefenseTeam]
+--        defPopulation = flip evalRand g0 $ genIndividuals 0       phi
+--
+--        offPopulation :: [OffenseTeam]
+--        offPopulation = flip evalRand g1 $ genIndividuals popSize phi
 
-        offPopulation :: [OffenseTeam]
-        offPopulation = flip evalRand g1 $ genIndividuals popSize phi
-
---    (defPopulation, offPopulation) <- readPopulationFrom (intermediateResultsPath 42)
+    (defPopulation, offPopulation) <- readPopulationFrom (intermediateResultsPath 183)
 
     runGA defPopulation offPopulation generations
 
@@ -140,10 +143,13 @@ startSimulation (defenseTeams, offenseTeams) = do
     writePopulation defenseTeams offenseTeams
 
 --  Start the server
-    runServer_ serverConf
+    serverPh <- runServer serverConf
 
 --  Start the offensive agents
     offphs <- runOffenseTeam agentConf
+
+--  Start server watcher so buggy starts are intercepted (currently after 15 min)
+    tid <- forkIO (serverWatcher serverPh)
 
 --  Start the defensive agents and return the handle from goalie
 --    defphs <- runDefenseTeam agentConf
@@ -151,10 +157,10 @@ startSimulation (defenseTeams, offenseTeams) = do
 --  If any player terminated, the simualtion is over
     waitForProcesses (offphs) -- ++ defphs)
 
-    putStrLn "Done Waiting..."
+    putStrLn "Haskell: Done Waiting."
 
---  Securely terminate all running processes of the HFO instances + python scripts (which should not be running anyways)
-    dirtyExit
+--  Securely terminate all running processes of the HFO instances + python scripts (which should not be running anyways) + threadWatcher if still running
+    dirtyExit tid
 
 --  Get simulation results
     (def, off) <- readPopulation
@@ -163,19 +169,19 @@ startSimulation (defenseTeams, offenseTeams) = do
 --  that is determined if the last invidiual has no simulation results
     if (null . snd . offFitness . last $ off)
         then do
-            print "restarting simulation..."
+            print "Haskell: Restarting simulation."
             startSimulation (defenseTeams, offenseTeams)
         else do
             return (def, off)
 
-
--- | stops the execution of HFO & friends
+-- | stops the execution of HFO & friends & serverWatcher
 --  
 --  System.Process.terminateProcess can not be used because HFO itself spawns processes that somehow
 --  are not grouped together. There are no ProcessHandles for those and we have to resort to an ugly solution (for now)
 --
-dirtyExit :: IO ()
-dirtyExit = do
+dirtyExit :: ThreadId -> IO ()
+dirtyExit tid = do
+    killThread tid
     sleep 500
     _ <- rawSystem "killall" ["-9", "rcssserver"]
     _ <- rawSystem "killall" ["-9", "soccerwindow2"]

@@ -35,10 +35,11 @@ import Genetic.Selection
 -- gen 383, off !! 0
 
 resultsFile n = concat [ "/home/rewrite/Documents/Project-Repos/hfo-genetic-server/results/"
---                     , "neural-evo-1v1/"
---                     , "json-data/"
-                     , "results" ++ show n ++ ".json"
-                     ]
+--                        , "goal-and-goalopeningangle-fitness/"
+--                        , "neural-evo-cosyne-1v1/"
+--                        , "json-data/"
+                        , "results" ++ show n ++ ".json"
+                        ]
 
 graphsLogFile = "/home/rewrite/Documents/Project-Repos/hfo-genetic-server/graphs/info/"
 

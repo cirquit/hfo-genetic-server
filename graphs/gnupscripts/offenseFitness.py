@@ -23,11 +23,13 @@ fig = plt.figure(figsize=(18,12))
 
 ax1 = fig.add_subplot(111)
 
-ax1.set_title("Best-Mean-Fitness of CoSyNE with CO:25%, MU:10%, phi:2, only goal fitness")
+ax1.set_title("Best-Mean-Fitness of CoSyNE with CO:25%, MU:10%, phi:2, trails: 25, only goal fitness")
 ax1.set_xlabel("Generations")
 ax1.set_ylabel("Fitness")
 
 ax1.plot(x,y1, label="best individual")
 ax1.plot(x,y2, label="mean of all individuals")
+
+ax1.legend(loc='upper left')
 
 fig.savefig("current/best-mean-fitness-offense.png")
