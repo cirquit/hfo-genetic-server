@@ -50,7 +50,7 @@ agentConf = defaultAgent { episodes = teamEpisodes }
 -- | Genetic algorithms parameters
 --
 generations :: Int
-generations    = 182 -- how many times does the GA loop (Simulation -> Selection -> Crossover -> Mutation)
+generations    = 156 -- how many times does the GA loop (Simulation -> Selection -> Crossover -> Mutation)
 
 popSize :: Int
 popSize        = 50  -- population size (for offense as well as defense teams)
@@ -89,7 +89,7 @@ main = do
 --        offPopulation :: [OffenseTeam]
 --        offPopulation = flip evalRand g1 $ genIndividuals popSize phi
 
-    (defPopulation, offPopulation) <- readPopulationFrom (intermediateResultsPath 183)
+    (defPopulation, offPopulation) <- readPopulationFrom (intermediateResultsPath 157)
 
     runGA defPopulation offPopulation generations
 
@@ -155,7 +155,7 @@ startSimulation (defenseTeams, offenseTeams) = do
 --    defphs <- runDefenseTeam agentConf
 
 --  If any player terminated, the simualtion is over
-    waitForProcesses (offphs) -- ++ defphs)
+    waitForProcesses (offphs ++ [serverPh]) -- ++ defphs)
 
     putStrLn "Haskell: Done Waiting."
 
