@@ -63,7 +63,7 @@ runDefenseTeam conf = do
 waitForProcesses :: [ProcessHandle] -> IO ()
 waitForProcesses phs = do
     mexits <- mapM getProcessExitCode phs
-    if any isJust mexits
+    if all isJust mexits
         then return ()
         else sleep 100 >> waitForProcesses phs
 

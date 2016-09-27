@@ -33,6 +33,7 @@ import Genetic.Permutation
 serverConf :: ServerConf
 serverConf = defaultServer { untouchedTime  = 50
                            , framespertrial = 500
+                           , noLogging      = True
                            , trials         = popSize * teamEpisodes
                            , offenseAgents  = 1
                            , defenseAgents  = 0
@@ -50,7 +51,7 @@ agentConf = defaultAgent { episodes = teamEpisodes }
 -- | Genetic algorithms parameters
 --
 generations :: Int
-generations    = 156 -- how many times does the GA loop (Simulation -> Selection -> Crossover -> Mutation)
+generations    = 300 -- how many times does the GA loop (Simulation -> Selection -> Crossover -> Mutation)
 
 popSize :: Int
 popSize        = 50  -- population size (for offense as well as defense teams)
@@ -83,13 +84,13 @@ main = do
     let g0 = mkStdGen 31415926
         g1 = mkStdGen 27182818
 
---        defPopulation :: [DefenseTeam]
---        defPopulation = flip evalRand g0 $ genIndividuals 0       phi
---
---        offPopulation :: [OffenseTeam]
---        offPopulation = flip evalRand g1 $ genIndividuals popSize phi
+        defPopulation :: [DefenseTeam]
+        defPopulation = flip evalRand g0 $ genIndividuals 0       phi
 
-    (defPopulation, offPopulation) <- readPopulationFrom (intermediateResultsPath 157)
+        offPopulation :: [OffenseTeam]
+        offPopulation = flip evalRand g1 $ genIndividuals popSize phi
+
+--    (defPopulation, offPopulation) <- readPopulationFrom (intermediateResultsPath 156)
 
     runGA defPopulation offPopulation generations
 

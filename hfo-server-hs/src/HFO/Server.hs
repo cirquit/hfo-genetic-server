@@ -47,7 +47,7 @@ serverWatcher :: ProcessHandle -> IO ()
 serverWatcher server = do
     let seconds = 1000 * 1000
         minutes = 60 * seconds
-        time    = 10 * minutes
+        time    = 15 * minutes
     threadDelay time
     putStrLn "Haskell-Server-Watcher: Time's out, killing server."
     terminateProcess server
