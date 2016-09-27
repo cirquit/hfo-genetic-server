@@ -7,12 +7,14 @@ import System.Random
 import Control.Monad.Random
 import Data.Aeson
 
-import Data.Aeson.Encode.Pretty      (encodePretty)
-import qualified Data.Text.IO   as T (appendFile)
-import           Data.Text      as T (pack)
-import           Control.Monad       (when)
 
-import HFO.Server               (ServerConf(..), defaultServer, runServer_, runServer)
+import Data.Aeson.Encode.Pretty           (encodePretty)
+import qualified Data.Text.IO        as T (appendFile)
+import           Data.Text           as T (pack)
+import           Control.Monad            (when)
+import           Control.Concurrent       (forkIO, ThreadId, killThread)
+
+import HFO.Server               (ServerConf(..), defaultServer, runServer_, runServer, serverWatcher)
 import HFO.Agent                (AgentConf(..), defaultAgent, DefenseTeam(..), OffenseTeam(..)
                                 ,runDefenseTeam, runOffenseTeam, waitForProcesses, SerializedTeams(..)
                                 ,sleep, Defense(..))
@@ -28,17 +30,19 @@ import Genetic.Selection
 --
 --   Half-Field Offense server binary configuration (see HFO.Server.Conf)
 serverConf :: ServerConf
-serverConf = defaultServer { untouchedTime = 50
-                           , trials        = popSize * teamEpisodes
-                           , offenseAgents = 1
-                           , defenseAgents = 0
-                           , offenseNpcs   = 0
-                           , defenseNpcs   = 1
+serverConf = defaultServer { untouchedTime  = 50
+                           , framespertrial = 500
+                           , noLogging      = True
+                           , trials         = popSize * teamEpisodes
+                           , offenseAgents  = 1
+                           , defenseAgents  = 0
+                           , offenseNpcs    = 0
+                           , defenseNpcs    = 1
 --                           , showMonitor   = False
 --                           , standartPace  = True
                            , giveBallToPlayer = 1   -- 1 should give it to the first player...with the number 7
                            }
---
+
 --  Python agent script configuration (see HFO.Agent.Conf)
 agentConf :: AgentConf
 agentConf = defaultAgent { episodes = teamEpisodes }
@@ -46,22 +50,22 @@ agentConf = defaultAgent { episodes = teamEpisodes }
 -- | Genetic algorithms parameters
 --
 generations :: Int
-generations    = 50  -- how many times does the GA loop (Simulation -> Selection -> Crossover -> Mutation)
+generations    = 300  -- how many times does the GA loop (Simulation -> Selection -> Crossover -> Mutation)
 
 popSize :: Int
 popSize        = 50  -- population size (for offense as well as defense teams)
 
 teamEpisodes :: Int
-teamEpisodes   = 10  -- amount of trials for every team
+teamEpisodes   = 25  -- amount of trials for every team
 
 alpha :: Double
 alpha = 0.25   -- % of best individuals will be selected - [0.0, 0.5] (if its >= 0.5 then we won't have any inherently new individuals)
 
 beta  :: Double
-beta  = 0.01   -- % of individuals that will be mutated  - [0.0, 1.0]
+beta  = 0.1  -- % of individuals that will be mutated  - [0.0, 1.0]
 
 phi :: Double
-phi = 2        -- (-phi, +phi) sample space for coefficients
+phi = 3        -- (-phi, +phi) sample space for coefficients
 
 -- | Path to save all the intermediate results so we can easily start from the last population
 --   if the simulation "broke"
@@ -122,6 +126,7 @@ runGA defense offense gen = do
     runGA newDefense newOffense (gen - 1)
 
 
+
 -- | Main entry point for simulation
 --   
 startSimulation :: ([DefenseTeam], [OffenseTeam]) -> IO ([DefenseTeam],[OffenseTeam])
@@ -133,21 +138,24 @@ startSimulation (defenseTeams, offenseTeams) = do
     writePopulation defenseTeams offenseTeams
 
 --  Start the server
-    runServer_ serverConf
+    serverPh <- runServer serverConf
 
 --  Start the offensive agents
     offphs <- runOffenseTeam agentConf
+
+--  Start server watcher so buggy starts are intercepted (currently after 15 min)
+    tid <- forkIO (serverWatcher serverPh)
 
 --  Start the defensive agents and return the handle from goalie
 --    defphs <- runDefenseTeam agentConf
 
 --  If any player terminated, the simualtion is over
-    waitForProcesses (offphs) -- ++ defphs)
+    waitForProcesses (offphs ++ [serverPh]) -- ++ defphs)
 
-    putStrLn "Done Waiting..."
+    putStrLn "Haskell: Done Waiting."
 
---  Securely terminate all running processes of the HFO instances + python scripts (which should not be running anyways)
-    dirtyExit
+--  Securely terminate all running processes of the HFO instances + python scripts (which should not be running anyways) + threadWatcher if still running
+    dirtyExit tid
 
 --  Get simulation results
     (def, off) <- readPopulation
@@ -156,7 +164,7 @@ startSimulation (defenseTeams, offenseTeams) = do
 --  that is determined if the last invidiual has no simulation results
     if (null . snd . offFitness . last $ off)
         then do
-            print "restarting simulation..."
+            print "Haskell: Restarting simulation."
             startSimulation (defenseTeams, offenseTeams)
         else do
             return (def, off)
@@ -167,8 +175,9 @@ startSimulation (defenseTeams, offenseTeams) = do
 --  System.Process.terminateProcess can not be used because HFO itself spawns processes that somehow
 --  are not grouped together. There are no ProcessHandles for those and we have to resort to an ugly solution (for now)
 --
-dirtyExit :: IO ()
-dirtyExit = do
+dirtyExit :: ThreadId -> IO ()
+dirtyExit tid = do
+    killThread tid
     sleep 500
     _ <- rawSystem "killall" ["-9", "rcssserver"]
     _ <- rawSystem "killall" ["-9", "soccerwindow2"]

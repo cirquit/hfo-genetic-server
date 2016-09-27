@@ -148,4 +148,3 @@ defaultServer = ServerConf
     , ballMinX         = 0
     , ballMaxX         = 0.2
     }
-
