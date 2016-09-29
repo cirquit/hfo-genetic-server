@@ -69,9 +69,10 @@ instance Selection OffenseTeam where
 --  classify :: OffenseTeam -> Int
     classify OffenseTeam{..} =
             let (otherFitness, stateFitness) = offFitness
-                summedOtherFitness = (sum otherFitness)                                 / (genericLength otherFitness)
-                summedStateFitness = 2 * (foldl' (flip ((+) . fitness)) 0 stateFitness) / (genericLength stateFitness)
-            in  round $ (summedOtherFitness + summedStateFitness) * 10000
+--                summedOtherFitness = (sum otherFitness)                                 / (genericLength otherFitness)
+                stateCount         = genericLength $ filter (/= (Just ServerDown)) stateFitness
+                summedStateFitness = (foldl' (flip ((+) . fitness)) 0 stateFitness) / stateCount
+            in  round $ (summedStateFitness) * 10000
         where
             fitness :: Maybe HFOState -> Double
             fitness (Just Goal)               = 1
@@ -101,9 +102,9 @@ instance Selection DefenseTeam where
 --  classify :: DefenseTeam -> Int
     classify DefenseTeam{..} =
             let (otherFitness, stateFitness) = defFitness
-                summedotherFitness = (sum otherFitness)                                 / (genericLength otherFitness)
-                summedStateFitness = 2 * (foldl' (flip ((+) . fitness)) 0 stateFitness) / (genericLength stateFitness)
-            in  round $ (summedotherFitness + summedStateFitness) * 10000
+--                summedotherFitness = (sum otherFitness)                                 / (genericLength otherFitness)
+                summedStateFitness = (foldl' (flip ((+) . fitness)) 0 stateFitness) / (genericLength stateFitness)
+            in  round $ (summedStateFitness) * 10000
         where
             fitness :: Maybe HFOState -> Double
             fitness (Just CapturedByDefense)  = 1

@@ -1,5 +1,5 @@
 #!/bin/bash
 
-for p in gnupscripts/*.p; do
-    gnuplot $p
+for p in gnupscripts/*.py; do
+    ./$p
 done
