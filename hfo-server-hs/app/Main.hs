@@ -18,6 +18,8 @@ import HFO.Agent                (AgentConf(..), defaultAgent, DefenseTeam(..), O
                                 ,sleep, Defense(..))
 import HFO.StateParser          (clearLog, writePopulation, readPopulation
                                 , printPrettyPopulation, writePrettyPopulationTo, readPopulationFrom)
+import Evaluator                (getDataFromTo, getBestNPlayers)
+
 
 import Genetic.Allele
 import Genetic.Mutation
@@ -29,6 +31,8 @@ import Genetic.Selection
 --   Half-Field Offense server binary configuration (see HFO.Server.Conf)
 serverConf :: ServerConf
 serverConf = defaultServer { untouchedTime = 50
+                           , framespertrial   = 500
+                           , noLogging        = True
                            , trials        = popSize * teamEpisodes
                            , offenseAgents = 1
                            , defenseAgents = 0
@@ -46,13 +50,13 @@ agentConf = defaultAgent { episodes = teamEpisodes }
 -- | Genetic algorithms parameters
 --
 generations :: Int
-generations    = 9 -- how many times does the GA loop (Simulation -> Selection -> Crossover -> Mutation)
+generations    = 300  -- how many times does the GA loop (Simulation -> Selection -> Crossover -> Mutation)
 
 popSize :: Int
-popSize        = 50 -- population size (for offense as well as defense teams)
+popSize        = 5  -- population size (for offense as well as defense teams)
 
 teamEpisodes :: Int
-teamEpisodes   = 25  -- amount of trials for every team
+teamEpisodes   = 10000  -- amount of trials for every team
 
 alpha :: Double
 alpha = 0.35   -- % of best individuals will be selected - [0.0, 0.5] (if its >= 0.5 then we won't have any inherently new individuals)
@@ -78,6 +82,7 @@ intermediateResultsPath x = "/home/rewrite/Documents/Project-Repos/hfo-genetic-s
 main :: IO ()
 main = do
 
+{-
 --  start with a seed
     let g  = mkStdGen 31415926
 
@@ -90,6 +95,16 @@ main = do
     (defPopulation, offPopulation) <- readPopulationFrom (intermediateResultsPath 10)
 
     runGA defPopulation offPopulation generations
+-}
+--   single evaluation has to be compiled to work...(just c++ server things)
+    
+    (_, off) <- getDataFromTo 1 100
+    let best = getBestNPlayers off 5 :: [(OffenseTeam, Int)]
+        players = map ((\x -> x { offFitness = ([], []) }) .fst . (best !!)) [0..4]
+
+    startSimulation ([], players) >>= uncurry writePopulation
+
+    print "Haskell: Done with all simulations!"
 
 
 -- | Main loop for the genetic algorithm
