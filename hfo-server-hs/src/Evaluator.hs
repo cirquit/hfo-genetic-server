@@ -7,7 +7,8 @@ import Data.Aeson
 import Data.Aeson.Encode.Pretty      (encodePretty)
 import qualified Data.Text.IO   as T (appendFile)
 import           Data.Text      as T (pack)
-import           Data.List           (genericLength)
+import           Data.List           (genericLength, maximumBy, sortBy)
+import           Data.Function       (on)
 import           System.Process      (proc, createProcess, CreateProcess(..))
 
 import           Text.Printf
@@ -15,6 +16,7 @@ import           Data.List.Split     (chunksOf)
 import           Control.Category    ((>>>))
 import           Data.Ord            (comparing)
 import           Data.Foldable       (maximumBy)
+
 
 import           Data.Conduit
 import qualified Data.Conduit.List as CL
@@ -35,11 +37,11 @@ import Genetic.Selection
 -- gen 383, off !! 0
 
 resultsFile n = concat [ "/home/rewrite/Documents/Project-Repos/hfo-genetic-server/results/"
---                        , "goal-and-goalopeningangle-fitness/"
---                        , "neural-evo-cosyne-1v1/"
---                        , "json-data/"
-                        , "results" ++ show n ++ ".json"
-                        ]
+                       , "goal-fitness/"
+                       , "cosyne-25-trails/"
+                       , "json-data/"
+                       , "results" ++ show n ++ ".json"
+                       ]
 
 graphsLogFile = "/home/rewrite/Documents/Project-Repos/hfo-genetic-server/graphs/info/"
 
@@ -59,14 +61,16 @@ plotEverything = createProcess cproc { cwd = cwd } >> return ()
 
 
 testServerConf :: ServerConf
-testServerConf = defaultServer { untouchedTime = 50
-                               , trials        = testGamesCount
+testServerConf = defaultServer { untouchedTime    = 50
+                               , framespertrial   = 500
+                               , noLogging        = True
+                               , trials           = testGamesCount
 --                               , showMonitor   = False
-                               , offenseAgents = 1
-                               , defenseAgents = 0
-                               , offenseNpcs   = 0
-                               , defenseNpcs   = 1
-                               , standartPace  = True
+                               , offenseAgents    = 1
+                               , defenseAgents    = 0
+                               , offenseNpcs      = 0
+                               , defenseNpcs      = 1
+--                               , standartPace     = True
                                , giveBallToPlayer = 1 -- gives the ball to the first player...with the number 7
                                }
 
@@ -76,12 +80,17 @@ testAgentConf = defaultAgent { episodes = testGamesCount }
 
 testGamesCount = 5
 
-startSingleSimulation :: DefenseTeam -> OffenseTeam -> IO (DefenseTeam, OffenseTeam)
-startSingleSimulation defense offense = do
+startSingleSimulation :: OffenseTeam -> IO OffenseTeam
+startSingleSimulation offense = do
 
     clearLog
 
-    writePopulation [defense] [offense]
+--  reset the previous states
+    let newOffense = offense { offFitness = ([],[]) }
+
+    defense <- genIndividual 3 :: IO DefenseTeam 
+
+    writePopulation [defense] [newOffense]
 
 --  Start the server
     runServer_ testServerConf
@@ -96,8 +105,7 @@ startSingleSimulation defense offense = do
     waitForProcesses offphs
 --    waitForProcesses (offphs ++ defphs)
 
-    uncurry (\[x] [y] -> (x,y)) <$> readPopulation
-
+    uncurry (\[x] [y] -> y) <$> readPopulation
 
 
 evaluate :: [[OffenseTeam]] -> IO ()
@@ -239,7 +247,14 @@ countFitness team =
 
 roundTo :: Double -> Int -> Double
 roundTo x n = (fromInteger $ round $ x * (10^n)) / (10.0^^n)
--- conduitTest :: 
+
+getBestNPlayers :: [[OffenseTeam]] -> Int -> [(OffenseTeam, Int)]
+getBestNPlayers offs n = take n . sortBy (flip compare `on` snd) $ map go offs
+    where
+        go :: [OffenseTeam] -> (OffenseTeam, Int)
+        go = maximumBy (compare `on` snd) . map (\x -> (x, classify x))
+
+
 
 --readInformationFromTo :: Int -> Int -> IO ()
 --readInformationFromTo n m = do
