@@ -3,7 +3,7 @@
 
 # Custom test: ./genetic-agent.py --team base_left --episodes 1 --seed 123 --playerNumber 0 --isOffense
 #              ./genetic-agent.py --team base_left --episodes 1 --seed 123 --playerNumber 1 --isOffense
-#              ./bin/HFO --offense-agents 2 --defense-npcs 2 --defense-team base --no-sync --offense-on-ball 1 
+#              ./bin/HFO --offense-agents 2 --defense-npcs 2 --defense-team base --no-sync --offense-on-ball 1 --no-logging --frames-per-trial 500
 
 # Custom test2 : ./bin/HFO --offense-agents 1 --defense-agents 1 --no-sync --offense-on-ball 1
 #                ./genetic-agent.py --team base_left --episodes 1 --seed 123 --playerNumber 0 --isOffense
@@ -127,7 +127,7 @@ def main():
         while state == IN_GAME:
             state  = hfo.getState()
             action = getAction(playerModel, state)
-            action.execute(env = hfo, state = state)
+            action.execute(env = hfo, playernumber = playerNumber, state = state)
             # xPos = getMaxXPos(state, xPos)
             # goalOpeningAngle = getGoalOpeningAngle(state, goalOpeningAngle)
             state  = hfo.step()

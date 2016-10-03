@@ -33,11 +33,11 @@ import HFO.Agent.Actions
 runOffenseTeam :: AgentConf -> IO [ProcessHandle]
 runOffenseTeam conf = do
     (_, ph1) <- runAgent $ conf { teamName = "base_left", isOffense = True, playerNumber = 0 }
---    (_, ph2) <- runAgent $ conf { teamName = "base_left", isOffense = True, playerNumber = 1 }
+    (_, ph2) <- runAgent $ conf { teamName = "base_left", isOffense = True, playerNumber = 1 }
 --    (_, ph3) <- runAgent $ conf { teamName = "base_left", isOffense = True, playerNumber = 2 }
 --    (_, ph4) <- runAgent $ conf { teamName = "base_left", isOffense = True, playerNumber = 3 }
 --    return [ph1, ph2, ph3, ph4]
-    return [ph1]
+    return [ph1, ph2]
 
 -- | shortcut to start a whole defense team
 -- 

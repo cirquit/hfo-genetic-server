@@ -36,9 +36,9 @@ import Genetic.Selection
 -- gen 383, off !! 0
 
 resultsFile n = concat [ "/home/rewrite/Documents/Project-Repos/hfo-genetic-server/results/"
-                     , "goal-fitness/"
-                     , "neural-evolution-25-trails/"
-                     , "json-data/"
+--                     , "goal-fitness/"
+--                     , "neural-evolution-25-trails/"
+--                     , "json-data/"
                      , "results" ++ show n ++ ".json"
                      ]
 
@@ -65,11 +65,11 @@ testServerConf = defaultServer { untouchedTime    = 50
                                , noLogging        = True
                                , trials           = testGamesCount
 --                               , showMonitor   = False
-                               , offenseAgents    = 1
+                               , offenseAgents    = 2
                                , defenseAgents    = 0
                                , offenseNpcs      = 0
-                               , defenseNpcs      = 1
---                               , standartPace     = True
+                               , defenseNpcs      = 2
+                               , standartPace     = True
                                , giveBallToPlayer = 1 -- gives the ball to the first player...with the number 7
                                }
 

@@ -17,20 +17,25 @@ class Action(object):
         self.actionenum = actionenum   # this can be any possible action 
         self.arguments  = arguments
 
-    def execute(self, env, state = []):
+    def execute(self, env, playernumber, state = []):
 
         # print("Player rot: {0}").format(state[2]*180)
         # print("Goal opening angle: {0}").format(toAngleHF(state[8]))
 
         ballPossession = True if state[5] == 1 else False
 
-        if    self.actionenum == MOVE:                        print("Chose: {0}").format("MOVE"); env.act(MOVE); 
-        elif (self.actionenum == INTERCEPT) & ballPossession: print("Chose: {0}").format("INTERCEPT"); env.act(INTERCEPT);
-        elif  self.actionenum == CATCH:                       print("Chose: {0}").format("CATCH"); env.act(CATCH);
-        elif  self.actionenum == NOOP:                        print("Chose: {0}").format("NOOP"); env.act(NOOP);
-        elif (self.actionenum == SHOOT)     & ballPossession: print("Chose: {0}").format("SHOOT"); env.act(SHOOT)
-        elif  self.actionenum == DRIBBLE:                     print("Chose: {0}").format("DRIBBLE"); env.act(DRIBBLE);
-        elif (self.actionenum == PASS)      & ballPossession: print("Chose: {0}").format("PASS"); env.act(PASS, self.arguments[0])
+        if    self.actionenum == MOVE:                        print("p{1}: {0}").format("MOVE", playernumber); env.act(MOVE); 
+        elif (self.actionenum == INTERCEPT) & ballPossession: print("p{1}: {0}").format("INTERCEPT", playernumber); env.act(INTERCEPT);
+        elif  self.actionenum == CATCH:                       print("p{1}: {0}").format("CATCH", playernumber); env.act(CATCH);
+        elif  self.actionenum == NOOP:                        print("p{1}: {0}").format("NOOP", playernumber); env.act(NOOP);
+        elif (self.actionenum == SHOOT)     & ballPossession: print("p{1}: {0}").format("SHOOT", playernumber); env.act(SHOOT)
+        elif  self.actionenum == DRIBBLE:                     print("p{1}: {0}").format("DRIBBLE", playernumber); env.act(DRIBBLE);
+        elif (self.actionenum == PASS)      & ballPossession:
+            if playernumber == 0: # server thinks i'm number 7
+                print("p{1}: {0}").format("PASS to 11", playernumber); env.act(PASS, 11)
+            else:                 # server thinks i'm number 11
+                print("p{1}: {0}").format("PASS to 7", playernumber); env.act(PASS, 7)
+
         elif  self.actionenum == MOVE_TO:
              x   = self.arguments[0]
              y   = self.arguments[1]
@@ -46,7 +51,6 @@ class Action(object):
              print("moving to x:{0} y:{1}").format(xTo, yTo)
              env.act(MOVE_TO, xTo, yTo);
         elif self.actionenum == GOALKICK:
-
 # opening angles are encoded as (0, 3.1415926) and normalized to (-1, 1)
 # to transfrom back: add 1, divide by 2, multiply by 3.1415926
 #
@@ -57,4 +61,5 @@ class Action(object):
         
         #    If nothing else works, don't do anything
         else:
+            print("PYAgent: Action could not be carried out! NOOP")
             env.act(NOOP) 
