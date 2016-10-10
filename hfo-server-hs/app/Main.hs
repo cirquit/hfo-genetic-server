@@ -37,7 +37,7 @@ serverConf = defaultServer { untouchedTime  = 50
                            , framespertrial = 500
                            , noLogging      = True
                            , trials         = popSize * teamEpisodes
-                           , offenseAgents  = 1
+                           , offenseAgents  = 2
                            , defenseAgents  = 0
                            , offenseNpcs    = 0
                            , defenseNpcs    = 1
@@ -45,7 +45,7 @@ serverConf = defaultServer { untouchedTime  = 50
 --                           , standartPace  = True
                            , giveBallToPlayer = 1   -- 1 should give it to the first player...with the number 7
                            }
---
+
 --  Python agent script configuration (see HFO.Agent.Conf)
 agentConf :: AgentConf
 agentConf = defaultAgent { episodes = teamEpisodes }
@@ -56,10 +56,10 @@ generations :: Int
 generations    = 300 -- how many times does the GA loop (Simulation -> Selection -> Crossover -> Mutation)
 
 popSize :: Int
-popSize        = 5  -- population size (for offense as well as defense teams)
+popSize        = 50  -- population size (for offense as well as defense teams)
 
 teamEpisodes :: Int
-teamEpisodes   = 10000  -- amount of trials for every team
+teamEpisodes   = 25  -- amount of trials for every team
 
 alpha :: Double
 alpha = 0.25   -- % of best individuals will be selected - [0.0, 0.5] (if its >= 0.5 then we won't have any inherently new individuals)
@@ -82,7 +82,6 @@ intermediateResultsPath x = "/home/rewrite/Documents/Project-Repos/hfo-genetic-s
 main :: IO ()
 main = do
 
-{-
 --  start with a seed
     let g0 = mkStdGen 31415926
         g1 = mkStdGen 27182818
@@ -93,11 +92,12 @@ main = do
         offPopulation :: [OffenseTeam]
         offPopulation = flip evalRand g1 $ genIndividuals popSize phi
 
---    (defPopulation, offPopulation) <- readPopulationFrom (intermediateResultsPath 156)
+--    (defPopulation, offPopulation) <- readPopulationFrom (intermediateResultsPath 100)
 
     runGA defPopulation offPopulation generations
--}
 
+
+{-
 --   single evaluation has to be compiled to work...(just c++ server things)
     
     (_, off) <- getDataFromTo 1 300
@@ -107,6 +107,7 @@ main = do
     startSimulation ([], players) >>= uncurry writePopulation
 
     print "Haskell: Done with all simulations!"
+-}
 
 
 -- | Main loop for the genetic algorithm

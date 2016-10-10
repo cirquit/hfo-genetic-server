@@ -127,7 +127,7 @@ def main():
         while state == IN_GAME:
             state  = hfo.getState()
             action = getAction(playerModel, state)
-            action.execute(env = hfo, state = state)
+            action.execute(env = hfo, playernumber = playerNumber, state = state)
             # xPos = getMaxXPos(state, xPos)
             # goalOpeningAngle = getGoalOpeningAngle(state, goalOpeningAngle)
             state  = hfo.step()

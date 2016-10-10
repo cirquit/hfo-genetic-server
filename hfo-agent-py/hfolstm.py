@@ -21,9 +21,10 @@ from common        import *
     one wishes to make changes
 '''
 
-def_i_lstm  = 9  # how big is the feature space
-def_o_lstm  = 12
-def_o_dense = 5  # we choose from 5 actions
+def_i_lstm  = 13  # how big is the feature space
+def_o_lstm  = 15
+def_o_dense = 6  # we choose from 6 actions
+
 
 def createModelFromData(factors, i_lstm = def_i_lstm, o_lstm = def_o_lstm, o_dense = def_o_dense):
     '''
@@ -66,9 +67,14 @@ def getAction(model, state):
     goalCenterProximity = state[6]
     goalCenterAngle     = state[7]
     goalOpeningAngle    = state[8]
+    proximityNearOpp    = state[9]
+    teamMateOpenAngle   = state[10]
+    teamMateOppProxi    = state[11]
+    passOpeningAngle    = state[12]
+
 
     # creating custom state to test the implementation
-    custom_state = [xpos, ypos, orient, ballProximity, ballAngle, ballKickable, goalCenterProximity, goalCenterAngle, goalOpeningAngle]
+    custom_state = [xpos, ypos, orient, ballProximity, ballAngle, ballKickable, goalCenterProximity, goalCenterAngle, goalOpeningAngle, proximityNearOpp, teamMateOppProxi, teamMateOpenAngle, passOpeningAngle]
 
     # reshaping to the form lstms want to
     reshaped_input = gamestateToInput(custom_state)
@@ -77,13 +83,14 @@ def getAction(model, state):
     prediction = model.predict(reshaped_input)
 
     # fix floating point error
-    last_prediction = 1 - (prediction[0][0] + prediction[0][1] + prediction[0][2] + prediction[0][3])
+    last_prediction = 1 - (prediction[0][0] + prediction[0][1] + prediction[0][2] + prediction[0][3] + prediction[0][4])
 
     a1 = (Action(MOVE),      prediction[0][0])
     a2 = (Action(INTERCEPT), prediction[0][1])
     a3 = (Action(NOOP),      prediction[0][2])
     a4 = (Action(SHOOT),     prediction[0][3])
-    a5 = (Action(DRIBBLE),   last_prediction)
+    a5 = (Action(PASS),      prediction[0][4])
+    a6 = (Action(DRIBBLE),   last_prediction)
 
     def chooseFrom(actions):
         r = random.uniform(0,1)
@@ -94,8 +101,7 @@ def getAction(model, state):
                 r = r - prob
         raise Exception("None of the actions were used - r: " + str(r))
 
-    return chooseFrom([a1,a2,a3,a4,a5])
-
+    return chooseFrom([a1,a2,a3,a4,a5,a6])
 
 
 def createModel(i_lstm = def_i_lstm, o_lstm = def_o_lstm, o_dense = def_o_dense):
