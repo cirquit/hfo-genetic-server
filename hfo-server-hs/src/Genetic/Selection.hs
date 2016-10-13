@@ -53,23 +53,12 @@ class Selection a where
 
 instance Selection OffenseTeam where
 
---  ([X-Pos (Double)], [Maybe HFOStates])
---    
---  1) we compute the average x-position
---  2) we compute based on "fitness-function" the HFOStates and divide them by 4
---  at last we add 1) and 2) together
---
---  avg-case-scenario: avg.X-Pos is ~ 0.5 and we scored one goal out of 10 => 2 * 1 / 10
---  => 0.6
---  
---  I want to favor the goal-scoring as an avg 0.1(meter) space "win"
---
---  3) multiplication is only to avoid floating point madness
+-- 
+--  We calculate only the fitness based on scored goals divided by the amount of valid games (non-server-down)
 --
 --  classify :: OffenseTeam -> Int
     classify OffenseTeam{..} =
             let (otherFitness, stateFitness) = offFitness
---                summedOtherFitness = (sum otherFitness)                                 / (genericLength otherFitness)
                 stateCount         = genericLength $ filter (/= (Just ServerDown)) stateFitness
                 summedStateFitness = (foldl' (flip ((+) . fitness)) 0 stateFitness) / stateCount
             in  round $ (summedStateFitness) * 10000
@@ -86,24 +75,13 @@ instance Selection OffenseTeam where
 
 instance Selection DefenseTeam where
 
---  ([X-Pos (Double)], [Maybe HFOStates])
---    
---  1) we compute the average x-position
---  2) we compute based on "fitness-function" the HFOStates and divide them by 4
---  at last we add 1) and 2) together
---
---  avg-case-scenario: avg.X-Pos is ~ 0.5 and we scored one goal => 1 / 4
---  => 0.75
---  
---  I want to favor the goal-scoring as an avg 0.25(meter) space "win"
---
---  3) multiplication is only to avoid floating point madness
+--  We calculate only the fitness based on scored goals divided by the amount of valid games (non-server-down)
 --
 --  classify :: DefenseTeam -> Int
     classify DefenseTeam{..} =
             let (otherFitness, stateFitness) = defFitness
---                summedotherFitness = (sum otherFitness)                                 / (genericLength otherFitness)
-                summedStateFitness = (foldl' (flip ((+) . fitness)) 0 stateFitness) / (genericLength stateFitness)
+                stateCount         = genericLength $ filter (/= (Just ServerDown)) stateFitness
+                summedStateFitness = (foldl' (flip ((+) . fitness)) 0 stateFitness) / stateCount
             in  round $ (summedStateFitness) * 10000
         where
             fitness :: Maybe HFOState -> Double

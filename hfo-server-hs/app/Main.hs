@@ -39,7 +39,7 @@ serverConf = defaultServer { untouchedTime  = 50
                            , offenseAgents  = 2
                            , defenseAgents  = 0
                            , offenseNpcs    = 0
-                           , defenseNpcs    = 2
+                           , defenseNpcs    = 1
 --                           , showMonitor   = False
 --                           , standartPace  = True
                            , giveBallToPlayer = 1   -- 1 should give it to the first player...with the number 7
@@ -52,7 +52,7 @@ agentConf = defaultAgent { episodes = teamEpisodes }
 -- | Genetic algorithms parameters
 --
 generations :: Int
-generations    = 71  -- how many times does the GA loop (Simulation -> Selection -> Crossover -> Mutation)
+generations    = 300  -- how many times does the GA loop (Simulation -> Selection -> Crossover -> Mutation)
 
 popSize :: Int
 popSize        = 50  -- population size (for offense as well as defense teams)
@@ -64,7 +64,7 @@ alpha :: Double
 alpha = 0.25   -- % of best individuals will be selected - [0.0, 0.5] (if its >= 0.5 then we won't have any inherently new individuals)
 
 beta  :: Double
-beta  = 0.1  -- % of individuals that will be mutated  - [0.0, 1.0]
+beta  = 0.1    -- % of individuals that will be mutated  - [0.0, 1.0]
 
 phi :: Double
 phi = 3        -- (-phi, +phi) sample space for coefficients
@@ -91,7 +91,7 @@ main = do
 --        offPopulation :: [OffenseTeam]
 --        offPopulation = flip evalRand g1 $ genIndividuals popSize phi
 
-    (defPopulation, offPopulation) <- readPopulationFrom (intermediateResultsPath 72)
+    (defPopulation, offPopulation) <- readPopulationFrom (intermediateResultsPath 99)
 
     runGA defPopulation offPopulation generations
 

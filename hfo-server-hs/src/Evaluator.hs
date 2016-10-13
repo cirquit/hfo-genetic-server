@@ -68,7 +68,7 @@ testServerConf = defaultServer { untouchedTime    = 50
                                , offenseAgents    = 2
                                , defenseAgents    = 0
                                , offenseNpcs      = 0
-                               , defenseNpcs      = 2
+                               , defenseNpcs      = 1
                                , standartPace     = True
                                , giveBallToPlayer = 1 -- gives the ball to the first player...with the number 7
                                }

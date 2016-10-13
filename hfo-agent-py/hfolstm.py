@@ -23,7 +23,7 @@ from common        import *
 
 def_i_lstm  = 13  # how big is the feature space
 def_o_lstm  = 15
-def_o_dense = 6  # we choose from 5 actions
+def_o_dense = 6  # we choose from 6 actions
 
 def createModelFromData(factors, i_lstm = def_i_lstm, o_lstm = def_o_lstm, o_dense = def_o_dense):
     '''
@@ -162,25 +162,25 @@ def fillRnnmodel(model, weights, i_lstm = def_i_lstm, o_lstm = def_o_lstm, o_den
     def dense_complete():
         return (len(result_list) == 14)
 
-
-    # LSTM layer has the following dependencies based on the input/output
-    # the keras implementation of LSTM needs three numpy arrays in a list, for every weight matrix (4x)
-    #
-    # 4 times [arr1, arr2, arr3] concatinated
-    # 
-    # input_length defines the length of arr1
-    # output_length defines the length of arr2 and arr3
-    #               defines the length of the inner arrays of arr1 and arr2
-    #
-    # example: i_lstm = 1, o_lstm = 3
-    # 
-    # arr1 = [[1,1,1]]
-    # arr2 = [[1,1,1], [2,2,2], [3,3,3]]
-    # arr3 = [1,1,1]
-    # 
-    # the resulting accepted list should have the form
-    # [arr1, arr2, arr3, arr1, arr2, arr3, arr1, arr2, arr3, arr1, arr2, arr3]
-    #
+    '''
+     LSTM layer has the following dependencies based on the input/output
+     the keras implementation of LSTM needs three numpy arrays in a list, for every weight matrix (4x)
+    
+     4 times [arr1, arr2, arr3] concatinated
+     
+     input_length defines the length of arr1
+     output_length defines the length of arr2 and arr3
+                   defines the length of the inner arrays of arr1 and arr2
+    
+     example: i_lstm = 1, o_lstm = 3
+     
+     arr1 = [[1,1,1]]
+     arr2 = [[1,1,1], [2,2,2], [3,3,3]]
+     arr3 = [1,1,1]
+     
+     the resulting accepted list should have the form
+     [arr1, arr2, arr3, arr1, arr2, arr3, arr1, arr2, arr3, arr1, arr2, arr3]
+    '''
 
     arr1_length       = i_lstm
     arr1_inner_length = o_lstm
@@ -237,23 +237,23 @@ def fillRnnmodel(model, weights, i_lstm = def_i_lstm, o_lstm = def_o_lstm, o_den
             # form into numpy array and append to the resulting list
             result_list.append(np.array(cur_list, dtype="float32"))
 
-
-    # Dense layer has the following dependencies based on the input/output
-    # the keras implementation of a Dense layer needs two numpy arrays in a list, for the weights and the biases
-    #
-    # [arr1, arr2]
-    #
-    # input_length defines the length of arr1
-    # output_length defines the length of arr2
-    #               defines the length of the inner arrays of arr1
-    #
-    # example: i_dense = 2, o_dense = 4
-    #
-    # arr1 = [[1,2,3,4], [1,2,3,4]]
-    # arr2 = [1,1,1,1]
-    # the resulting accepted list should have the form
-    # [arr1, arr2]
-    #
+    '''
+     Dense layer has the following dependencies based on the input/output
+     the keras implementation of a Dense layer needs two numpy arrays in a list, for the weights and the biases
+    
+     [arr1, arr2]
+    
+     input_length defines the length of arr1
+     output_length defines the length of arr2
+                   defines the length of the inner arrays of arr1
+    
+     example: i_dense = 2, o_dense = 4
+    
+     arr1 = [[1,2,3,4], [1,2,3,4]]
+     arr2 = [1,1,1,1]
+     the resulting accepted list should have the form
+     [arr1, arr2]
+    '''
 
     # arr1
 
