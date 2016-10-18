@@ -23,7 +23,7 @@ fig = plt.figure(figsize=(18,12))
 
 ax1 = fig.add_subplot(111)
 
-ax1.set_title("Best-Mean-Fitness of CoSyNE with CO:25%, MU:10%, phi:2, trails: 25, only goal fitness")
+ax1.set_title("Best-Mean-Fitness of Cross Entropy selection:25%, mean:0, std:1.5, trails: 25, only goal fitness")
 ax1.set_xlabel("Generations")
 ax1.set_ylabel("Fitness")
 

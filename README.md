@@ -69,9 +69,10 @@ A server written in Haskell for to communicate with Half-Field Offense for my un
 
 ## Info for the future:
 
-  * If the server runs int '-no-sync' mode (~ not a realtime simulation), one can not check only one of the python agents for an exitcode to notice if the simulation is done. This behaviour is undefined und random. One solution to this would be to check every agent script and if anyone terminates, then the simulation should be over (this problem does not occur without -no-synch)
+  * If the server runs in '-no-sync' mode (~ not a realtime simulation), one can not check only one of the python agents for an exitcode to notice if the simulation is done. This behaviour is undefined und random. One solution to this would be to check every agent script and if anyone terminates, then the simulation should be over (this problem does not occur without -no-synch)
   * One can not connect the players to the server without a delay (currently 1s after every player), so it would be better to start the server only once for all simulations
   * This delay is dependent of the workload on your machine...without -no-synch and without a monitor it needs to be >600ms. without -no-synch 500-600ms...in conclusion it's a very bad idea to connect more than once
   * txt-file based data exchange is not a very good idea because of lazy io in Haskell (text-package fixed it nonetheless)
   * After ~24200 +/-250 steps without restart the server starts to behave strange und kicks sometimes the players before they played enough episodes. Happens for me if generation = 50 and episodes = 20 so we get 1000 games. I have to check in my 'startSimulation' and restart accordingly if the last individual was not evaluated
-  * giveBallToPlayer does not work. It gives the ball to a random player
+  * giveBallToPlayer does not work. It gives the ball to a random player - nope, starts the enumeration from 1-11, even if the first player has the number 7
+  * my robust variance algorithm requires two passes for similar long floating point lists (E[X^2] - E[X]^2 does not work, even with a location parameter (E[(X-k)^2] - E[X-k]^2))

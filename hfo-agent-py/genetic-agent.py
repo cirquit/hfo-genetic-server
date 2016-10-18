@@ -48,7 +48,6 @@ def runParser():
 formationsPath = "/home/rewrite/Documents/Project-Repos/HFO/bin/teams/base/config/formations-dt"
 logPath        = "/home/rewrite/Documents/Project-Repos/hfo-genetic-server/communication/communication.json"
 
-
 def getMyLogPath(isOffense, index):
     '''
     getMyLogPath :: Bool -> Int -> FilePath
@@ -75,6 +74,7 @@ def main():
     seed         = options.seed         # Int
     playerNumber = options.playerNumber # Int
     isOffense    = options.isOffense    # Bool
+
 
     isGoalie     = (not isOffense) and (playerNumber == 0) # Bool
 

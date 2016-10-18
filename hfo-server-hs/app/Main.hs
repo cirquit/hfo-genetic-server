@@ -17,11 +17,12 @@ import           Control.Monad       (when)
 import HFO.Server               (ServerConf(..), defaultServer, runServer_, runServer, serverWatcher)
 import HFO.Agent                (AgentConf(..), defaultAgent, DefenseTeam(..), OffenseTeam(..)
                                 ,runDefenseTeam, runOffenseTeam, waitForProcesses, SerializedTeams(..)
-                                ,sleep, Defense(..))
+                                ,sleep, Defense(..), Offense(..))
 import HFO.StateParser          (clearLog, writePopulation, readPopulation
-                                , printPrettyPopulation, writePrettyPopulationTo, readPopulationFrom)
+                                ,printPrettyPopulation, writePrettyPopulationTo, readPopulationFrom)
 import Evaluator                (getDataFromTo, getBestNPlayers)
-
+import CrossEntropy             (DistributionSet(), createDistributionSet, getMeanAndStd
+                                ,createDistributionSetFrom)
 
 import Genetic.Allele
 import Genetic.Mutation
@@ -53,7 +54,7 @@ agentConf = defaultAgent { episodes = teamEpisodes }
 -- | Genetic algorithms parameters
 --
 generations :: Int
-generations    = 300 -- how many times does the GA loop (Simulation -> Selection -> Crossover -> Mutation)
+generations    = 1  -- how many times does the GA loop (Simulation -> Selection -> Crossover -> Mutation)
 
 popSize :: Int
 popSize        = 5  -- population size (for offense as well as defense teams)
@@ -64,11 +65,14 @@ teamEpisodes   = 10000  -- amount of trials for every team
 alpha :: Double
 alpha = 0.25   -- % of best individuals will be selected - [0.0, 0.5] (if its >= 0.5 then we won't have any inherently new individuals)
 
-beta  :: Double
-beta  = 0.10   -- % of individuals that will be mutated  - [0.0, 1.0]
+coefficients :: Int
+coefficients = 20  -- # of coefficients for every agent
 
-phi :: Double
-phi = 3        -- (-phi, +phi) sample space for coefficients
+mean :: Double
+mean = 0         -- the (-mean, +mean) for the initial sampling
+
+std :: Double
+std = 1.5          -- the (-std, +std) for the initial sampling
 
 -- | Path to save all the intermediate results so we can easily start from the last population
 --   if the simulation "broke"
@@ -86,18 +90,22 @@ main = do
 --  start with a seed
     let g0 = mkStdGen 31415926
         g1 = mkStdGen 27182818
+        g2 = mkStdGen 16180339
 
-        defPopulation :: [DefenseTeam]
-        defPopulation = flip evalRand g0 $ genIndividuals 0       phi
+--        distributionSet :: DistributionSet
+--        distributionSet = flip evalRand g0 $ createDistributionSet mean std coefficients
+--
+--        defPopulation :: [DefenseTeam]
+--        defPopulation = flip evalRand g0 $ genIndividuals 0       distributionSet
+--
+--        offPopulation :: [OffenseTeam]
+--        offPopulation = flip evalRand g2 $ genIndividuals popSize distributionSet
 
-        offPopulation :: [OffenseTeam]
-        offPopulation = flip evalRand g1 $ genIndividuals popSize phi
-
---    (defPopulation, offPopulation) <- readPopulationFrom (intermediateResultsPath 156)
+    (defPopulation, offPopulation) <- readPopulationFrom (intermediateResultsPath 15)
 
     runGA defPopulation offPopulation generations
--}
 
+-}
 --   single evaluation has to be compiled to work...(just c++ server things)
     
     (_, off) <- getDataFromTo 1 300
@@ -107,6 +115,8 @@ main = do
     startSimulation ([], players) >>= uncurry writePopulation
 
     print "Haskell: Done with all simulations!"
+
+-- -}
 
 
 -- | Main loop for the genetic algorithm
@@ -122,29 +132,17 @@ runGA defense offense gen = do
     writePrettyPopulationTo savePath defenseTeams offenseTeams
 
  -- Selection of alpha % best individuals
-    let defSelected = select alpha defenseTeams :: [DefenseTeam]
-        offSelected = select alpha offenseTeams :: [OffenseTeam]
+    let offSelected = select alpha offenseTeams :: [OffenseTeam]
 
---  Crossover of every selected defense and offense among each other (size is equivalent to the parentlist)
-    defChildren <- crossover defSelected :: IO [DefenseTeam]
-    offChildren <- crossover offSelected :: IO [OffenseTeam]
+--  Calculate new normal distributions from the best players
 
---  Mutation of beta % children
-    defMutated  <- mutate beta phi defChildren :: IO [DefenseTeam]
-    offMutated  <- mutate beta phi offChildren :: IO [OffenseTeam]
+    let offensePlayers = map op1 offSelected :: [Offense]
+        newDistSet  = createDistributionSetFrom (getMeanAndStd offensePlayers)
 
---  Replace children with least fit individuals (starting from last element/least fit individual of the list)
-    let defSorted = sortByDescFitness defenseTeams :: [DefenseTeam]
-        offSorted = sortByDescFitness offenseTeams :: [OffenseTeam]
+--  Create new individuals with the new 
+    offRepopulated <- repopulate popSize offSelected newDistSet
 
-        defMerged = merge defSorted defMutated :: [DefenseTeam]
-        offMerged = merge offSorted offMutated :: [OffenseTeam]
-
---  CoSyNE Permutation
-    defPermuted <- permute defMerged :: IO [DefenseTeam]
-    offPermuted <- permute offMerged :: IO [OffenseTeam]
-
-    runGA defPermuted offPermuted (gen - 1)
+    runGA defense offRepopulated (gen - 1)
 
 
 -- | Main entry point for simulation

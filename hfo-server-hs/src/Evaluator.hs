@@ -38,7 +38,8 @@ import Genetic.Selection
 
 resultsFile n = concat [ "/home/rewrite/Documents/Project-Repos/hfo-genetic-server/results/"
                        , "goal-fitness/"
-                       , "cosyne-25-trails/"
+                       , "1v1/"
+                       , "cross-entropy-25-trails/"
                        , "json-data/"
                        , "results" ++ show n ++ ".json"
                        ]
@@ -70,7 +71,7 @@ testServerConf = defaultServer { untouchedTime    = 50
                                , defenseAgents    = 0
                                , offenseNpcs      = 0
                                , defenseNpcs      = 1
---                               , standartPace     = True
+                               , standartPace     = True
                                , giveBallToPlayer = 1 -- gives the ball to the first player...with the number 7
                                }
 
@@ -78,7 +79,7 @@ testServerConf = defaultServer { untouchedTime    = 50
 testAgentConf :: AgentConf
 testAgentConf = defaultAgent { episodes = testGamesCount }
 
-testGamesCount = 5
+testGamesCount = 10
 
 startSingleSimulation :: OffenseTeam -> IO OffenseTeam
 startSingleSimulation offense = do
@@ -88,9 +89,9 @@ startSingleSimulation offense = do
 --  reset the previous states
     let newOffense = offense { offFitness = ([],[]) }
 
-    defense <- genIndividual 3 :: IO DefenseTeam 
+--    defense <- genIndividual 3 :: IO DefenseTeam 
 
-    writePopulation [defense] [newOffense]
+    writePopulation [] [newOffense]
 
 --  Start the server
     runServer_ testServerConf
@@ -105,7 +106,7 @@ startSingleSimulation offense = do
     waitForProcesses offphs
 --    waitForProcesses (offphs ++ defphs)
 
-    uncurry (\[x] [y] -> y) <$> readPopulation
+    uncurry (\_ [y] -> y) <$> readPopulation
 
 
 evaluate :: [[OffenseTeam]] -> IO ()
