@@ -92,3 +92,4 @@ zipWith5M f ma mb mc md me = go <$> ma <*> mb <*> mc <*> md <*> me
         go _  _  _  _  [] = []
         go (a:as) (b:bs) (c:cs) (d:ds) (e:es) = f a b c d e : go as bs cs ds es
 
+
