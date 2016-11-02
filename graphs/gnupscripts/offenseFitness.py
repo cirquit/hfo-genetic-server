@@ -10,26 +10,28 @@ with open(filename) as f:
 
 data = data.split("\n")
 
-# drop empty row
-data = data[1:-1]
+# drop empty row and add zero start step
+data = ["0.0 0.0"] + data[0:-1]
 
 num_lines = sum (1 for line in data)
 
 x  = range(0,num_lines)
-y1 = [row.split(" ")[0] for row in data]
-y2 = [row.split(" ")[1] for row in data]
+y1 = [float(row.split(" ")[0])/100.0 for row in data]
+y2 = [float(row.split(" ")[1])/100.0 for row in data]
 
-fig = plt.figure(figsize=(18,12))
+fig = plt.figure(figsize=(8,5))
 
 ax1 = fig.add_subplot(111)
 
-ax1.set_title("Best-Mean-Fitness of Cross Entropy selection:25%, mean:0, std:1.5, trails: 25, only goal fitness")
+ax1.set_title("Best and mean winrate of the Cross Entropy encoding")
 ax1.set_xlabel("Generations")
-ax1.set_ylabel("Fitness")
+ax1.set_ylabel("Winrate in %")
+ax1.set_ylim([0,50])
+ax1.set_xlim([0,300])
 
-ax1.plot(x,y1, label="best individual")
-ax1.plot(x,y2, label="mean of all individuals")
+plty1, = ax1.plot(x,y1, color="#ca7221") #, label="best individual")
+plty2, = ax1.plot(x,y2, color="#003869") #, label="mean of all individuals")
 
-ax1.legend(loc='upper left')
+ax1.legend((plty1, plty2), ("best individual", "mean of individuals"), loc="upper left", fontsize=10) # , bbox_to_anchor=(0.2, 1))
 
-fig.savefig("current/best-mean-fitness-offense.png")
+fig.savefig("current/normalized-fitness.png")
