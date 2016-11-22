@@ -27,7 +27,7 @@ ax1.set_title("Best and mean winrate of the action distribution encoding")
 ax1.set_xlabel("Generations")
 ax1.set_ylabel("Winrate in %")
 ax1.set_ylim([0,50])
-ax1.set_xlim([0,100])
+ax1.set_xlim([0,300])
 
 plty1, = ax1.plot(x,y1, color="#ca7221") #, label="best individual")
 plty2, = ax1.plot(x,y2, color="#003869") #, label="mean of all individuals")

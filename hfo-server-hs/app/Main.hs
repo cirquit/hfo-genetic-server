@@ -50,7 +50,7 @@ agentConf = defaultAgent { episodes = teamEpisodes }
 -- | Genetic algorithms parameters
 --
 generations :: Int
-generations    = 300  -- how many times does the GA loop (Simulation -> Selection -> Crossover -> Mutation)
+generations    = 1  -- how many times does the GA loop (Simulation -> Selection -> Crossover -> Mutation)
 
 popSize :: Int
 popSize        = 5  -- population size (for offense as well as defense teams)
@@ -82,30 +82,28 @@ intermediateResultsPath x = "/home/rewrite/Documents/Project-Repos/hfo-genetic-s
 main :: IO ()
 main = do
 
-{-
 --  start with a seed
     let g  = mkStdGen 31415926
 
 --        defPopulation :: [DefenseTeam]
 --        defPopulation = flip evalRand g $ genIndividuals 0 -- popSize
---
+
 --        offPopulation :: [OffenseTeam]
 --        offPopulation = flip evalRand g $ genIndividuals popSize
 
-    (defPopulation, offPopulation) <- readPopulationFrom (intermediateResultsPath 10)
+--    (defPopulation, offPopulation) <- readPopulationFrom (intermediateResultsPath 210)
 
-    runGA defPopulation offPopulation generations
--}
+--    runGA defPopulation offPopulation generations
+
 --   single evaluation has to be compiled to work...(just c++ server things)
     
-    (_, off) <- getDataFromTo 1 100
+    (_, off) <- getDataFromTo 1 300
     let best = getBestNPlayers off 5 :: [(OffenseTeam, Int)]
         players = map ((\x -> x { offFitness = ([], []) }) .fst . (best !!)) [0..4]
 
     startSimulation ([], players) >>= uncurry writePopulation
 
     print "Haskell: Done with all simulations!"
-
 
 -- | Main loop for the genetic algorithm
 --
